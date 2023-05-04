@@ -204,7 +204,7 @@ public class Kaloria_wallet_web3j extends iniciales {
                 filas fila;
                 fila = new filas();
                 fila.pos = "0";
-                fila.direccion_cripto = "0xEcC40334579E21aa58108F99586aFfA03d477f4F";
+                fila.direccion_cripto = "0xb5431a7D2Abbb4C2190D607d19Dce250D808957a";
                 fila.gas_aceptable_por_transaccion = "150000";
                 o.add(fila);
             } catch (Exception e) {
@@ -1083,7 +1083,7 @@ public class Kaloria_wallet_web3j extends iniciales {
               + ", " + fila.simbolo
               + ", " + fila.transaccion_hash
               + ", " + fila.gas_usado.toString()
-              + ", " + fila.precio_gas.toString();
+              + ", " + fila.precio_gas;
         } catch (Exception e) {
             ok.setTxt(e);
         }
@@ -1166,7 +1166,7 @@ public class Kaloria_wallet_web3j extends iniciales {
         return retorno;
     }
     /**
-     * Crea y procesa el formulario de quitar de criptomoneda
+     * Crea y procesa el formulario para la aceptación del gas necesario para el envío.
      * @param cantidad_gas Importe de gas por el que preguntar
      * @param precio_gas
      * @param ok

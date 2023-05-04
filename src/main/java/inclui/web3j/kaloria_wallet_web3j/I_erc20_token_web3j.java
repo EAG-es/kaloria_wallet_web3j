@@ -1,6 +1,5 @@
 package inclui.web3j.kaloria_wallet_web3j;
 
-import static inclui.web3j.web3js.k_tiempo_maximo_esperando_milisegundos;
 import innui.modelos.errores.oks;
 import innui.web3j.generated.contracts.I_erc20;
 import java.math.BigInteger;
