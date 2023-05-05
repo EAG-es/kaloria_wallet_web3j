@@ -11,7 +11,7 @@ import org.web3j.protocol.core.methods.response.TransactionReceipt;
  *
  * @author emilio
  */
-public abstract class Erc20_web3j extends bases {
+public abstract class I_erc20_padre_web3j extends bases {
     public web3js web3j;
     public I_erc20 i_erc20;
     public String nombre;

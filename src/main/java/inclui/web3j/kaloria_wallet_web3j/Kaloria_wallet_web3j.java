@@ -84,9 +84,9 @@ public class Kaloria_wallet_web3j extends iniciales {
     public Integer blockchain_pos;
     public String web3_direccion_contrato_kaloria;
     public List<String> criptos_lista;
-    public List<Erc20_web3j> criptos_i_erc20_lista;
+    public List<I_erc20_padre_web3j> criptos_i_erc20_lista;
     public web3js web3j = new web3js();
-    public I_erc20_token_web3j kaloria_i_erc20_web3j;
+    public I_erc20_web3j kaloria_i_erc20_web3j;
     public Blockchain_coin_web3j blockchain_coin_web3j;
     public LinkedList<LinkedHashMap<String, Object>> wallet_lista = new LinkedList<>();
     public control_tablas wallet_control_tabla = new control_tablas();
@@ -204,7 +204,7 @@ public class Kaloria_wallet_web3j extends iniciales {
                 filas fila;
                 fila = new filas();
                 fila.pos = "0";
-                fila.direccion_cripto = "0xb5431a7D2Abbb4C2190D607d19Dce250D808957a";
+                fila.direccion_cripto = "0xB234EB005DF19A75A86DD421c5A394ceFC59f14c";
                 fila.gas_aceptable_por_transaccion = "150000";
                 o.add(fila);
             } catch (Exception e) {
@@ -448,12 +448,6 @@ public class Kaloria_wallet_web3j extends iniciales {
             if (texto.isBlank() == false) {
                 web3_direcciones_criptos_datos_lista = objectMapper.readValue(texto
                   , web3_direcciones_criptos_datos_listas.class);
-                if (web3_direcciones_criptos_datos_lista != null
-                  && blockchain_pos < web3_direcciones_criptos_datos_lista.o.size()) {
-                    criptos_lista = web3_direcciones_criptos_datos_lista.o.get(blockchain_pos).criptos_lista;
-                } else {
-                    criptos_lista = null;
-                }
             } else {
                 web3_direcciones_criptos_datos_lista = new web3_direcciones_criptos_datos_listas();
                 web3_direcciones_criptos_datos_lista.iniciar(ok, extras_array);
@@ -463,16 +457,16 @@ public class Kaloria_wallet_web3j extends iniciales {
                 terminar(ok);
                 if (ok.es == false) { return false; }
             }
+            if (web3_direcciones_criptos_datos_lista != null
+              && blockchain_pos < web3_direcciones_criptos_datos_lista.o.size()) {
+                criptos_lista = web3_direcciones_criptos_datos_lista.o.get(blockchain_pos).criptos_lista;
+            } else {
+                criptos_lista = null;
+            }
             texto = properties.getProperty(k_web3_direcciones_kaloria_datos_lista);
             if (texto.isBlank() == false) {
                 web3_direcciones_kaloria_datos_lista = objectMapper.readValue(texto
                   , web3_direcciones_kaloria_datos_listas.class);
-                if (web3_direcciones_kaloria_datos_lista != null
-                  && blockchain_pos < web3_direcciones_kaloria_datos_lista.o.size()) {
-                    web3_direccion_contrato_kaloria = web3_direcciones_kaloria_datos_lista.o.get(blockchain_pos).direccion_cripto;
-                } else {
-                    web3_direccion_contrato_kaloria = null;
-                }
             } else {
                 web3_direcciones_kaloria_datos_lista = new web3_direcciones_kaloria_datos_listas();
                 web3_direcciones_kaloria_datos_lista.iniciar(ok, extras_array);
@@ -481,6 +475,12 @@ public class Kaloria_wallet_web3j extends iniciales {
                 properties.setProperty(k_web3_direcciones_kaloria_datos_lista, texto);
                 terminar(ok);
                 if (ok.es == false) { return false; }
+            }
+            if (web3_direcciones_kaloria_datos_lista != null
+              && blockchain_pos < web3_direcciones_kaloria_datos_lista.o.size()) {
+                web3_direccion_contrato_kaloria = web3_direcciones_kaloria_datos_lista.o.get(blockchain_pos).direccion_cripto;
+            } else {
+                web3_direccion_contrato_kaloria = null;
             }
             if (web3j.web3_archivo_EAO.isBlank()) {
                 String contraseña = procesar_formulario_para_crear_wallet(ok);
@@ -637,7 +637,7 @@ public class Kaloria_wallet_web3j extends iniciales {
         in = ResourceBundles.getBundle(k_in_ruta);
         try {
             escribir_linea(tr.in(in, "Cargando datos de conexión con el contrato... Espera por favor (puede llevar bastante tiempo). "), ok, extra_array);
-            I_erc20_token_web3j i_erc20_web3j;
+            I_erc20_web3j i_erc20_web3j;
             oks ok_ignorado = new oks();
             String error_tex = "";
             criptos_i_erc20_lista = new ArrayList<>();
@@ -648,14 +648,14 @@ public class Kaloria_wallet_web3j extends iniciales {
             blockchain_coin_web3j.decimales = web3j.web3_endpoint_https_decimales;
             criptos_i_erc20_lista.add(blockchain_coin_web3j);
             if (web3_direccion_contrato_kaloria != null) {
-                kaloria_i_erc20_web3j = new I_erc20_token_web3j();
+                kaloria_i_erc20_web3j = new I_erc20_web3j();
                 kaloria_i_erc20_web3j.web3j = new web3js(web3j);
                 kaloria_i_erc20_web3j.cargar_contrato(web3_direccion_contrato_kaloria, ok, extra_array);
                 criptos_i_erc20_lista.add(kaloria_i_erc20_web3j);
             }
             if (criptos_lista != null) {
                 for(String contrato: criptos_lista) {
-                    i_erc20_web3j = new I_erc20_token_web3j();
+                    i_erc20_web3j = new I_erc20_web3j();
                     i_erc20_web3j.web3j = new web3js(web3j);
                     i_erc20_web3j.cargar_contrato(contrato, ok_ignorado, extra_array);
                     if (ok_ignorado.es == false) {
@@ -694,7 +694,7 @@ public class Kaloria_wallet_web3j extends iniciales {
             StringBuilder stringBuilder = new StringBuilder();
             wallet_lista.clear();
             LinkedHashMap<String, Object> fila = new LinkedHashMap<>();
-            for(Erc20_web3j i_erc20_web3j : criptos_i_erc20_lista) {
+            for(I_erc20_padre_web3j i_erc20_web3j : criptos_i_erc20_lista) {
                 fila = new LinkedHashMap<>();
                 if (i_erc20_web3j.getWeb3j() == null) {
                     fila.put(k_simbolo, i_erc20_web3j.getSimbolo());
@@ -1121,7 +1121,7 @@ public class Kaloria_wallet_web3j extends iniciales {
             if (clui_formulario.ser_cancelar(ok) == false) {
                 String direccion = enviar_direccion_control_entrada.valor.toString();
                 Double doble = (Double) enviar_cantidad_control_entrada.valor;
-                Erc20_web3j i_erc20_web3j = criptos_i_erc20_lista.get(pos);
+                I_erc20_padre_web3j i_erc20_web3j = criptos_i_erc20_lista.get(pos);
                 Integer decimales = i_erc20_web3j.getDecimales();
                 int i = 0;
                 while (true) {

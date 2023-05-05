@@ -20,7 +20,7 @@ import org.web3j.utils.Convert;
  *
  * @author emilio
  */
-public class Blockchain_coin_web3j extends Erc20_web3j {
+public class Blockchain_coin_web3j extends I_erc20_padre_web3j {
     public static String k_in_ruta = "in/inclui/web3j/kaloria_wallet_web3j/in";  //NOI18N
     /**
      * Obtener el símbolo
