@@ -1,6 +1,5 @@
-package inclui.web3j.kaloria_wallet_web3j;
+package inclui.web3j;
 
-import inclui.web3j.web3js;
 import innui.bases;
 import innui.modelos.errores.oks;
 import innui.web3j.generated.contracts.I_erc20;
@@ -11,7 +10,7 @@ import org.web3j.protocol.core.methods.response.TransactionReceipt;
  *
  * @author emilio
  */
-public abstract class I_erc20_padre_web3j extends bases {
+public abstract class Erc20_web3j extends bases {
     public web3js web3j;
     public I_erc20 i_erc20;
     public String nombre;
@@ -81,6 +80,18 @@ public abstract class I_erc20_padre_web3j extends bases {
      */
     public String poner_decimales_a_numero(BigInteger numero, oks ok, Object ... extras_array) throws Exception {
         return web3js.poner_decimales_a_numero(numero, decimales, ok, extras_array);
+    }
+    /**
+     * Avanza el separador decimal multiplicando por 10
+     * @param numero
+     * @param decimales_num
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public BigInteger avanzar_separador_decimal(Double numero, Integer decimales_num, oks ok, Object ... extras_array) throws Exception {
+        return web3js.avanzar_separador_decimal(numero, decimales_num, ok, extras_array);
     }
     
     public web3js getWeb3j() {
