@@ -1,5 +1,7 @@
 package inclui.web3j.kaloria_wallet_web3j;
 
+import inclui.web3j.Erc20_web3j;
+import static inclui.web3j.web3js.k_tiempo_maximo_esperando_milisegundos;
 import innui.modelos.errores.oks;
 import innui.web3j.generated.contracts.I_erc20;
 import java.math.BigInteger;
@@ -13,7 +15,7 @@ import org.web3j.protocol.core.methods.response.TransactionReceipt;
  *
  * @author emilio
  */
-public class I_erc20_web3j extends I_erc20_padre_web3j {
+public class I_erc20_web3j extends Erc20_web3j {
     public static String k_in_ruta = "in/inclui/web3j/kaloria_wallet_web3j/in";  //NOI18N
     
     /**
@@ -30,6 +32,7 @@ public class I_erc20_web3j extends I_erc20_padre_web3j {
             i_erc20 = I_erc20.load(web3_direccion_contrato, web3j.web3j, web3j.transactionManager, web3j.defaultGasProvider);
             if (ok.es == false) { return false; }
             web3j.web3_direccion_contrato = web3_direccion_contrato;
+            leer_decimales(ok, extras_array);
         } catch (Exception e) {
             ok.setTxt(e); 
         }
@@ -155,6 +158,13 @@ public class I_erc20_web3j extends I_erc20_padre_web3j {
             TransactionReceipt transactionReceipt 
                = web3j.firmar_y_llamar_funcion_con_gas(i_erc20.transfer(direccion, cantidad), gas_aceptable, null, ok, extras_array);
             if (ok.es == false) { return null; }
+            transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
+                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
+            if (web3j.ser_recibo_vacio(transactionReceipt, ok) == false) {
+                if (ok.es == false) { return null; }
+                web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
+            }
+            if (ok.es == false) { return null; }
             web3j.poner_ultimo_precio_gas(transactionReceipt, ok);
             if (ok.es == false) { return null; }
             retorno = transactionReceipt;
@@ -175,6 +185,101 @@ public class I_erc20_web3j extends I_erc20_padre_web3j {
     @Override
     public BigInteger estimar_gas_enviar(String direccion, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
         RemoteFunctionCall<TransactionReceipt> remoteFunctionCall = i_erc20.transfer(direccion, cantidad);
+        String encodedFunction = remoteFunctionCall.encodeFunctionCall();
+        return web3j.estimar_gas(encodedFunction, ok, extras_array);
+    }
+    /**
+     * Aprobar una transferencia de gasto, el envío de una cantidad de una dirección a otra
+     * @param gas_aceptable
+     * @param direccion
+     * @param cantidad
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public TransactionReceipt aprobar(BigInteger gas_aceptable, String direccion, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        TransactionReceipt retorno = null;
+        try {
+            TransactionReceipt transactionReceipt 
+               = web3j.firmar_y_llamar_funcion_con_gas(i_erc20.approve(direccion, cantidad), gas_aceptable, null, ok, extras_array);
+            if (ok.es == false) { return null; }
+            transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
+                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
+            if (web3j.ser_recibo_vacio(transactionReceipt, ok) == false) {
+                if (ok.es == false) { return null; }
+                web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
+            }
+            if (ok.es == false) { return null; }
+            web3j.poner_ultimo_precio_gas(transactionReceipt, ok);
+            if (ok.es == false) { return null; }
+            retorno = transactionReceipt;
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return retorno;
+    }
+    /**
+     * Estima el gas necesario para aprovar una transferencia de gasto, el envío de una cantidad de una dirección a otra
+     * @param direccion
+     * @param cantidad
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public BigInteger estimar_gas_aprobar(String direccion, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        RemoteFunctionCall<TransactionReceipt> remoteFunctionCall = i_erc20.approve(direccion, cantidad);
+        String encodedFunction = remoteFunctionCall.encodeFunctionCall();
+        return web3j.estimar_gas(encodedFunction, ok, extras_array);
+    }
+    /**
+     * Transferir de una cantidad de una dirección a otra
+     * @param gas_aceptable
+     * @param direccion_origen
+     * @param direccion_destino
+     * @param cantidad
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public TransactionReceipt transferir(BigInteger gas_aceptable, String direccion_origen, String direccion_destino
+            , BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        TransactionReceipt retorno = null;
+        try {
+            TransactionReceipt transactionReceipt 
+               = web3j.firmar_y_llamar_funcion_con_gas(i_erc20.transferFrom(direccion_origen, direccion_destino, cantidad), gas_aceptable, null, ok, extras_array);
+            if (ok.es == false) { return null; }
+            transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
+                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
+            if (web3j.ser_recibo_vacio(transactionReceipt, ok) == false) {
+                if (ok.es == false) { return null; }
+                web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
+            }
+            if (ok.es == false) { return null; }
+            web3j.poner_ultimo_precio_gas(transactionReceipt, ok);
+            if (ok.es == false) { return null; }
+            retorno = transactionReceipt;
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return retorno;
+    }
+    /**
+     * Estima el gas necesario para aprovar el gasto, el envío de una cantidad de una dirección a otra
+     * @param direccion_origen
+     * @param direccion_destino
+     * @param cantidad
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public BigInteger estimar_gas_transferir(String direccion_origen, String direccion_destino
+            , BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        RemoteFunctionCall<TransactionReceipt> remoteFunctionCall = i_erc20.transferFrom(direccion_origen
+                , direccion_destino, cantidad);
         String encodedFunction = remoteFunctionCall.encodeFunctionCall();
         return web3j.estimar_gas(encodedFunction, ok, extras_array);
     }

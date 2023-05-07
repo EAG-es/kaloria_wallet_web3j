@@ -6,10 +6,11 @@ import innui.modelos.configuraciones.ResourceBundles;
 import innui.modelos.configuraciones.Resources;
 import innui.modelos.errores.oks;
 import innui.modelos.internacionalizacion.tr;
+import innui.utiles.bigdecimals.BigDecimals;
 import java.io.File;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
-import java.text.NumberFormat;
 import java.util.Date;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -84,25 +85,53 @@ public class web3js extends bases {
         gasLimit = origen.gasLimit;
         ultimo_precio_gas_gwei = origen.ultimo_precio_gas_gwei;
     }
-    
-    public boolean iniciar(String wallet_dir, oks ok, Object ... extras_array) throws Exception {
+    /**
+     * Realiza las operaciones de inicio de la clase
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public boolean iniciar(oks ok, Object ... extras_array) throws Exception {
         try {
             if (ok.es == false) { return false; }
             ResourceBundle in;
             File file;
             in = ResourceBundles.getBundle(k_in_ruta);
-            web3j = Web3j.build(new HttpService(web3_endpoint_https));
-            file = new File(wallet_dir, web3_archivo_EAO);
+            file = new File(web3_archivo_EAO);
             String web3_archivo = file.getPath();
-            URL url = Resources.getResource(this.getClass(), web3_archivo, ok, extras_array);
-            if (ok.es == false) {
-                ok.setTxt(tr.in(in, "No se ha encontrado el archivo de credenciales de la wallet web3. Puede crear uno a partir de las claves privadas con el jar: wallet_a_file_web3j. "));
-                return false;
+            if (file.exists() == false) {
+                URL url = Resources.getResource(this.getClass(), web3_archivo, ok, extras_array);
+                if (ok.es == false) {
+                    ok.setTxt(tr.in(in, "No se ha encontrado el archivo de credenciales de la wallet web3. Puede crear uno a partir de las claves privadas con el jar: wallet_a_file_web3j. "));
+                    return false;
+                } else {
+                    file = new File(url.toURI());
+                }
             }
-            file = new File(url.toURI());
-            escribir_linea(tr.in(in, "Cargando credenciales... Espera por favor (puede llevar bastante tiempo). "), ok, extras_array);
+            return iniciar(file, ok, extras_array);
+        } catch (Exception e) {
+            ok.setTxt(e);            
+        }
+        return ok.es;
+    }
+    /**
+     * Realiza las operaciones de inicio de la clase
+     * @param wallet_file
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public boolean iniciar(File wallet_file, oks ok, Object ... extras_array) throws Exception {
+        try {
             if (ok.es == false) { return false; }
-            credentials = WalletUtils.loadCredentials(web3_clave_EAO, file);
+            ResourceBundle in;
+            in = ResourceBundles.getBundle(k_in_ruta);
+            escribir_linea(tr.in(in, "Cargando credenciales... Espere por favor (puede llevar bastante tiempo). "), ok, extras_array);
+            if (ok.es == false) { return false; }
+            web3j = Web3j.build(new HttpService(web3_endpoint_https));
+            credentials = WalletUtils.loadCredentials(web3_clave_EAO, wallet_file);
             escribir_linea(tr.in(in, "Credenciales cargadas. "), ok, extras_array);
             if (ok.es == false) { return false; }
             String blockchain_id = web3j.netVersion().send().getNetVersion();
@@ -461,29 +490,59 @@ public class web3js extends bases {
         }
         return transactionReceipt;
     }
-
+    /**
+     * Pone decimales a un número
+     * @param numero
+     * @param decimales_num
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
     public static String poner_decimales_a_numero(BigInteger numero, Integer decimales_num, oks ok, Object ... extras_array) throws Exception {
         String retorno = null;
         try {
             if (ok.es == false) { return null; }
-            String numero_tex = numero.toString();
-            String separador_decimal = NumberFormat.getNumberInstance().format(1.1);
-            separador_decimal = separador_decimal.replace("1", "");
-            int tam = numero_tex.length();
-            if (decimales_num >= tam) {
-                while (true) {
-                    if (tam > decimales_num) {
-                        break;
-                    }
-                    numero_tex = "0" + numero_tex;
-                    tam = tam + 1;
+            BigDecimal bigDecimal = new BigDecimal(numero);
+            int i = 0;
+            while (true) {
+                if (i >= decimales_num) {
+                    break;
                 }
+                bigDecimal = BigDecimals.divide_0(bigDecimal, BigDecimal.valueOf(10L), ok, extras_array);
+                if (ok.es == false) { return null; }
+                i = i + 1;
             }
-            int resto = tam - decimales_num;
-            retorno = numero_tex.substring(0, resto)
-              + separador_decimal
-              + numero_tex.substring(resto);
+            retorno = String.format("%,." + decimales_num + "f", bigDecimal);
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return retorno;
+    }
+    /**
+     * Avanza el separador decimal multiplicando por 10
+     * @param numero
+     * @param decimales_num
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public static BigInteger avanzar_separador_decimal(Double numero, Integer decimales_num, oks ok, Object ... extras_array) throws Exception {
+        BigInteger retorno = null;
+        try {
             if (ok.es == false) { return null; }
+            Double multiplicador = 1.0;
+            int i = 0;
+            while (true) {
+                if (i >= decimales_num) {
+                    break;
+                }
+                multiplicador = multiplicador * 10.0;
+                i = i + 1;
+            }
+            numero = numero * multiplicador;
+            retorno = BigInteger.valueOf(numero.longValue());
         } catch (Exception e) {
             ok.setTxt(e); 
         }
