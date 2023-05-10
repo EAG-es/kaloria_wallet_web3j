@@ -456,8 +456,6 @@ public class kalorias_operaciones extends bases {
             if (clui_formulario.ser_cancelar(ok) == false) {
                 if (ok.es == false) { return false; }
                 Double doble = (Double) para_regalo_control_entrada.valor;
-                BigDecimal bigDecimal = new BigDecimal(doble);
-                BigDecimal diez = BigDecimal.valueOf(10L);
                 Integer decimales = kaloria_i_erc20_web3j.leer_decimales(ok, extra_array);
                 BigInteger cantidad = kaloria_i_erc20_web3j.avanzar_separador_decimal(doble, decimales, ok, extra_array);
                 String direccion = web3_direccion_contrato_kaloria_faucet;

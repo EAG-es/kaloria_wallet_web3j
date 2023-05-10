@@ -2,7 +2,7 @@ package inclui.web3j;
 
 import innui.bases;
 import innui.modelos.errores.oks;
-import innui.web3j.generated.contracts.I_erc20;
+import innui.web3j.generated.contracts.I_erc20_bases;
 import java.math.BigInteger;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
@@ -10,9 +10,9 @@ import org.web3j.protocol.core.methods.response.TransactionReceipt;
  *
  * @author emilio
  */
-public abstract class Erc20_web3j extends bases {
+public abstract class Erc20_bases_web3j extends bases {
     public web3js web3j;
-    public I_erc20 i_erc20;
+    public I_erc20_bases i_erc20_base;
     public String nombre;
     public String simbolo;
     public Integer decimales;

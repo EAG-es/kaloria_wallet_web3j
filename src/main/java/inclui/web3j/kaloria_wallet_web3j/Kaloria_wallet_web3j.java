@@ -14,7 +14,7 @@ import static inclui.formularios.control_selecciones.k_control_selecciones_opcio
 import inclui.formularios.control_tablas;
 import static inclui.formularios.control_tablas.k_control_tablas_letras_por_linea_num;
 import static inclui.formularios.control_tablas.k_control_tablas_opciones_mapa_lista;
-import inclui.web3j.Erc20_web3j;
+import inclui.web3j.Erc20_bases_web3j;
 import inclui.web3j.kaloria_wallet_web3j.direcciones_emails_operaciones.web3_direcciones_emails_mapas_listas;
 import inclui.web3j.kaloria_wallet_web3j.kalorias_operaciones.web3_direcciones_kalorias_faucets_listas;
 import inclui.web3j.web3_transacciones_mapas;
@@ -59,6 +59,7 @@ public class Kaloria_wallet_web3j extends iniciales {
     public static String k_web3_archivo_EAO = "web3_archivo_EAO";
     public static String k_web3_clave_EAO = "web3_clave_EAO";
     public static String k_web3_direcciones_kaloria_lista = "web3_direcciones_kalorias_lista";
+    public static String k_web3_direcciones_kopias_lista = "web3_direcciones_kopias_lista";
     public static String k_web3_direcciones_criptos_lista = "web3_direcciones_criptos_lista";
     public static String k_web3_direcciones_kalorias_faucets_lista = "web3_direcciones_kalorias_faucets_lista";
     public static String k_web3_direcciones_emails_mapas_lista = "web3_direcciones_emails_mapas_lista";
@@ -79,6 +80,7 @@ public class Kaloria_wallet_web3j extends iniciales {
     public static String k_simbolo = "Símbolo";
     public static String k_ballance = "Balance";
     public static String k_contrato_no_valido = "contrato_no_valido";
+    public static final String k_actualizar = "actualizar";
     public static final String k_seleccionar = "selecionar";
     public static final String k_añadir = "añadir";
     public static final String k_aprobar_gasto = "aprobar_gasto";
@@ -91,14 +93,18 @@ public class Kaloria_wallet_web3j extends iniciales {
     public static final String k_cambiar_direccion_de_wallet="cambiar_direccion_de_wallet";
     public static final String k_crear_wallet="crear_wallet";
     public static final String k_quitar = "quitar";
+    public static final String k_envolver = "envolver";
+    public static final String k_desenvolver = "desenvolver";
     public String columnas_cabecera_tex;
     public Integer letras_por_linea;
     public Integer blockchain_pos;
     public String web3_direccion_contrato_kaloria;
+    public String web3_direccion_contrato_kopia;
     public List<String> criptos_lista;
-    public List<Erc20_web3j> criptos_i_erc20_lista;
+    public List<Erc20_bases_web3j> criptos_i_erc20_lista;
     public web3js web3j = new web3js();
     public I_erc20_web3j kaloria_i_erc20_web3j;
+    public I_erc20s_kopias_web3j blockchain_erc20s_kopia_web3j;
     public Blockchain_coin_web3j blockchain_coin_web3j;
     public LinkedList<LinkedHashMap<String, Object>> wallet_lista = new LinkedList<>();
     public control_tablas wallet_control_tabla = new control_tablas();
@@ -229,6 +235,7 @@ public class Kaloria_wallet_web3j extends iniciales {
     public web3_endpoint_https_datos_listas web3_endpoint_https_datos_lista; 
     public web3_direcciones_criptos_datos_listas web3_direcciones_criptos_datos_lista;
     public web3_direcciones_kalorias_listas web3_direcciones_kalorias_lista;
+    public web3_direcciones_kalorias_listas web3_direcciones_kopias_lista;
     public web3_transacciones_mapas web3_transacciones_mapa = new web3_transacciones_mapas();
     /**
      * Inicio de la aplicación
@@ -334,6 +341,9 @@ public class Kaloria_wallet_web3j extends iniciales {
                         String valor_tex = (String) wallet_control_seleccion.leer_seleccion(ok);
                         if (ok.es == false) { break; }
                         switch (valor_tex) {
+                        case k_actualizar -> {
+                            break;
+                        }
                         case k_seleccionar -> {
                             Integer seleccion = procesar_formulario_de_seleccion(ok);
                             if (ok.es == false) { break; }
@@ -353,6 +363,14 @@ public class Kaloria_wallet_web3j extends iniciales {
                             }
                             case k_quitar -> {
                                 procesar_formulario_de_quitar(seleccion, ok);
+                                if (ok.es == false) { break; }
+                            }
+                            case k_envolver -> {
+                                procesar_formulario_de_envolver(seleccion, ok);
+                                if (ok.es == false) { break; }
+                            }
+                            case k_desenvolver -> {
+                                procesar_formulario_de_desenvolver(seleccion, ok);
                                 if (ok.es == false) { break; }
                             }
                             default -> {
@@ -525,6 +543,17 @@ public class Kaloria_wallet_web3j extends iniciales {
                 web3_direccion_contrato_kaloria = web3_direcciones_kalorias_lista.o.get(blockchain_pos).direccion_cripto;
             } else {
                 web3_direccion_contrato_kaloria = null;
+            }
+            texto = properties.getProperty(k_web3_direcciones_kopias_lista);
+            if (texto.isBlank() == false) {
+                web3_direcciones_kopias_lista = objectMapper.readValue(texto
+                  , web3_direcciones_kalorias_listas.class);
+            }
+            if (web3_direcciones_kopias_lista != null
+              && blockchain_pos < web3_direcciones_kopias_lista.o.size()) {
+                web3_direccion_contrato_kopia = web3_direcciones_kopias_lista.o.get(blockchain_pos).direccion_cripto;
+            } else {
+                web3_direccion_contrato_kopia = null;
             }
             texto = properties.getProperty(k_web3_direcciones_kalorias_faucets_lista);
             if (texto.isBlank() == false) {
@@ -751,7 +780,7 @@ public class Kaloria_wallet_web3j extends iniciales {
         in = ResourceBundles.getBundle(k_in_ruta);
         try {
             escribir_linea(tr.in(in, "Cargando datos de conexión con el contrato... Espere por favor (puede llevar bastante tiempo). "), ok, extra_array);
-            I_erc20_web3j i_erc20_web3j;
+            I_erc20_bases_web3j i_erc20_web3j;
             oks ok_ignorado = new oks();
             String error_tex = "";
             criptos_i_erc20_lista = new ArrayList<>();
@@ -767,9 +796,15 @@ public class Kaloria_wallet_web3j extends iniciales {
                 kaloria_i_erc20_web3j.cargar_contrato(web3_direccion_contrato_kaloria, ok, extra_array);
                 criptos_i_erc20_lista.add(kaloria_i_erc20_web3j);
             }
+            if (web3_direccion_contrato_kopia != null) {
+                blockchain_erc20s_kopia_web3j = new I_erc20s_kopias_web3j();
+                blockchain_erc20s_kopia_web3j.web3j = new web3js(web3j);
+                blockchain_erc20s_kopia_web3j.cargar_contrato(web3_direccion_contrato_kopia, ok, extra_array);
+                criptos_i_erc20_lista.add(blockchain_erc20s_kopia_web3j);
+            }
             if (criptos_lista != null) {
                 for(String contrato: criptos_lista) {
-                    i_erc20_web3j = new I_erc20_web3j();
+                    i_erc20_web3j = new I_erc20_bases_web3j();
                     i_erc20_web3j.web3j = new web3js(web3j);
                     i_erc20_web3j.cargar_contrato(contrato, ok_ignorado, extra_array);
                     if (ok_ignorado.es == false) {
@@ -808,7 +843,7 @@ public class Kaloria_wallet_web3j extends iniciales {
             StringBuilder stringBuilder = new StringBuilder();
             wallet_lista.clear();
             LinkedHashMap<String, Object> fila;
-            for(Erc20_web3j i_erc20_web3j : criptos_i_erc20_lista) {
+            for(Erc20_bases_web3j i_erc20_web3j : criptos_i_erc20_lista) {
                 fila = new LinkedHashMap<>();
                 if (i_erc20_web3j.getWeb3j() == null) {
                     fila.put(k_simbolo, i_erc20_web3j.getSimbolo());
@@ -863,6 +898,7 @@ public class Kaloria_wallet_web3j extends iniciales {
             opciones_mapa.put(k_control_selecciones_opciones_mapa, new LinkedHashMap<String, Object>() {{
                 ResourceBundle in = null;
                 in = ResourceBundles.getBundle(k_in_ruta);
+                put(k_actualizar, tr.in(in,"Actualizar"));
                 put(k_seleccionar, tr.in(in,"Seleccionar"));
                 put(k_añadir, tr.in(in,"Añadir"));
                 put(k_aprobar_gasto, tr.in(in,"Aprobar gasto"));
@@ -1082,8 +1118,8 @@ public class Kaloria_wallet_web3j extends iniciales {
             if (clui_formulario.ser_cancelar(ok) == false) {
                 String texto = seleccion_control_entrada.valor.toString();
                 if (texto.equals("1")) {
-                    if (pos < 2) {
-                        escribir_linea_error(tr.in(in, "Las dos primeras criptomomedas no se pueden quitar. "), ok);
+                    if (pos < 3) {
+                        escribir_linea_error(tr.in(in, "Las primeras criptomomedas no se pueden quitar. "), ok);
                         if (ok.es == false) { return null; }
                     } else {
                         web3_direcciones_criptos_datos_lista.o.get(blockchain_pos).criptos_lista.remove(pos - 2);
@@ -1131,8 +1167,11 @@ public class Kaloria_wallet_web3j extends iniciales {
                 in = ResourceBundles.getBundle(k_in_ruta);
                 put(k_enviar, tr.in(in, "Enviar"));
                 put(k_transacciones, tr.in(in, "Ver transacciones"));
-                if (posicion >= 2) {
+                if (posicion >= 3) {
                     put(k_quitar, tr.in(in, "Quitar"));
+                } else if (posicion == 2) {
+                    put(k_envolver, tr.in(in, "Envolver blockchain-coin (para gastos)"));
+                    put(k_desenvolver, tr.in(in, "Desenvolver blockchain-coin"));                    
                 }
             }});
             opciones_mapa.put(k_control_selecciones_letras_por_linea_num, letras_por_linea);
@@ -1240,7 +1279,7 @@ public class Kaloria_wallet_web3j extends iniciales {
             if (clui_formulario.ser_cancelar(ok) == false) {
                 String direccion = enviar_direccion_control_entrada.valor.toString();
                 Double doble = (Double) enviar_cantidad_control_entrada.valor;
-                Erc20_web3j i_erc20_web3j = criptos_i_erc20_lista.get(pos);
+                Erc20_bases_web3j i_erc20_web3j = criptos_i_erc20_lista.get(pos);
                 Integer decimales = i_erc20_web3j.getDecimales();
                 BigInteger cantidad = i_erc20_web3j.avanzar_separador_decimal(doble, decimales, ok);
                 BigInteger gas_estimado = i_erc20_web3j.estimar_gas_enviar(direccion, cantidad, ok);
@@ -1618,7 +1657,7 @@ public class Kaloria_wallet_web3j extends iniciales {
                 if (ok.es == false) { return false; }
                 web3j.iniciar(ok, extra_array);
                 if (ok.es == false) { return false; }
-                escribir_linea(tr.in(in,"Operación terminada. "), ok);
+                escribir_linea(tr.in(in,"Operación realizada. "), ok);
                 if (ok.es == false) { return false; }
             }
             if (ok.es == false) { return false; }
@@ -1627,5 +1666,133 @@ public class Kaloria_wallet_web3j extends iniciales {
         }
         return ok.es;
     }    
+    /**
+     * Crea y procesa el formulario de envolver la criptomoneda de la blockchain
+     * @param pos Posición en wallet_lista que quitar
+     * @param ok
+     * @param extra_array
+     * @return
+     * @throws Exception 
+     */
+    public Integer procesar_formulario_de_envolver(Integer pos, oks ok, Object... extra_array) throws Exception {
+        if (ok.es == false) { return null; }
+        String k_envolver_entrada = "envolver_entrada";
+        Integer retorno = null;
+        ResourceBundle in;
+        in = ResourceBundles.getBundle(k_in_ruta);
+        try {
+            clui_formularios clui_formulario = new clui_formularios();
+            control_entradas cantidad_control_entrada = new control_entradas();
+            cantidad_control_entrada.iniciar(k_entradas_tipo_numero, ok);
+            if (ok.es == false) { return null; }
+            cantidad_control_entrada.poner_en_formulario(clui_formulario, k_envolver_entrada
+              , null, tr.in(in, "Introduzca la cantidad de <coin> que envolver (kopiar) a ko<coin>. "), null, ok);
+            if (ok.es == false) { return null; }
+            clui_formulario.procesar(ok);
+            if (ok.es == false) { return null; }
+            if (clui_formulario.ser_cancelar(ok) == false) {
+                if (ok.es == false) { return null; }
+                Double doble = (Double) cantidad_control_entrada.valor;
+                BigInteger cantidad = blockchain_coin_web3j.avanzar_separador_decimal(doble
+                  , blockchain_coin_web3j.getDecimales(), ok, extra_array);
+                if (ok.es == false) { return null; }
+                BigInteger gas_estimado = blockchain_erc20s_kopia_web3j.estimar_gas_envolver(cantidad, ok, extra_array);
+                if (ok.es == false) { return null; }
+                BigInteger precio_gas = blockchain_coin_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
+                if (_procesar_formulario_de_envio_aceptar_gas(gas_estimado, precio_gas, ok)) {
+                    if (ok.es == false) { return null; }
+                    escribir_linea(tr.in(in,"Operación en curso... Espere por favor. "), ok);
+                    TransactionReceipt transactionReceipt = blockchain_erc20s_kopia_web3j.envolver(gas_estimado, cantidad, ok);
+                    if (ok.es == false) { return null; }
+                    web3_transacciones_mapas.filas fila = new web3_transacciones_mapas.filas();
+                    fila.destino_direccion = blockchain_erc20s_kopia_web3j.web3j.credentials.getAddress();
+                    fila.cantidad = blockchain_coin_web3j.poner_decimales_a_numero(cantidad, ok, extra_array);
+                    fila.simbolo = blockchain_coin_web3j.getSimbolo();
+                    fila.transaccion_hash = transactionReceipt.getTransactionHash();
+                    fila.gas_usado = transactionReceipt.getGasUsed();
+                    BigInteger bigInteger = blockchain_coin_web3j.web3j.estimar_coste_gas(fila.gas_usado, ok);
+                    if (ok.es == false) { return null; }
+                    fila.precio_gas = blockchain_coin_web3j.poner_decimales_a_numero(bigInteger, ok);
+                    if (ok.es == false) { return null; }
+                    Long milisegundos = Instant.now().toEpochMilli();
+                    web3_transacciones_mapa.o.put(milisegundos, fila);
+                    String texto = formar_mensaje_transaccion(milisegundos, fila, ok);
+                    if (ok.es == false) { return null; }
+                    escribir_linea(tr.in(in, "Operación realizada. "), ok, extra_array);
+                    if (ok.es == false) { return null; }
+                    escribir_linea(texto, ok, extra_array);
+                    if (ok.es == false) { return null; }
+                }
+            }
+            if (ok.es == false) { return null; }
+        } catch (Exception e) {
+            ok.setTxt(e);
+        }
+        return retorno;
+    }
+    /**
+     * Crea y procesa el formulario de envolver la criptomoneda de la blockchain
+     * @param pos Posición en wallet_lista que quitar
+     * @param ok
+     * @param extra_array
+     * @return
+     * @throws Exception 
+     */
+    public Integer procesar_formulario_de_desenvolver(Integer pos, oks ok, Object... extra_array) throws Exception {
+        if (ok.es == false) { return null; }
+        String k_envolver_entrada = "envolver_entrada";
+        Integer retorno = null;
+        ResourceBundle in;
+        in = ResourceBundles.getBundle(k_in_ruta);
+        try {
+            clui_formularios clui_formulario = new clui_formularios();
+            control_entradas cantidad_control_entrada = new control_entradas();
+            cantidad_control_entrada.iniciar(k_entradas_tipo_numero, ok);
+            if (ok.es == false) { return null; }
+            cantidad_control_entrada.poner_en_formulario(clui_formulario, k_envolver_entrada
+              , null, tr.in(in, "Introduzca la cantidad de ko<coin> que desenvolver (liberar original) a <coin>. "), null, ok);
+            if (ok.es == false) { return null; }
+            clui_formulario.procesar(ok);
+            if (ok.es == false) { return null; }
+            if (clui_formulario.ser_cancelar(ok) == false) {
+                if (ok.es == false) { return null; }
+                Double doble = (Double) cantidad_control_entrada.valor;
+                BigInteger cantidad = blockchain_erc20s_kopia_web3j.avanzar_separador_decimal(doble
+                  , blockchain_erc20s_kopia_web3j.getDecimales(), ok, extra_array);
+                if (ok.es == false) { return null; }
+                BigInteger gas_estimado = blockchain_erc20s_kopia_web3j.estimar_gas_desenvolver(cantidad, ok, extra_array);
+                if (ok.es == false) { return null; }
+                BigInteger precio_gas = blockchain_coin_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
+                if (_procesar_formulario_de_envio_aceptar_gas(gas_estimado, precio_gas, ok)) {
+                    if (ok.es == false) { return null; }
+                    escribir_linea(tr.in(in,"Operación en curso... Espere por favor. "), ok);
+                    TransactionReceipt transactionReceipt = blockchain_erc20s_kopia_web3j.desenvolver(gas_estimado, cantidad, ok);
+                    if (ok.es == false) { return null; }
+                    web3_transacciones_mapas.filas fila = new web3_transacciones_mapas.filas();
+                    fila.destino_direccion = blockchain_erc20s_kopia_web3j.web3j.credentials.getAddress();
+                    fila.cantidad = blockchain_erc20s_kopia_web3j.poner_decimales_a_numero(cantidad, ok, extra_array);
+                    fila.simbolo = blockchain_erc20s_kopia_web3j.getSimbolo();
+                    fila.transaccion_hash = transactionReceipt.getTransactionHash();
+                    fila.gas_usado = transactionReceipt.getGasUsed();
+                    BigInteger bigInteger = blockchain_coin_web3j.web3j.estimar_coste_gas(fila.gas_usado, ok);
+                    if (ok.es == false) { return null; }
+                    fila.precio_gas = blockchain_coin_web3j.poner_decimales_a_numero(bigInteger, ok);
+                    if (ok.es == false) { return null; }
+                    Long milisegundos = Instant.now().toEpochMilli();
+                    web3_transacciones_mapa.o.put(milisegundos, fila);
+                    String texto = formar_mensaje_transaccion(milisegundos, fila, ok);
+                    if (ok.es == false) { return null; }
+                    escribir_linea(tr.in(in, "Operación realizada. "), ok, extra_array);
+                    if (ok.es == false) { return null; }
+                    escribir_linea(texto, ok, extra_array);
+                    if (ok.es == false) { return null; }
+                }
+            }
+            if (ok.es == false) { return null; }
+        } catch (Exception e) {
+            ok.setTxt(e);
+        }
+        return retorno;
+    }
 
 }

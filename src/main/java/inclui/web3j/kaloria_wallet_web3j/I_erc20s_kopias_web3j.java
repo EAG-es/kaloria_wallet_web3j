@@ -2,7 +2,7 @@ package inclui.web3j.kaloria_wallet_web3j;
 
 import static inclui.web3j.web3js.k_tiempo_maximo_esperando_milisegundos;
 import innui.modelos.errores.oks;
-import innui.web3j.generated.contracts.I_erc20;
+import innui.web3j.generated.contracts.I_erc20s_kopias;
 import java.math.BigInteger;
 import org.web3j.protocol.core.RemoteFunctionCall;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
@@ -11,10 +11,10 @@ import org.web3j.protocol.core.methods.response.TransactionReceipt;
  *
  * @author emilio
  */
-public class I_erc20_web3j extends I_erc20_bases_web3j {
-    public static String k_in_ruta = "in/inclui/web3j/kaloria_wallet_web3j/in";  //NOI18N
+public class I_erc20s_kopias_web3j extends I_erc20_web3j {
+    public static String k_in_ruta = "in/inclui/web3j/kaloria_wallet_web3j/in"; 
 
-    public I_erc20 i_erc20;
+    public I_erc20s_kopias i_erc20s_kopia;
     /**
      * Carga los datos generales que utilizar con las llamadas a las funciones del contrato Hola_mundos
      * @param web3_direccion_contrato
@@ -28,7 +28,8 @@ public class I_erc20_web3j extends I_erc20_bases_web3j {
         try {
             if (ok.es == false) { return false; }
             super.cargar_contrato(web3_direccion_contrato, ok, extras_array);
-            i_erc20 = I_erc20.load(web3_direccion_contrato, web3j.web3j, web3j.transactionManager, web3j.defaultGasProvider);
+            if (ok.es == false) { return false; }
+            i_erc20s_kopia = I_erc20s_kopias.load(web3_direccion_contrato, web3j.web3j, web3j.transactionManager, web3j.defaultGasProvider);
             if (ok.es == false) { return false; }
         } catch (Exception e) {
             ok.setTxt(e); 
@@ -36,20 +37,20 @@ public class I_erc20_web3j extends I_erc20_bases_web3j {
         return ok.es;
     }
     /**
-     * Aprobar una transferencia de gasto, el envío de una cantidad de una dirección a otra
+     * Envolver la moneda de pago de la blockchain
      * @param gas_aceptable
-     * @param direccion
      * @param cantidad
      * @param ok
      * @param extras_array
      * @return
      * @throws Exception 
      */
-    public TransactionReceipt aprobar(BigInteger gas_aceptable, String direccion, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+    public TransactionReceipt envolver(BigInteger gas_aceptable, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
         TransactionReceipt retorno = null;
         try {
             TransactionReceipt transactionReceipt 
-               = web3j.firmar_y_llamar_funcion_con_gas(i_erc20.approve(direccion, cantidad), gas_aceptable, null, ok, extras_array);
+               = web3j.firmar_y_llamar_funcion_con_gas_y_coin(i_erc20s_kopia.envolver(cantidad)
+                   , gas_aceptable, cantidad, null, ok, extras_array);
             if (ok.es == false) { return null; }
             transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
                   , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
@@ -67,36 +68,32 @@ public class I_erc20_web3j extends I_erc20_bases_web3j {
         return retorno;
     }
     /**
-     * Estima el gas necesario para aprovar una transferencia de gasto, el envío de una cantidad de una dirección a otra
-     * @param direccion
+     * Estimar el gas de envolver la moneda de pago de la blockchain
      * @param cantidad
      * @param ok
      * @param extras_array
      * @return
      * @throws Exception 
      */
-    public BigInteger estimar_gas_aprobar(String direccion, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
-        RemoteFunctionCall<TransactionReceipt> remoteFunctionCall = i_erc20.approve(direccion, cantidad);
+    public BigInteger estimar_gas_envolver(BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        RemoteFunctionCall<TransactionReceipt> remoteFunctionCall = i_erc20s_kopia.envolver(cantidad);
         String encodedFunction = remoteFunctionCall.encodeFunctionCall();
         return web3j.estimar_gas(encodedFunction, ok, extras_array);
     }
     /**
-     * Transferir de una cantidad de una dirección a otra
+     * Envolver la moneda de pago de la blockchain
      * @param gas_aceptable
-     * @param direccion_origen
-     * @param direccion_destino
      * @param cantidad
      * @param ok
      * @param extras_array
      * @return
      * @throws Exception 
      */
-    public TransactionReceipt transferir(BigInteger gas_aceptable, String direccion_origen, String direccion_destino
-            , BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+    public TransactionReceipt desenvolver(BigInteger gas_aceptable, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
         TransactionReceipt retorno = null;
         try {
             TransactionReceipt transactionReceipt 
-               = web3j.firmar_y_llamar_funcion_con_gas(i_erc20.transferFrom(direccion_origen, direccion_destino, cantidad), gas_aceptable, null, ok, extras_array);
+               = web3j.firmar_y_llamar_funcion_con_gas(i_erc20s_kopia.desenvolver(cantidad), gas_aceptable, null, ok, extras_array);
             if (ok.es == false) { return null; }
             transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
                   , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
@@ -114,21 +111,16 @@ public class I_erc20_web3j extends I_erc20_bases_web3j {
         return retorno;
     }
     /**
-     * Estima el gas necesario para aprovar el gasto, el envío de una cantidad de una dirección a otra
-     * @param direccion_origen
-     * @param direccion_destino
+     * Estimar el gas de envolver la moneda de pago de la blockchain
      * @param cantidad
      * @param ok
      * @param extras_array
      * @return
      * @throws Exception 
      */
-    public BigInteger estimar_gas_transferir(String direccion_origen, String direccion_destino
-            , BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
-        RemoteFunctionCall<TransactionReceipt> remoteFunctionCall = i_erc20.transferFrom(direccion_origen
-                , direccion_destino, cantidad);
+    public BigInteger estimar_gas_desenvolver(BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        RemoteFunctionCall<TransactionReceipt> remoteFunctionCall = i_erc20s_kopia.desenvolver(cantidad);
         String encodedFunction = remoteFunctionCall.encodeFunctionCall();
         return web3j.estimar_gas(encodedFunction, ok, extras_array);
     }
-    
 }

@@ -252,7 +252,84 @@ public class web3js extends bases {
         }
         return transactionReceipt;
     }
-
+    /**
+     * Llama a una función remota que consume gas y envía blockchain-coins (firmándola) utilizando transacciones raw
+     * @param encodedFunction_tex
+     * @param valor Unidades de coin que enviar
+     * @param resultado
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public TransactionReceipt _firmar_y_llamar_funcion_con_gas_y_coin(String encodedFunction_tex
+      , BigInteger valor, StringBuilder resultado
+      , oks ok, Object ... extras_array) throws Exception {
+        TransactionReceipt transactionReceipt = null;
+        ResourceBundle in;
+        in = ResourceBundles.getBundle(k_in_ruta);
+        try {
+            if (ok.es == false) { return null; }
+            BigInteger nonce;
+            RawTransaction rawTransaction;
+            String transaccion_firmada;
+            EthSendTransaction ethSendTransaction = null;
+            String txHashLocal = null;
+            String txHashRemoto = null;
+            nonce = obtener_nonce(credentials.getAddress(), ok);
+            if (ok.es == false) { return null; }
+            rawTransaction = RawTransaction.createTransaction(nonce
+            , gasPrice, gasLimit, web3_direccion_contrato, valor, encodedFunction_tex);
+            transaccion_firmada = firmar(rawTransaction, ok);
+            if (ok.es == false) { return null; }
+            ethSendTransaction = web3j.ethSendRawTransaction(transaccion_firmada).send();
+            if (ethSendTransaction.hasError()) {
+                ok.setTxt(tr.in(in, "Llamada a función de contrato inteligente: ") 
+                        + encodedFunction_tex + " " 
+                        + tr.in(in, "con error: ")
+                        + ethSendTransaction.getError().getMessage(), ok, extras_array);
+            } else {
+                txHashLocal = Hash.sha3(transaccion_firmada);
+                txHashRemoto = ethSendTransaction.getTransactionHash();
+                TxHashVerifier txHashVerifier = new TxHashVerifier();
+                if (!txHashVerifier.verify(txHashLocal, txHashRemoto)) {
+                    ok.setTxt(tr.in(in, "El hash de la transacción discrepa del hash local. "));
+                }
+            }
+            if (ok.es == false) { return null; }
+            if (resultado != null) {
+                resultado.replace(0, resultado.length(), ethSendTransaction.getResult());
+            }
+            transactionReceipt = obtener_recibo_de_transaccion(txHashRemoto, ok, extras_array);
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return transactionReceipt;
+    }
+    /**
+     * Llama a una función remota que consume gas (firmándola) utilizando transacciones raw
+     * @param remoteFunctionCall
+     * @param valor Unidades de coin que enviar
+     * @param resultado
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public TransactionReceipt _firmar_y_llamar_funcion_con_gas_y_coin(RemoteFunctionCall<?> remoteFunctionCall
+      , BigInteger valor, StringBuilder resultado
+      , oks ok, Object ... extras_array) throws Exception {
+        String encodedFunction_tex = remoteFunctionCall.encodeFunctionCall();
+        return _firmar_y_llamar_funcion_con_gas_y_coin(encodedFunction_tex, valor, resultado, ok, extras_array);
+    }
+    /**
+     * Obtiene el recibo de una transaccion, o genera uno vacío.
+     * @param transaccion_hash
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
     public TransactionReceipt obtener_recibo_de_transaccion(String transaccion_hash, oks ok, Object ... extras_array) throws Exception {
         TransactionReceipt transactionReceipt = null;
         EthGetTransactionReceipt ethGetTransactionReceipt = null;
@@ -424,6 +501,38 @@ public class web3js extends bases {
             estimar_gas(gas_aceptable, remoteFunctionCall, ok, extras_array);
             if (ok.es == false) { return null; }
             transactionReceipt = _firmar_y_llamar_funcion_con_gas(remoteFunctionCall, resultado, ok); // Forma con más código
+            if (ok.es == false) { return null; }
+            transactionReceipt = comprobar_y_esperar_recibo(transactionReceipt
+                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
+            if (ser_recibo_vacio(transactionReceipt, ok) == false) {
+                if (ok.es == false) { return null; }
+                restar_gas(transactionReceipt.getGasUsed(), ok);
+            }
+            if (ok.es == false) { return null; }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return transactionReceipt;
+    }
+    /**
+     * Llama a la función con gasto de gas de un contrato inteligente
+     * @param remoteFunctionCall
+     * @param gas_aceptable
+     * @param valor
+     * @param resultado
+     * @param ok
+     * @param extras_array
+     * @return El hash de la trasaccion
+     * @throws Exception 
+     */
+    public TransactionReceipt firmar_y_llamar_funcion_con_gas_y_coin(RemoteFunctionCall<?> remoteFunctionCall
+      , BigInteger gas_aceptable, BigInteger valor, StringBuilder resultado, oks ok, Object ... extras_array) throws Exception {
+        TransactionReceipt transactionReceipt = null;
+        try {
+            if (ok.es == false) { return null; }
+            estimar_gas(gas_aceptable, remoteFunctionCall, ok, extras_array);
+            if (ok.es == false) { return null; }
+            transactionReceipt = _firmar_y_llamar_funcion_con_gas_y_coin(remoteFunctionCall, valor, resultado, ok); // Forma con más código
             if (ok.es == false) { return null; }
             transactionReceipt = comprobar_y_esperar_recibo(transactionReceipt
                   , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
