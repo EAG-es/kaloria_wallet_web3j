@@ -4,7 +4,10 @@ import static inclui.web3j.web3js.k_tiempo_maximo_esperando_milisegundos;
 import innui.modelos.errores.oks;
 import innui.web3j.generated.contracts.I_erc20;
 import java.math.BigInteger;
+import java.util.List;
+import org.web3j.abi.datatypes.Type;
 import org.web3j.protocol.core.RemoteFunctionCall;
+import org.web3j.protocol.core.methods.response.EthCall;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 /**
@@ -131,4 +134,29 @@ public class I_erc20_web3j extends I_erc20_bases_web3j {
         return web3j.estimar_gas(encodedFunction, ok, extras_array);
     }
     
+    /**
+     * Obtener información de la aceptación de gasto de un propietario sobre un gastador
+     * @param propietario_direcccion
+     * @param gastador_direccion
+     * @param ok
+     * @param extras_array
+     * @return El hash de la trasaccion
+     * @throws Exception 
+     */
+    public BigInteger aceptacion(String propietario_direcccion, String gastador_direccion, oks ok, Object ... extras_array) throws Exception {
+        BigInteger retorno = null;
+        try {
+            if (ok.es == false) { return null; }
+            RemoteFunctionCall<BigInteger> remoteFunctionCall = i_erc20.allowance(propietario_direcccion, gastador_direccion);
+            EthCall ethCall = web3j.llamar_funcion_sin_gas(remoteFunctionCall, ok, extras_array);
+            if (ok.es == false) { return null; }
+            List<Type> types_list = remoteFunctionCall.decodeFunctionResponse(ethCall.getValue());
+            if (types_list != null) {
+                retorno = (BigInteger) types_list.get(0).getValue();
+            }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return retorno;
+    }
 }
