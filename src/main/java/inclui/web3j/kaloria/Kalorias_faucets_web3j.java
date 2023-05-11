@@ -1,4 +1,4 @@
-package inclui.web3j.kaloria_wallet_web3j;
+package inclui.web3j.kaloria;
 
 import inclui.web3j.web3js;
 import static inclui.web3j.web3js.k_tiempo_maximo_esperando_milisegundos;

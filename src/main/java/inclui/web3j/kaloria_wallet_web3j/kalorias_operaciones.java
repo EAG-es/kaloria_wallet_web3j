@@ -1,5 +1,6 @@
 package inclui.web3j.kaloria_wallet_web3j;
 
+import inclui.web3j.kaloria.Kalorias_faucets_web3j;
 import inclui.web3j.kaloria.I_erc20_web3j;
 import inclui.formularios.clui_formularios;
 import inclui.formularios.control_entradas;
@@ -294,6 +295,8 @@ public class kalorias_operaciones extends bases {
                         precio_gas = kaloria_faucect_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                         if (ok.es == false) { return false; }
                         if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado, precio_gas, ok)) {
+                            if (ok.es == false) { return false; }
+                            escribir_linea(tr.in(in,"Operación en curso... Espere por favor. "), ok);
                             if (ok.es == false) { return false; }
                             transactionReceipt = kaloria_faucect_web3j.pedir_prestamo(gas_estimado, cantidad, ok, extra_array);
                             if (ok.es == false) { return false; }

@@ -49,6 +49,17 @@ public abstract class Erc20_bases_web3j extends bases {
      * @throws Exception 
      */
     abstract public BigInteger leer_balance(StringBuilder balance_stringBuilder, oks ok, Object ... extras_array) throws Exception;
+
+    /**
+     * Leer el balance
+     * @param direccion
+     * @param balance_stringBuilder Texto con la coma situada en el lugar correcto.
+     * @param ok
+     * @param extras_array
+     * @return El valor como un número sin decimales
+     * @throws Exception 
+     */
+    abstract public BigInteger leer_balance(String direccion, StringBuilder balance_stringBuilder, oks ok, Object ... extras_array) throws Exception;
     /**
      * Envía una cantidad (sin decimales) a una dirección, aceptando un gasto de gas
      * @param gas_aceptable

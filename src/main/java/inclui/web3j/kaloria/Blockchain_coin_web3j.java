@@ -3,9 +3,11 @@ package inclui.web3j.kaloria;
 import inclui.web3j.Erc20_bases_web3j;
 import inclui.web3j.web3js;
 import static inclui.web3j.web3js.k_tiempo_maximo_esperando_milisegundos;
+import innui.modelos.configuraciones.ResourceBundles;
 import innui.modelos.errores.oks;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ResourceBundle;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.RemoteCall;
 import org.web3j.protocol.core.methods.request.Transaction;
@@ -20,7 +22,36 @@ import org.web3j.utils.Convert;
  * @author emilio
  */
 public class Blockchain_coin_web3j extends Erc20_bases_web3j {
-    
+
+    /**
+     * Obtener el símbolo
+     * @param direccion Dirección de la que leer el balance
+     * @param balance_stringBuilder Texto con la coma situada en el lugar correcto (puede ser null).
+     * @param ok
+     * @param extras_array
+     * @return El valor como un número sin decimales
+     * @throws Exception 
+     */
+    @Override
+    public BigInteger leer_balance(String direccion, StringBuilder balance_stringBuilder, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return null; }
+        BigInteger retorno = null;
+        try {
+            // send asynchronous requests to get balance
+            EthGetBalance ethGetBalance = web3j.web3j.ethGetBalance(direccion
+              , DefaultBlockParameterName.LATEST).send();
+            BigInteger wei = ethGetBalance.getBalance();
+            retorno = wei;
+            if (balance_stringBuilder != null) {
+                String texto = poner_decimales_a_numero(retorno, ok);
+                if (ok.es == false) { return null; }
+                balance_stringBuilder.replace(0, balance_stringBuilder.length(), texto);
+            }
+        } catch (Exception e) {
+            ok.setTxt(e);            
+        }
+        return retorno;
+    }    
     /**
      * Obtener el símbolo
      * @param balance_stringBuilder Texto con la coma situada en el lugar correcto.

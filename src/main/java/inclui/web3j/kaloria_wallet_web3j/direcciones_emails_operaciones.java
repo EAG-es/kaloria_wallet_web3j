@@ -9,6 +9,7 @@ import static inclui.formularios.control_entradas.k_entradas_tipo_numero;
 import static inclui.formularios.control_entradas.k_entradas_tipo_reset;
 import static inclui.formularios.control_entradas.k_entradas_tipo_submit;
 import static inclui.formularios.control_entradas.k_entradas_tipo_texto;
+import static inclui.formularios.control_entradas.k_in_ruta;
 import inclui.formularios.control_selecciones;
 import static inclui.formularios.control_selecciones.k_control_selecciones_letras_por_linea_num;
 import static inclui.formularios.control_selecciones.k_control_selecciones_opciones_mapa;
@@ -413,7 +414,33 @@ public class direcciones_emails_operaciones extends bases {
         in = ResourceBundles.getBundle(k_in_ruta);
         try {
             clui_formularios clui_formulario = new clui_formularios();
-            control_entradas direccion_control_entrada = new control_entradas();
+            control_entradas direccion_control_entrada = new control_entradas() {
+                @Override
+                public boolean _validar(String modo_operacion, Object objeto_a_validar, oks ok, Object ... extras_array) throws Exception {
+                    ResourceBundle in;
+                    try {
+                        if (ok.es == false) { return false; }
+                        String texto = objeto_a_validar.toString();
+                        texto = texto.replace("0x", "");
+                        int i = 0;
+                        int tam = texto.length();
+                        while (true) {
+                            if (i >= tam) {
+                                break;
+                            }
+                            if ("ABCDEFabcdef0123456789".contains(texto.substring(i, i+1)) == false) {
+                                in = ResourceBundles.getBundle(k_in_ruta);
+                                ok.setTxt(tr.in(in, "El dato no tiene el formato de una dirección válida. "));
+                                break;
+                            }
+                            i = i + 1;
+                        }
+                    } catch (Exception e) {
+                        throw e;
+                    }
+                    return ok.es;
+                }                
+            };
             direccion_control_entrada.iniciar(k_entradas_tipo_texto, ok);
             if (ok.es == false) { return null; }
             direccion_control_entrada.poner_en_formulario(clui_formulario, k_direccion_entrada

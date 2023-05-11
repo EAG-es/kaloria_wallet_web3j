@@ -32,6 +32,7 @@ public class I_erc20_bases_web3j extends Erc20_bases_web3j {
             if (ok.es == false) { return false; }
             web3j.web3_direccion_contrato = web3_direccion_contrato;
             leer_decimales(ok, extras_array);
+            leer_simbolo(ok, extras_array);
         } catch (Exception e) {
             ok.setTxt(e); 
         }
@@ -113,7 +114,38 @@ public class I_erc20_bases_web3j extends Erc20_bases_web3j {
     }
     /**
      * Leer el balance
-     * @param balance_stringBuilder Texto con la coma situada en el lugar correcto.
+     * @param direccion Dirección de la que leer el balance
+     * @param balance_stringBuilder Texto con la coma situada en el lugar correcto (puede ser null).
+     * @param ok
+     * @param extras_array
+     * @return El valor como un número sin decimales
+     * @throws Exception 
+     */
+    @Override
+    public BigInteger leer_balance(String direccion, StringBuilder balance_stringBuilder, oks ok, Object ... extras_array) throws Exception {
+        BigInteger retorno = null;
+        try {
+            if (ok.es == false) { return null; }
+            RemoteFunctionCall<BigInteger> remoteFunctionCall = i_erc20_base.balanceOf(direccion);
+            EthCall ethCall = web3j.llamar_funcion_sin_gas(remoteFunctionCall, ok, extras_array);
+            if (ok.es == false) { return null; }
+            List<Type> types_list = remoteFunctionCall.decodeFunctionResponse(ethCall.getValue());
+            if (types_list != null) {
+                retorno = (BigInteger) types_list.get(0).getValue();
+                if (balance_stringBuilder != null) {
+                    String texto = poner_decimales_a_numero(retorno, ok);
+                    if (ok.es == false) { return null; }
+                    balance_stringBuilder.replace(0, balance_stringBuilder.length(), texto);
+                }
+            }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return retorno;
+    }
+    /**
+     * Leer el balance
+     * @param balance_stringBuilder Texto con la coma situada en el lugar correcto (puede ser null).
      * @param ok
      * @param extras_array
      * @return El valor como un número sin decimales
@@ -130,10 +162,11 @@ public class I_erc20_bases_web3j extends Erc20_bases_web3j {
             List<Type> types_list = remoteFunctionCall.decodeFunctionResponse(ethCall.getValue());
             if (types_list != null) {
                 retorno = (BigInteger) types_list.get(0).getValue();
-                String texto = poner_decimales_a_numero(retorno, ok);
-                if (ok.es == false) { return null; }
-                balance_stringBuilder.delete(0, balance_stringBuilder.length());
-                balance_stringBuilder.append(texto);
+                if (balance_stringBuilder != null) {
+                    String texto = poner_decimales_a_numero(retorno, ok);
+                    if (ok.es == false) { return null; }
+                    balance_stringBuilder.replace(0, balance_stringBuilder.length(), texto);
+                }
             }
         } catch (Exception e) {
             ok.setTxt(e); 

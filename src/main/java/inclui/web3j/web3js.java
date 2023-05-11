@@ -420,7 +420,8 @@ public class web3js extends bases {
                 if (ok.es == false) { return false; }
                 if (gas_estimado.compareTo(gas_aceptable) > 0) {
                     in = ResourceBundles.getBundle(k_in_ruta);
-                    ok.setTxt(tr.in(in, "El coste estimado de gas es mayor que el máximo aceptable configurado: ") + gas_aceptable.toString(), extras_array);
+                    ok.setTxt(tr.in(in, "El coste estimado de gas es mayor que el máximo aceptable configurado: ") 
+                      + gas_estimado + " > " + gas_aceptable.toString(), extras_array);
                 } else if (web3_gas_disponible_total != null
                         && gas_estimado.compareTo(web3_gas_disponible_total) > 0) {
                     if (web3_gas_disponible_total.compareTo(BigInteger.ZERO) >= 0) {
