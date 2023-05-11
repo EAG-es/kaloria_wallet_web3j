@@ -1,13 +1,11 @@
-package inclui.web3j.kaloria_wallet_web3j;
+package inclui.web3j.kaloria;
 
 import inclui.web3j.Erc20_bases_web3j;
 import inclui.web3j.web3js;
 import static inclui.web3j.web3js.k_tiempo_maximo_esperando_milisegundos;
-import innui.modelos.configuraciones.ResourceBundles;
 import innui.modelos.errores.oks;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ResourceBundle;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.RemoteCall;
 import org.web3j.protocol.core.methods.request.Transaction;
@@ -22,7 +20,7 @@ import org.web3j.utils.Convert;
  * @author emilio
  */
 public class Blockchain_coin_web3j extends Erc20_bases_web3j {
-    public static String k_in_ruta = "in/inclui/web3j/kaloria_wallet_web3j/in";  //NOI18N
+    
     /**
      * Obtener el símbolo
      * @param balance_stringBuilder Texto con la coma situada en el lugar correcto.
@@ -35,8 +33,6 @@ public class Blockchain_coin_web3j extends Erc20_bases_web3j {
     public BigInteger leer_balance(StringBuilder balance_stringBuilder, oks ok, Object ... extras_array) throws Exception {
         if (ok.es == false) { return null; }
         BigInteger retorno = null;
-        ResourceBundle in;
-        in = ResourceBundles.getBundle(k_in_ruta);
         try {
             // send asynchronous requests to get balance
             EthGetBalance ethGetBalance = web3j.web3j.ethGetBalance(web3j.credentials.getAddress()

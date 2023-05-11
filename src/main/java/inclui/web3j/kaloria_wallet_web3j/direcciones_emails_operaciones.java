@@ -1,5 +1,7 @@
 package inclui.web3j.kaloria_wallet_web3j;
 
+import inclui.web3j.kaloria.Direcciones_emails_mapas_web3j;
+import inclui.web3j.kaloria.Blockchain_coin_web3j;
 import inclui.formularios.clui_formularios;
 import inclui.formularios.control_entradas;
 import static inclui.formularios.control_entradas.k_entradas_tipo_email;

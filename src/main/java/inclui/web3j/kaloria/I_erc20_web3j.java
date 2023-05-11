@@ -1,4 +1,4 @@
-package inclui.web3j.kaloria_wallet_web3j;
+package inclui.web3j.kaloria;
 
 import static inclui.web3j.web3js.k_tiempo_maximo_esperando_milisegundos;
 import innui.modelos.errores.oks;
@@ -15,11 +15,10 @@ import org.web3j.protocol.core.methods.response.TransactionReceipt;
  * @author emilio
  */
 public class I_erc20_web3j extends I_erc20_bases_web3j {
-    public static String k_in_ruta = "in/inclui/web3j/kaloria_wallet_web3j/in";  //NOI18N
-
     public I_erc20 i_erc20;
+    
     /**
-     * Carga los datos generales que utilizar con las llamadas a las funciones del contrato Hola_mundos
+     * Carga los datos generales que utilizar con las llamadas a las funciones del contrato en Solidity
      * @param web3_direccion_contrato
      * @param ok
      * @param extras_array

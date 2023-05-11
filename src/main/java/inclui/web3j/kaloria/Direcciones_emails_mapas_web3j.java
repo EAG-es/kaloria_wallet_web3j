@@ -1,4 +1,4 @@
-package inclui.web3j.kaloria_wallet_web3j;
+package inclui.web3j.kaloria;
 
 import inclui.web3j.web3js;
 import innui.bases;
@@ -16,12 +16,11 @@ import org.web3j.protocol.core.methods.response.TransactionReceipt;
  * @author emilio
  */
 public class Direcciones_emails_mapas_web3j extends bases {
-    public static String k_in_ruta = "in/inclui/web3j/kaloria_wallet_web3j/in";  //NOI18N
     public web3js web3j;
     public Direcciones_emails_mapas direcciones_emails_mapa;
     
     /**
-     * Carga los datos generales que utilizar con las llamadas a las funciones del contrato Hola_mundos
+     * Carga los datos generales que utilizar con las llamadas a las funciones del contrato en Solidity
      * @param web3_direccion_contrato
      * @param ok
      * @param extras_array

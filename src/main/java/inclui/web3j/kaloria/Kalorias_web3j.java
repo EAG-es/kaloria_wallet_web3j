@@ -1,4 +1,4 @@
-package inclui.web3j.kaloria_wallet_web3j;
+package inclui.web3j.kaloria;
 
 import inclui.web3j.web3js;
 import static inclui.web3j.web3js.k_tiempo_maximo_esperando_milisegundos;
@@ -14,12 +14,11 @@ import org.web3j.protocol.core.methods.response.TransactionReceipt;
  * @author emilio
  */
 public class Kalorias_web3j extends bases {
-    public static String k_in_ruta = "in/inclui/web3j/kaloria_wallet_web3j/in";  //NOI18N
     public web3js web3j;
     public Kalorias kaloria;
 
     /**
-     * Carga los datos generales que utilizar con las llamadas a las funciones del contrato Hola_mundos
+     * Carga los datos generales que utilizar con las llamadas a las funciones del contrato en Solidity
      * @param web3_direccion_contrato
      * @param ok
      * @param extras_array
