@@ -9,6 +9,7 @@ import java.util.List;
 import org.web3j.abi.EventEncoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Address;
+import org.web3j.abi.datatypes.Bool;
 import org.web3j.abi.datatypes.Event;
 import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.Type;
@@ -59,12 +60,16 @@ public class I_erc20 extends Contract {
 
     public static final String FUNC_TRANSFERFROM = "transferFrom";
 
-    public static final Event APPROVAL_EVENT = new Event("Approval", 
-            Arrays.<TypeReference<?>>asList(new TypeReference<Address>(true) {}, new TypeReference<Address>(true) {}, new TypeReference<Uint256>() {}));
+    public static final Event AD_AD_U_EVENT = new Event("Ad_ad_u", 
+            Arrays.<TypeReference<?>>asList(new TypeReference<Address>(true) {}, new TypeReference<Address>(true) {}, new TypeReference<Uint256>(true) {}, new TypeReference<Utf8String>() {}));
     ;
 
-    public static final Event TRANSFER_EVENT = new Event("Transfer", 
-            Arrays.<TypeReference<?>>asList(new TypeReference<Address>(true) {}, new TypeReference<Address>(true) {}, new TypeReference<Uint256>() {}));
+    public static final Event MENSAJE_EVENT = new Event("Mensaje", 
+            Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
+    ;
+
+    public static final Event OK_EVENT = new Event("Ok", 
+            Arrays.<TypeReference<?>>asList(new TypeReference<Bool>(true) {}, new TypeReference<Utf8String>() {}));
     ;
 
     @Deprecated
@@ -85,72 +90,102 @@ public class I_erc20 extends Contract {
         super(BINARY, contractAddress, web3j, transactionManager, contractGasProvider);
     }
 
-    public static List<ApprovalEventResponse> getApprovalEvents(TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(APPROVAL_EVENT, transactionReceipt);
-        ArrayList<ApprovalEventResponse> responses = new ArrayList<ApprovalEventResponse>(valueList.size());
+    public static List<Ad_ad_uEventResponse> getAd_ad_uEvents(TransactionReceipt transactionReceipt) {
+        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(AD_AD_U_EVENT, transactionReceipt);
+        ArrayList<Ad_ad_uEventResponse> responses = new ArrayList<Ad_ad_uEventResponse>(valueList.size());
         for (Contract.EventValuesWithLog eventValues : valueList) {
-            ApprovalEventResponse typedResponse = new ApprovalEventResponse();
-            typedResponse.log = eventValues.getLog();
-            typedResponse.owner = (String) eventValues.getIndexedValues().get(0).getValue();
-            typedResponse.spender = (String) eventValues.getIndexedValues().get(1).getValue();
-            typedResponse.value = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
-            responses.add(typedResponse);
-        }
-        return responses;
-    }
-
-    public static ApprovalEventResponse getApprovalEventFromLog(Log log) {
-        Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(APPROVAL_EVENT, log);
-        ApprovalEventResponse typedResponse = new ApprovalEventResponse();
-        typedResponse.log = log;
-        typedResponse.owner = (String) eventValues.getIndexedValues().get(0).getValue();
-        typedResponse.spender = (String) eventValues.getIndexedValues().get(1).getValue();
-        typedResponse.value = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
-        return typedResponse;
-    }
-
-    public Flowable<ApprovalEventResponse> approvalEventFlowable(EthFilter filter) {
-        return web3j.ethLogFlowable(filter).map(log -> getApprovalEventFromLog(log));
-    }
-
-    public Flowable<ApprovalEventResponse> approvalEventFlowable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
-        EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
-        filter.addSingleTopic(EventEncoder.encode(APPROVAL_EVENT));
-        return approvalEventFlowable(filter);
-    }
-
-    public static List<TransferEventResponse> getTransferEvents(TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(TRANSFER_EVENT, transactionReceipt);
-        ArrayList<TransferEventResponse> responses = new ArrayList<TransferEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
-            TransferEventResponse typedResponse = new TransferEventResponse();
+            Ad_ad_uEventResponse typedResponse = new Ad_ad_uEventResponse();
             typedResponse.log = eventValues.getLog();
             typedResponse.from = (String) eventValues.getIndexedValues().get(0).getValue();
             typedResponse.to = (String) eventValues.getIndexedValues().get(1).getValue();
-            typedResponse.value = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+            typedResponse.value = (BigInteger) eventValues.getIndexedValues().get(2).getValue();
+            typedResponse.mensaje = (String) eventValues.getNonIndexedValues().get(0).getValue();
             responses.add(typedResponse);
         }
         return responses;
     }
 
-    public static TransferEventResponse getTransferEventFromLog(Log log) {
-        Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(TRANSFER_EVENT, log);
-        TransferEventResponse typedResponse = new TransferEventResponse();
+    public static Ad_ad_uEventResponse getAd_ad_uEventFromLog(Log log) {
+        Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(AD_AD_U_EVENT, log);
+        Ad_ad_uEventResponse typedResponse = new Ad_ad_uEventResponse();
         typedResponse.log = log;
         typedResponse.from = (String) eventValues.getIndexedValues().get(0).getValue();
         typedResponse.to = (String) eventValues.getIndexedValues().get(1).getValue();
-        typedResponse.value = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+        typedResponse.value = (BigInteger) eventValues.getIndexedValues().get(2).getValue();
+        typedResponse.mensaje = (String) eventValues.getNonIndexedValues().get(0).getValue();
         return typedResponse;
     }
 
-    public Flowable<TransferEventResponse> transferEventFlowable(EthFilter filter) {
-        return web3j.ethLogFlowable(filter).map(log -> getTransferEventFromLog(log));
+    public Flowable<Ad_ad_uEventResponse> ad_ad_uEventFlowable(EthFilter filter) {
+        return web3j.ethLogFlowable(filter).map(log -> getAd_ad_uEventFromLog(log));
     }
 
-    public Flowable<TransferEventResponse> transferEventFlowable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
+    public Flowable<Ad_ad_uEventResponse> ad_ad_uEventFlowable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
         EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
-        filter.addSingleTopic(EventEncoder.encode(TRANSFER_EVENT));
-        return transferEventFlowable(filter);
+        filter.addSingleTopic(EventEncoder.encode(AD_AD_U_EVENT));
+        return ad_ad_uEventFlowable(filter);
+    }
+
+    public static List<MensajeEventResponse> getMensajeEvents(TransactionReceipt transactionReceipt) {
+        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(MENSAJE_EVENT, transactionReceipt);
+        ArrayList<MensajeEventResponse> responses = new ArrayList<MensajeEventResponse>(valueList.size());
+        for (Contract.EventValuesWithLog eventValues : valueList) {
+            MensajeEventResponse typedResponse = new MensajeEventResponse();
+            typedResponse.log = eventValues.getLog();
+            typedResponse.mensaje = (String) eventValues.getNonIndexedValues().get(0).getValue();
+            responses.add(typedResponse);
+        }
+        return responses;
+    }
+
+    public static MensajeEventResponse getMensajeEventFromLog(Log log) {
+        Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(MENSAJE_EVENT, log);
+        MensajeEventResponse typedResponse = new MensajeEventResponse();
+        typedResponse.log = log;
+        typedResponse.mensaje = (String) eventValues.getNonIndexedValues().get(0).getValue();
+        return typedResponse;
+    }
+
+    public Flowable<MensajeEventResponse> mensajeEventFlowable(EthFilter filter) {
+        return web3j.ethLogFlowable(filter).map(log -> getMensajeEventFromLog(log));
+    }
+
+    public Flowable<MensajeEventResponse> mensajeEventFlowable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
+        EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
+        filter.addSingleTopic(EventEncoder.encode(MENSAJE_EVENT));
+        return mensajeEventFlowable(filter);
+    }
+
+    public static List<OkEventResponse> getOkEvents(TransactionReceipt transactionReceipt) {
+        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(OK_EVENT, transactionReceipt);
+        ArrayList<OkEventResponse> responses = new ArrayList<OkEventResponse>(valueList.size());
+        for (Contract.EventValuesWithLog eventValues : valueList) {
+            OkEventResponse typedResponse = new OkEventResponse();
+            typedResponse.log = eventValues.getLog();
+            typedResponse.es = (Boolean) eventValues.getIndexedValues().get(0).getValue();
+            typedResponse.mensaje = (String) eventValues.getNonIndexedValues().get(0).getValue();
+            responses.add(typedResponse);
+        }
+        return responses;
+    }
+
+    public static OkEventResponse getOkEventFromLog(Log log) {
+        Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(OK_EVENT, log);
+        OkEventResponse typedResponse = new OkEventResponse();
+        typedResponse.log = log;
+        typedResponse.es = (Boolean) eventValues.getIndexedValues().get(0).getValue();
+        typedResponse.mensaje = (String) eventValues.getNonIndexedValues().get(0).getValue();
+        return typedResponse;
+    }
+
+    public Flowable<OkEventResponse> okEventFlowable(EthFilter filter) {
+        return web3j.ethLogFlowable(filter).map(log -> getOkEventFromLog(log));
+    }
+
+    public Flowable<OkEventResponse> okEventFlowable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
+        EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
+        filter.addSingleTopic(EventEncoder.encode(OK_EVENT));
+        return okEventFlowable(filter);
     }
 
     public RemoteFunctionCall<BigInteger> allowance(String owner, String spender) {
@@ -260,19 +295,23 @@ public class I_erc20 extends Contract {
         return deployRemoteCall(I_erc20.class, web3j, transactionManager, gasPrice, gasLimit, BINARY, "");
     }
 
-    public static class ApprovalEventResponse extends BaseEventResponse {
-        public String owner;
-
-        public String spender;
-
-        public BigInteger value;
-    }
-
-    public static class TransferEventResponse extends BaseEventResponse {
+    public static class Ad_ad_uEventResponse extends BaseEventResponse {
         public String from;
 
         public String to;
 
         public BigInteger value;
+
+        public String mensaje;
+    }
+
+    public static class MensajeEventResponse extends BaseEventResponse {
+        public String mensaje;
+    }
+
+    public static class OkEventResponse extends BaseEventResponse {
+        public Boolean es;
+
+        public String mensaje;
     }
 }

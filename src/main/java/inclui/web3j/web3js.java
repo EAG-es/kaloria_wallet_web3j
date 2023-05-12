@@ -7,11 +7,16 @@ import innui.modelos.configuraciones.Resources;
 import innui.modelos.errores.oks;
 import innui.modelos.internacionalizacion.tr;
 import innui.utiles.bigdecimals.BigDecimals;
+import io.reactivex.disposables.Disposable;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import org.web3j.crypto.Credentials;
@@ -22,6 +27,7 @@ import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.RemoteFunctionCall;
+import org.web3j.protocol.core.methods.request.EthFilter;
 import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.core.methods.response.EthCall;
 import org.web3j.protocol.core.methods.response.EthEstimateGas;
@@ -29,6 +35,7 @@ import org.web3j.protocol.core.methods.response.EthGasPrice;
 import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
 import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
+import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.RawTransactionManager;
@@ -703,5 +710,62 @@ public class web3js extends bases {
         }
         return ok.es;
     }
-    
+    /**
+     * Extrae todos los logs de la última llamada de un contrato
+     * @param contrato_direccion
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public List<Log> extraer_ultimos_logs(String contrato_direccion
+      , oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return null; }
+        List<Log> logs_lista =  null;
+        try {
+            final List<Log> final_logs_lista = new LinkedList<>();
+            // Filter
+            EthFilter filter = new EthFilter(DefaultBlockParameterName.EARLIEST
+              , DefaultBlockParameterName.LATEST, contrato_direccion);
+            Disposable disposable = web3j.ethLogFlowable(filter).subscribe(log -> {
+                try {
+                    final_logs_lista.add(log);
+                } catch (Exception e) {
+                    ok.setTxt(e); 
+                }
+            });
+            if (ok.es) {
+                logs_lista = final_logs_lista;
+            }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return logs_lista;
+    }
+    /**
+     * Selecciona los logs de un evento en concreto
+     * @param evento_decode Se puede conocer el valor usando: EventEncoder.encode(XX_EVENT)
+     * @param logs_lista
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public List<Log> extraer_logs(String evento_decode
+      , List<Log> logs_lista
+      , oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return null; }
+        List<Log> retorno_lista =  null;
+        try {
+            retorno_lista = new LinkedList<>(); 
+            for (Log log: logs_lista) {
+                if (log.getTopics().get(0).equals(evento_decode)) {
+                    retorno_lista.add(log);
+                }
+            }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return retorno_lista;
+    }
 }

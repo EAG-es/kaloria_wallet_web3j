@@ -1562,6 +1562,7 @@ public class Kaloria_wallet_web3j extends iniciales {
                             escribir_linea(tr.in(in,"Aprobación en curso... Espere por favor. "), ok);
                             if (ok.es == false) { return false; }
                             transactionReceipt = i_erc20_web3j.aprobar(gas_estimado, destino_dir, cantidad, ok, extra_array);
+                            if (ok.es == false) { return false; }
                             web3_transacciones_mapas.filas fila = new web3_transacciones_mapas.filas();
                             fila.destino_direccion = destino_dir;
                             fila.cantidad = cantidad.toString();

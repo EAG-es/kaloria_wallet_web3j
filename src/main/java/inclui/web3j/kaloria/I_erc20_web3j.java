@@ -3,11 +3,20 @@ package inclui.web3j.kaloria;
 import static inclui.web3j.web3js.k_tiempo_maximo_esperando_milisegundos;
 import innui.modelos.errores.oks;
 import innui.web3j.generated.contracts.I_erc20;
+import innui.web3j.generated.contracts.I_erc20.OkEventResponse;
+import static innui.web3j.generated.contracts.I_erc20.getOkEvents;
+import static innui.web3j.generated.contracts.Kalorias.OK_EVENT;
 import java.math.BigInteger;
 import java.util.List;
+import org.web3j.abi.EventEncoder;
+import org.web3j.abi.FunctionReturnDecoder;
+import org.web3j.abi.TypeReference;
+import org.web3j.abi.datatypes.Bool;
 import org.web3j.abi.datatypes.Type;
+import org.web3j.abi.datatypes.Utf8String;
 import org.web3j.protocol.core.RemoteFunctionCall;
 import org.web3j.protocol.core.methods.response.EthCall;
+import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 /**
@@ -50,6 +59,7 @@ public class I_erc20_web3j extends I_erc20_bases_web3j {
     public TransactionReceipt aprobar(BigInteger gas_aceptable, String direccion, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
         TransactionReceipt retorno = null;
         try {
+            if (ok.es == false) { return null; }
             TransactionReceipt transactionReceipt 
                = web3j.firmar_y_llamar_funcion_con_gas(i_erc20.approve(direccion, cantidad), gas_aceptable, null, ok, extras_array);
             if (ok.es == false) { return null; }
@@ -62,6 +72,14 @@ public class I_erc20_web3j extends I_erc20_bases_web3j {
             if (ok.es == false) { return null; }
             web3j.poner_ultimo_precio_gas(transactionReceipt, ok);
             if (ok.es == false) { return null; }
+            List<OkEventResponse> oks_lista = getOkEvents(transactionReceipt);
+            for (OkEventResponse okEventResponse: oks_lista) {
+                if (okEventResponse.es == false) {
+                    ok.es = okEventResponse.es;
+                    ok.setTxt(okEventResponse.mensaje);
+                    break;
+                }
+            }
             retorno = transactionReceipt;
         } catch (Exception e) {
             ok.setTxt(e); 
@@ -109,6 +127,14 @@ public class I_erc20_web3j extends I_erc20_bases_web3j {
             if (ok.es == false) { return null; }
             web3j.poner_ultimo_precio_gas(transactionReceipt, ok);
             if (ok.es == false) { return null; }
+            List<OkEventResponse> oks_lista = getOkEvents(transactionReceipt);
+            for (OkEventResponse okEventResponse: oks_lista) {
+                if (okEventResponse.es == false) {
+                    ok.es = okEventResponse.es;
+                    ok.setTxt(okEventResponse.mensaje);
+                    break;
+                }
+            }
             retorno = transactionReceipt;
         } catch (Exception e) {
             ok.setTxt(e); 
