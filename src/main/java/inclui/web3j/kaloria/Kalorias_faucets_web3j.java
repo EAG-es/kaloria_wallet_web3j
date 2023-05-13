@@ -63,8 +63,6 @@ public class Kalorias_faucets_web3j extends bases {
                 web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
             }
             if (ok.es == false) { return null; }
-            web3j.poner_ultimo_precio_gas(transactionReceipt, ok);
-            if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {
             ok.setTxt(e); 
@@ -114,8 +112,6 @@ public class Kalorias_faucets_web3j extends bases {
                 web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
             }
             if (ok.es == false) { return null; }
-            web3j.poner_ultimo_precio_gas(transactionReceipt, ok);
-            if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {
             ok.setTxt(e); 
@@ -164,8 +160,6 @@ public class Kalorias_faucets_web3j extends bases {
                 web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
             }
             if (ok.es == false) { return null; }
-            web3j.poner_ultimo_precio_gas(transactionReceipt, ok);
-            if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {
             ok.setTxt(e); 
@@ -212,8 +206,6 @@ public class Kalorias_faucets_web3j extends bases {
                 if (ok.es == false) { return null; }
                 web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
             }
-            if (ok.es == false) { return null; }
-            web3j.poner_ultimo_precio_gas(transactionReceipt, ok);
             if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {
@@ -263,8 +255,6 @@ public class Kalorias_faucets_web3j extends bases {
                 web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
             }
             if (ok.es == false) { return null; }
-            web3j.poner_ultimo_precio_gas(transactionReceipt, ok);
-            if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {
             ok.setTxt(e); 
@@ -312,8 +302,6 @@ public class Kalorias_faucets_web3j extends bases {
                 if (ok.es == false) { return null; }
                 web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
             }
-            if (ok.es == false) { return null; }
-            web3j.poner_ultimo_precio_gas(transactionReceipt, ok);
             if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {
@@ -478,8 +466,6 @@ public class Kalorias_faucets_web3j extends bases {
                 if (ok.es == false) { return null; }
                 web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
             }
-            if (ok.es == false) { return null; }
-            web3j.poner_ultimo_precio_gas(transactionReceipt, ok);
             if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {

@@ -140,8 +140,6 @@ public class Blockchain_coin_web3j extends Erc20_bases_web3j {
                 web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
             }
             if (ok.es == false) { return null; }
-            web3j.poner_ultimo_precio_gas(transactionReceipt, ok);
-            if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {
             ok.setTxt(e); 

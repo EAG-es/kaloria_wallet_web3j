@@ -48,9 +48,9 @@ public class kalorias_operaciones extends bases {
     public String web3_direccion_contrato_kaloria_faucet;
     public direcciones_emails_operaciones direcciones_emails_operacion;
     /**
-     * Lista con las direcciones de kalorias_faucets en diferentes blockchains
+     * Lista con las direcciones de kaloria en diferentes blockchains
      */
-    public static class web3_direcciones_kalorias_faucets_listas implements Serializable {
+    public static class web3_direcciones_kalorias_listas implements Serializable {
         public static class filas implements Serializable {
             public String pos;
             public String direccion_cripto;
@@ -70,16 +70,16 @@ public class kalorias_operaciones extends bases {
                 filas fila;
                 fila = new filas();
                 fila.pos = "0";
-                //  = constructor(, )
-                fila.direccion_cripto = "0x7dA658DD7bc77745Ae7C43d79669e667acf2319A";
+                fila.direccion_cripto = "0x911Bd611E4C4cdAd362234F03EA3B8825BE54F2E";
                 o.add(fila);
             } catch (Exception e) {
                 ok.setTxt(e);            
             }
             return ok.es;
         }
-    }    
-    public web3_direcciones_kalorias_faucets_listas web3_direcciones_kalorias_faucets_lista;
+    }
+    
+    public web3_direcciones_kalorias_listas web3_direcciones_kalorias_faucets_lista;
     /**
      * Establece los datos de inicio de la clase.
      * @param _kaloria_i_erc20_web3j
@@ -101,7 +101,7 @@ public class kalorias_operaciones extends bases {
       , String _web3_direccion_contrato_kaloria
       , String _web3_direccion_contrato_kaloria_faucet
       , direcciones_emails_operaciones _direcciones_emails_operacion
-      , web3_direcciones_kalorias_faucets_listas _web3_direcciones_kalorias_faucets_lista
+      , web3_direcciones_kalorias_listas _web3_direcciones_kalorias_faucets_lista
       , Integer _letras_por_linea
       , oks ok, Object... extra_array) throws Exception {
         if (ok.es == false) { return false; }            

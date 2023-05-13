@@ -70,8 +70,6 @@ public class I_erc20_web3j extends I_erc20_bases_web3j {
                 web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
             }
             if (ok.es == false) { return null; }
-            web3j.poner_ultimo_precio_gas(transactionReceipt, ok);
-            if (ok.es == false) { return null; }
             List<OkEventResponse> oks_lista = getOkEvents(transactionReceipt);
             for (OkEventResponse okEventResponse: oks_lista) {
                 if (okEventResponse.es == false) {
@@ -124,8 +122,6 @@ public class I_erc20_web3j extends I_erc20_bases_web3j {
                 if (ok.es == false) { return null; }
                 web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
             }
-            if (ok.es == false) { return null; }
-            web3j.poner_ultimo_precio_gas(transactionReceipt, ok);
             if (ok.es == false) { return null; }
             List<OkEventResponse> oks_lista = getOkEvents(transactionReceipt);
             for (OkEventResponse okEventResponse: oks_lista) {

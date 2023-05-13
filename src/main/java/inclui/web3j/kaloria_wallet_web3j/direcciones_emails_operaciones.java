@@ -73,7 +73,7 @@ public class direcciones_emails_operaciones extends bases {
                 filas fila;
                 fila = new filas();
                 fila.pos = "0";
-                fila.direccion_cripto = "0x7D942D665e14f904425380763B83303d82457488";
+                fila.direccion_cripto = "0x510DcEA2FDf286F66c0C7B9f3F68b145FAbd0128";
                 o.add(fila);
             } catch (Exception e) {
                 ok.setTxt(e);            
@@ -350,7 +350,7 @@ public class direcciones_emails_operaciones extends bases {
             precio_gas = precio_gas.multiply(BigInteger.valueOf(110L));
             precio_gas = precio_gas.divide(BigInteger.valueOf(100L));
             String precio = blockchain_coin_web3j.poner_decimales_a_numero(precio_gas, ok, extra_array);
-            escribir_linea(tr.in(in, "Estimación del precio por ese gas (a precio previo): ") + precio, ok, extra_array);
+            escribir_linea(tr.in(in, "Estimación del precio por ese gas: ") + precio, ok, extra_array);
             clui_formulario.procesar(ok);
             if (ok.es == false) { return false; }
             if (clui_formulario.ser_cancelar(ok) == false) {

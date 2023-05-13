@@ -22,7 +22,7 @@ import static inclui.formularios.control_tablas.k_control_tablas_letras_por_line
 import static inclui.formularios.control_tablas.k_control_tablas_opciones_mapa_lista;
 import inclui.web3j.Erc20_bases_web3j;
 import inclui.web3j.kaloria_wallet_web3j.direcciones_emails_operaciones.web3_direcciones_emails_mapas_listas;
-import inclui.web3j.kaloria_wallet_web3j.kalorias_operaciones.web3_direcciones_kalorias_faucets_listas;
+import inclui.web3j.kaloria_wallet_web3j.kalorias_operaciones.web3_direcciones_kalorias_listas;
 import inclui.web3j.web3_transacciones_mapas;
 import inclui.web3j.web3js;
 import innui.formularios.controles;
@@ -181,37 +181,6 @@ public class Kaloria_wallet_web3j extends iniciales {
         }
     }
     /**
-     * Lista con las direcciones de kaloria en diferentes blockchains
-     */
-    public static class web3_direcciones_kalorias_listas implements Serializable {
-        public static class filas implements Serializable {
-            public String pos;
-            public String direccion_cripto;
-        }
-        public LinkedList<filas> o = new LinkedList<>();
-        /**
-         * Poner valores por defecto
-         * @param ok
-         * @param extras_array
-         * @return
-         * @throws Exception 
-         */
-        public boolean iniciar(oks ok, Object ... extras_array) throws Exception {
-            try {
-                if (ok.es == false) { return ok.es; }
-                o = new LinkedList<>();
-                filas fila;
-                fila = new filas();
-                fila.pos = "0";
-                fila.direccion_cripto = "0x02e6c890B0F268e7d504DecAAedd27AEdad85A51";
-                o.add(fila);
-            } catch (Exception e) {
-                ok.setTxt(e);            
-            }
-            return ok.es;
-        }
-    }
-    /**
      * Lista de tokens en diferentes blockchain (distintos de kaloria)
      */
     public static class web3_direcciones_criptos_datos_listas implements Serializable {
@@ -226,11 +195,11 @@ public class Kaloria_wallet_web3j extends iniciales {
                 if (ok.es == false) { return ok.es; }
                 filas fila = new filas();
                 fila.pos = "0";
-//                fila.criptos_lista = new LinkedList<>() {
-//                    {
-//                        add("");
-//                    }
-//                };
+                fila.criptos_lista = new LinkedList<>() {
+                    {
+                        add("0x9934EfF1C2984B094B9f337F60F6f92235889b51");
+                    }
+                };
                 o.add(fila);
             } catch (Exception e) {
                 ok.setTxt(e);            
@@ -564,15 +533,7 @@ public class Kaloria_wallet_web3j extends iniciales {
             texto = properties.getProperty(k_web3_direcciones_kalorias_faucets_lista);
             if (texto.isBlank() == false) {
                 kaloria_operacion.web3_direcciones_kalorias_faucets_lista = objectMapper.readValue(texto
-                  , kalorias_operaciones.web3_direcciones_kalorias_faucets_listas.class);
-            } else {
-                kaloria_operacion.web3_direcciones_kalorias_faucets_lista = new web3_direcciones_kalorias_faucets_listas();
-                kaloria_operacion.web3_direcciones_kalorias_faucets_lista.iniciar(ok, extras_array);
-                texto = objectMapper.writeValueAsString(kaloria_operacion.web3_direcciones_kalorias_faucets_lista);
-                if (ok.es == false) { return false; }
-                properties.setProperty(k_web3_direcciones_kalorias_faucets_lista, texto);
-                terminar(ok);
-                if (ok.es == false) { return false; }
+                  , kalorias_operaciones.web3_direcciones_kalorias_listas.class);
             }
             if (kaloria_operacion.web3_direcciones_kalorias_faucets_lista != null
               && blockchain_pos < kaloria_operacion.web3_direcciones_kalorias_faucets_lista.o.size()) {
@@ -1290,7 +1251,7 @@ public class Kaloria_wallet_web3j extends iniciales {
                 BigInteger cantidad = i_erc20_web3j.avanzar_separador_decimal(doble, decimales, ok);
                 BigInteger gas_estimado = i_erc20_web3j.estimar_gas_enviar(direccion, cantidad, ok);
                 BigInteger precio_gas = i_erc20_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
-                if (_procesar_formulario_de_aceptar_gas(gas_estimado, precio_gas, ok)) {
+                if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado, precio_gas, ok)) {
                     if (ok.es == false) { return null; }
                     escribir_linea(tr.in(in,"Envío en curso... Espere por favor. "), ok);
                     TransactionReceipt transactionReceipt = i_erc20_web3j.enviar(gas_estimado, direccion, cantidad, ok);
@@ -1320,52 +1281,6 @@ public class Kaloria_wallet_web3j extends iniciales {
             ok.setTxt(e);
         }
         return retorno;
-    }
-    /**
-     * Crea y procesa el formulario para la aceptación del gas necesario para el envío.
-     * @param cantidad_gas Importe de gas por el que preguntar
-     * @param precio_gas
-     * @param ok
-     * @param extra_array
-     * @return
-     * @throws Exception 
-     */
-    public boolean _procesar_formulario_de_aceptar_gas(BigInteger cantidad_gas
-      , BigInteger precio_gas, oks ok, Object... extra_array) throws Exception {
-        if (ok.es == false) { return false; }
-        ResourceBundle in;
-        in = ResourceBundles.getBundle(k_in_ruta);
-        try {
-            clui_formularios clui_formulario = new clui_formularios();
-            control_entradas seleccion_control_entrada = new control_entradas();
-            seleccion_control_entrada.iniciar(k_entradas_tipo_submit, ok);
-            if (ok.es == false) { return false; }
-            seleccion_control_entrada.poner_en_formulario(clui_formulario, k_quitar_submit
-              , null, tr.in(in, "¿Acepta pagar el gas indicado? "), null, ok);
-            if (ok.es == false) { return false; }
-            // Añadir un 20%
-            cantidad_gas = cantidad_gas.multiply(BigInteger.valueOf(120L));
-            cantidad_gas = cantidad_gas.divide(BigInteger.valueOf(100L));
-            precio_gas = precio_gas.multiply(BigInteger.valueOf(120L));
-            precio_gas = precio_gas.divide(BigInteger.valueOf(100L));
-            String precio = blockchain_coin_web3j.poner_decimales_a_numero(precio_gas, ok, extra_array);
-            // Fin Añadir un 20%
-            escribir_linea(tr.in(in, "Estimación de gas (al alza): ") + cantidad_gas.toString(), ok, extra_array);
-            if (ok.es == false) { return false; }
-            escribir_linea(tr.in(in, "Estimación del precio por ese gas (al alza): ") + precio, ok, extra_array);
-            if (ok.es == false) { return false; }
-            clui_formulario.procesar(ok);
-            if (ok.es == false) { return false; }
-            if (clui_formulario.ser_cancelar(ok) == false) {
-                String texto = seleccion_control_entrada.valor.toString();
-                if (texto.equals("1")) {
-                    return true;
-                }
-            }
-        } catch (Exception e) {
-            ok.setTxt(e);
-        }
-        return false;
     }
     /**
      * Crea y procesa el formulario de creacion de wallet
@@ -1708,7 +1623,7 @@ public class Kaloria_wallet_web3j extends iniciales {
                 BigInteger gas_estimado = blockchain_erc20s_kopia_web3j.estimar_gas_envolver(cantidad, ok, extra_array);
                 if (ok.es == false) { return null; }
                 BigInteger precio_gas = blockchain_coin_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
-                if (_procesar_formulario_de_aceptar_gas(gas_estimado, precio_gas, ok)) {
+                if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado, precio_gas, ok)) {
                     if (ok.es == false) { return null; }
                     escribir_linea(tr.in(in,"Operación en curso... Espere por favor. "), ok);
                     if (ok.es == false) { return null; }
@@ -1773,7 +1688,7 @@ public class Kaloria_wallet_web3j extends iniciales {
                 BigInteger gas_estimado = blockchain_erc20s_kopia_web3j.estimar_gas_desenvolver(cantidad, ok, extra_array);
                 if (ok.es == false) { return null; }
                 BigInteger precio_gas = blockchain_coin_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
-                if (_procesar_formulario_de_aceptar_gas(gas_estimado, precio_gas, ok)) {
+                if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado, precio_gas, ok)) {
                     if (ok.es == false) { return null; }
                     escribir_linea(tr.in(in,"Operación en curso... Espere por favor. "), ok);
                     if (ok.es == false) { return null; }

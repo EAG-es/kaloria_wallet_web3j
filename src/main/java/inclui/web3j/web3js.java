@@ -13,10 +13,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import org.web3j.crypto.Credentials;
@@ -69,7 +67,7 @@ public class web3js extends bases {
     public DefaultGasProvider defaultGasProvider = new DefaultGasProvider();
     public BigInteger gasPrice = defaultGasProvider.getGasPrice();
     public BigInteger gasLimit = defaultGasProvider.getGasLimit();
-    public BigInteger ultimo_precio_gas_gwei = BigInteger.ZERO;
+    public gas_precios gas = new gas_precios();
 
     public web3js() {
     }
@@ -90,7 +88,7 @@ public class web3js extends bases {
         defaultGasProvider = origen.defaultGasProvider;
         gasPrice = origen.gasPrice;
         gasLimit = origen.gasLimit;
-        ultimo_precio_gas_gwei = origen.ultimo_precio_gas_gwei;
+        gas = origen.gas;
     }
     /**
      * Realiza las operaciones de inicio de la clase
@@ -150,7 +148,7 @@ public class web3js extends bases {
         return ok.es;
     }
     /**
-     * Obtiene el número nonce necesario como parámetro de las llamadas y las transacciones con gas
+     * Obtiene el número nonce necesario como parámetro de las llamadas y las transacciones con gas_precios
      * @param direccion
      * @param ok
      * @param extras_array
@@ -194,7 +192,7 @@ public class web3js extends bases {
         return null;
     }    
     /**
-     * Llama a una función remota que consume gas (firmándola) utilizando transacciones raw
+     * Llama a una función remota que consume gas_precios (firmándola) utilizando transacciones raw
      * @param remoteFunctionCall
      * @param resultado
      * @param ok
@@ -208,7 +206,7 @@ public class web3js extends bases {
         return _firmar_y_llamar_funcion_con_gas(encodedFunction_tex, resultado, ok, extras_array);
     }
     /**
-     * Llama a una función remota que consume gas (firmándola) utilizando transacciones raw
+     * Llama a una función remota que consume gas_precios (firmándola) utilizando transacciones raw
      * @param encodedFunction_tex
      * @param resultado
      * @param ok
@@ -260,7 +258,7 @@ public class web3js extends bases {
         return transactionReceipt;
     }
     /**
-     * Llama a una función remota que consume gas y envía blockchain-coins (firmándola) utilizando transacciones raw
+     * Llama a una función remota que consume gas_precios y envía blockchain-coins (firmándola) utilizando transacciones raw
      * @param encodedFunction_tex
      * @param valor Unidades de coin que enviar
      * @param resultado
@@ -314,7 +312,7 @@ public class web3js extends bases {
         return transactionReceipt;
     }
     /**
-     * Llama a una función remota que consume gas (firmándola) utilizando transacciones raw
+     * Llama a una función remota que consume gas_precios (firmándola) utilizando transacciones raw
      * @param remoteFunctionCall
      * @param valor Unidades de coin que enviar
      * @param resultado
@@ -358,7 +356,7 @@ public class web3js extends bases {
         return transactionReceipt;
     }
     /**
-     * Llama a una función remota que no consume gas utilizando createEthCallTransaction
+     * Llama a una función remota que no consume gas_precios utilizando createEthCallTransaction
      * @param remoteFunctionCall
      * @param ok
      * @param extras_array
@@ -370,7 +368,7 @@ public class web3js extends bases {
         return llamar_funcion_sin_gas(encodedFunction_tex,ok, extras_array);
     }
     /**
-     * Llama a una función remota que no consume gas utilizando createEthCallTransaction
+     * Llama a una función remota que no consume gas_precios utilizando createEthCallTransaction
      * @param encodedFunction_tex
      * @param ok
      * @param extras_array
@@ -433,7 +431,9 @@ public class web3js extends bases {
                         && gas_estimado.compareTo(web3_gas_disponible_total) > 0) {
                     if (web3_gas_disponible_total.compareTo(BigInteger.ZERO) >= 0) {
                         in = ResourceBundles.getBundle(k_in_ruta);
-                        ok.setTxt(tr.in(in, "El coste estimado de gas es mayor que el gas disponible configurado: ") + web3_gas_disponible_total.toString(), extras_array);
+                        ok.setTxt(tr.in(in, "El coste estimado de gas es mayor que el gas disponible configurado: ") 
+                          + gas_estimado.toString() + " > "
+                          + web3_gas_disponible_total.toString(), extras_array);
                     }
                 }
             }
@@ -443,7 +443,7 @@ public class web3js extends bases {
         return ok.es;
     }
     /**
-     * Estima el gas necesario para pagar una transacción con gas.
+     * Estima el gas_precios necesario para pagar una transacción con gas_precios.
      * @param encodedFunction
      * @param ok
      * @param extras_array
@@ -472,11 +472,11 @@ public class web3js extends bases {
         return retorno;
     }
     /**
-     * Resta el gas usado (Si web3_gas_disponible_total es menor de 0 no se resta.)
+     * Resta el gas_precios usado (Si web3_gas_disponible_total es menor de 0 no se resta.)
      * @param gas_usado 
      * @param ok
      * @param extras_array
-     * @return El gas restante
+     * @return El gas_precios restante
      * @throws Exception 
      */
     public BigInteger restar_gas(BigInteger gas_usado, oks ok, Object ... extras_array) throws Exception {
@@ -492,7 +492,7 @@ public class web3js extends bases {
         return web3_gas_disponible_total;
     }
     /**
-     * Llama a la función con gasto de gas de un contrato inteligente
+     * Llama a la función con gasto de gas_precios de un contrato inteligente
      * @param remoteFunctionCall
      * @param gas_aceptable
      * @param resultado
@@ -517,13 +517,15 @@ public class web3js extends bases {
                 restar_gas(transactionReceipt.getGasUsed(), ok);
             }
             if (ok.es == false) { return null; }
+            poner_ultimo_precio_gas(transactionReceipt, ok, extras_array);
+            if (ok.es == false) { return null; }
         } catch (Exception e) {
             ok.setTxt(e); 
         }
         return transactionReceipt;
     }
     /**
-     * Llama a la función con gasto de gas de un contrato inteligente
+     * Llama a la función con gasto de gas_precios de un contrato inteligente
      * @param remoteFunctionCall
      * @param gas_aceptable
      * @param valor
@@ -548,6 +550,8 @@ public class web3js extends bases {
                 if (ok.es == false) { return null; }
                 restar_gas(transactionReceipt.getGasUsed(), ok);
             }
+            if (ok.es == false) { return null; }
+            poner_ultimo_precio_gas(transactionReceipt, ok, extras_array);
             if (ok.es == false) { return null; }
         } catch (Exception e) {
             ok.setTxt(e); 
@@ -666,51 +670,6 @@ public class web3js extends bases {
         return retorno;
     }
     /**
-     * Estima el coste del necesario para enviar una cantidad a una dirección
-     * @param gas
-     * @param ok
-     * @param extras_array
-     * @return
-     * @throws Exception 
-     */
-    public BigInteger estimar_coste_gas(BigInteger gas, oks ok, Object ... extras_array) throws Exception {
-        if (ok.es == false) { return null; }
-        BigInteger retorno = null;
-        try {
-            if (ultimo_precio_gas_gwei == null 
-             || ultimo_precio_gas_gwei.compareTo(BigInteger.ZERO) == 0) {
-                EthGasPrice ethGasPrice = web3j.ethGasPrice().send();
-                BigInteger actual_gasPrice = ethGasPrice.getGasPrice();
-                ultimo_precio_gas_gwei = actual_gasPrice;
-            }
-            retorno = gas.multiply(ultimo_precio_gas_gwei);
-        } catch (Exception e) {
-            ok.setTxt(e); 
-        }
-        return retorno;
-    }
-    /**
-     * Pone el último precio de gas a partir del recibo de la transaccion
-     * @param transactionReceipt
-     * @param ok
-     * @param extras_array
-     * @return
-     * @throws Exception 
-     */
-    public boolean poner_ultimo_precio_gas(TransactionReceipt transactionReceipt, oks ok, Object ... extras_array) throws Exception {
-        if (ok.es == false) { return false; }
-        try {
-            String gas_tex = transactionReceipt.getEffectiveGasPrice();
-            gas_tex = gas_tex.trim().substring(2); // Quitar 0x
-            Long gas_largo = Long.parseLong(gas_tex, 16);
-            BigInteger bigInteger = BigInteger.valueOf(gas_largo);
-            ultimo_precio_gas_gwei = bigInteger;
-        } catch (Exception e) {
-            ok.setTxt(e); 
-        }
-        return ok.es;
-    }
-    /**
      * Extrae todos los logs de la última llamada de un contrato
      * @param contrato_direccion
      * @param ok
@@ -767,5 +726,52 @@ public class web3js extends bases {
             ok.setTxt(e); 
         }
         return retorno_lista;
+    }
+    /**
+     * Pone el último precio de gas_precios a partir del recibo de la transaccion
+     * @param transactionReceipt
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public boolean poner_ultimo_precio_gas(TransactionReceipt transactionReceipt, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return false; }
+        try {
+            String gas_tex = transactionReceipt.getEffectiveGasPrice();
+            if (gas_tex != null) {
+                gas_tex = gas_tex.trim().substring(2); // Quitar 0x
+                Long gas_largo = Long.parseLong(gas_tex, 16);
+                BigInteger bigInteger = BigInteger.valueOf(gas_largo);
+                gas.ultimo_precio_gas_gwei = bigInteger;
+            }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return ok.es;
+    }
+    /**
+     * Estima el coste del necesario para enviar una cantidad a una dirección
+     * @param gas_a_valorar
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public BigInteger estimar_coste_gas(BigInteger gas_a_valorar, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return null; }
+        BigInteger retorno = null;
+        try {
+            if (gas.ultimo_precio_gas_gwei == null 
+             || gas.ultimo_precio_gas_gwei.compareTo(BigInteger.ZERO) == 0) {
+            EthGasPrice ethGasPrice = web3j.ethGasPrice().send();
+            BigInteger actual_gasPrice = ethGasPrice.getGasPrice();
+                gas.ultimo_precio_gas_gwei = actual_gasPrice;
+            }
+            retorno = gas_a_valorar.multiply(gas.ultimo_precio_gas_gwei);
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return retorno;
     }
 }
