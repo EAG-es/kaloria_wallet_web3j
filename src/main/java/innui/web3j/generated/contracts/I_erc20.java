@@ -64,6 +64,10 @@ public class I_erc20 extends Contract {
             Arrays.<TypeReference<?>>asList(new TypeReference<Address>(true) {}, new TypeReference<Address>(true) {}, new TypeReference<Uint256>(true) {}, new TypeReference<Utf8String>() {}));
     ;
 
+    public static final Event AD_U_U_EVENT = new Event("Ad_u_u", 
+            Arrays.<TypeReference<?>>asList(new TypeReference<Address>(true) {}, new TypeReference<Uint256>(true) {}, new TypeReference<Uint256>(true) {}, new TypeReference<Utf8String>() {}));
+    ;
+
     public static final Event MENSAJE_EVENT = new Event("Mensaje", 
             Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
     ;
@@ -96,9 +100,9 @@ public class I_erc20 extends Contract {
         for (Contract.EventValuesWithLog eventValues : valueList) {
             Ad_ad_uEventResponse typedResponse = new Ad_ad_uEventResponse();
             typedResponse.log = eventValues.getLog();
-            typedResponse.from = (String) eventValues.getIndexedValues().get(0).getValue();
-            typedResponse.to = (String) eventValues.getIndexedValues().get(1).getValue();
-            typedResponse.value = (BigInteger) eventValues.getIndexedValues().get(2).getValue();
+            typedResponse.origen = (String) eventValues.getIndexedValues().get(0).getValue();
+            typedResponse.destino = (String) eventValues.getIndexedValues().get(1).getValue();
+            typedResponse.cantidad = (BigInteger) eventValues.getIndexedValues().get(2).getValue();
             typedResponse.mensaje = (String) eventValues.getNonIndexedValues().get(0).getValue();
             responses.add(typedResponse);
         }
@@ -109,9 +113,9 @@ public class I_erc20 extends Contract {
         Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(AD_AD_U_EVENT, log);
         Ad_ad_uEventResponse typedResponse = new Ad_ad_uEventResponse();
         typedResponse.log = log;
-        typedResponse.from = (String) eventValues.getIndexedValues().get(0).getValue();
-        typedResponse.to = (String) eventValues.getIndexedValues().get(1).getValue();
-        typedResponse.value = (BigInteger) eventValues.getIndexedValues().get(2).getValue();
+        typedResponse.origen = (String) eventValues.getIndexedValues().get(0).getValue();
+        typedResponse.destino = (String) eventValues.getIndexedValues().get(1).getValue();
+        typedResponse.cantidad = (BigInteger) eventValues.getIndexedValues().get(2).getValue();
         typedResponse.mensaje = (String) eventValues.getNonIndexedValues().get(0).getValue();
         return typedResponse;
     }
@@ -124,6 +128,42 @@ public class I_erc20 extends Contract {
         EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
         filter.addSingleTopic(EventEncoder.encode(AD_AD_U_EVENT));
         return ad_ad_uEventFlowable(filter);
+    }
+
+    public static List<Ad_u_uEventResponse> getAd_u_uEvents(TransactionReceipt transactionReceipt) {
+        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(AD_U_U_EVENT, transactionReceipt);
+        ArrayList<Ad_u_uEventResponse> responses = new ArrayList<Ad_u_uEventResponse>(valueList.size());
+        for (Contract.EventValuesWithLog eventValues : valueList) {
+            Ad_u_uEventResponse typedResponse = new Ad_u_uEventResponse();
+            typedResponse.log = eventValues.getLog();
+            typedResponse.direccion = (String) eventValues.getIndexedValues().get(0).getValue();
+            typedResponse.cantidad = (BigInteger) eventValues.getIndexedValues().get(1).getValue();
+            typedResponse.id = (BigInteger) eventValues.getIndexedValues().get(2).getValue();
+            typedResponse.mensaje = (String) eventValues.getNonIndexedValues().get(0).getValue();
+            responses.add(typedResponse);
+        }
+        return responses;
+    }
+
+    public static Ad_u_uEventResponse getAd_u_uEventFromLog(Log log) {
+        Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(AD_U_U_EVENT, log);
+        Ad_u_uEventResponse typedResponse = new Ad_u_uEventResponse();
+        typedResponse.log = log;
+        typedResponse.direccion = (String) eventValues.getIndexedValues().get(0).getValue();
+        typedResponse.cantidad = (BigInteger) eventValues.getIndexedValues().get(1).getValue();
+        typedResponse.id = (BigInteger) eventValues.getIndexedValues().get(2).getValue();
+        typedResponse.mensaje = (String) eventValues.getNonIndexedValues().get(0).getValue();
+        return typedResponse;
+    }
+
+    public Flowable<Ad_u_uEventResponse> ad_u_uEventFlowable(EthFilter filter) {
+        return web3j.ethLogFlowable(filter).map(log -> getAd_u_uEventFromLog(log));
+    }
+
+    public Flowable<Ad_u_uEventResponse> ad_u_uEventFlowable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
+        EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
+        filter.addSingleTopic(EventEncoder.encode(AD_U_U_EVENT));
+        return ad_u_uEventFlowable(filter);
     }
 
     public static List<MensajeEventResponse> getMensajeEvents(TransactionReceipt transactionReceipt) {
@@ -296,11 +336,21 @@ public class I_erc20 extends Contract {
     }
 
     public static class Ad_ad_uEventResponse extends BaseEventResponse {
-        public String from;
+        public String origen;
 
-        public String to;
+        public String destino;
 
-        public BigInteger value;
+        public BigInteger cantidad;
+
+        public String mensaje;
+    }
+
+    public static class Ad_u_uEventResponse extends BaseEventResponse {
+        public String direccion;
+
+        public BigInteger cantidad;
+
+        public BigInteger id;
 
         public String mensaje;
     }
