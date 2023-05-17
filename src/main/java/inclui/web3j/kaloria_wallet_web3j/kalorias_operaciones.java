@@ -238,7 +238,7 @@ public class kalorias_operaciones extends bases {
                     if (ok.es == false) { return false; }
                     escribir_linea(tr.in(in, "Para obtener regalo o pedir préstamo debe estar registrado. "), ok);
                     if (ok.es == false) { return false; }
-                    direcciones_emails_operacion.procesar_formulario_registro(ok);
+                    direcciones_emails_operacion.procesar_formulario_registro_crear(ok);
                     if (ok.es == false) { return false; }
                 }
                 if (ok.es == false) { return false; }

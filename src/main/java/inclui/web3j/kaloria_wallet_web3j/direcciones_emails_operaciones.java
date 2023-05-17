@@ -48,7 +48,7 @@ public class direcciones_emails_operaciones extends bases {
     public Integer letras_por_linea;
     public Direcciones_emails_mapas_web3j direcciones_emails_mapas_web3j;
     public web3_transacciones_mapas web3_transacciones_mapa;
-    public String web3_direccion_contrato_direccione_emails_mapa;
+    public String web3_direccion_contrato_direcciones_emails_mapa;
     public web3js web3j;
     /**
      * Lista con las direcciones de direcciones_emails_mapas en diferentes blockchains
@@ -111,7 +111,7 @@ public class direcciones_emails_operaciones extends bases {
             letras_por_linea = _letras_por_linea;
             direcciones_emails_mapas_web3j = _direcciones_emails_mapas_web3j;
             web3_transacciones_mapa = _web3_transacciones_mapa;
-            web3_direccion_contrato_direccione_emails_mapa = _web3_direccion_contrato_direccione_emails_mapa;
+            web3_direccion_contrato_direcciones_emails_mapa = _web3_direccion_contrato_direccione_emails_mapa;
             web3j = _web3j;
             web3_direcciones_emails_mapas_lista = _web3_direcciones_emails_mapas_lista;
         } catch (Exception e) {
@@ -138,86 +138,8 @@ public class direcciones_emails_operaciones extends bases {
             if (ok.es == false) { return false; }
             switch (opcion) {
             case k_crear -> {
-                control_entradas email_control_entrada = new control_entradas();
-                control_entradas email_repetir_control_entrada = new control_entradas();
-                control_entradas corregir_control_entrada = new control_entradas();
-                clui_formularios clui_formulario = new clui_formularios() {
-                    @Override
-                    public boolean _terminar_formulario(String modo_operacion, oks ok, Object ... extras_array) throws Exception {
-                        try {
-                            if (ok.es == false) { return false; }
-                            String email = email_control_entrada.valor.toString();
-                            String email_repetido = email_repetir_control_entrada.valor.toString();
-                            if (email.equals(email_repetido) == false) {
-                                escribir_linea_error("El email no coincide con el email repetido. ", ok);
-                                if (ok.es == false) { return false; }
-                                repetir(ok);
-                                if (ok.es == false) { return false; }
-                            }
-                        } catch (Exception e) {
-                            throw e;
-                        }
-                        return ok.es;
-                    }
-                };
-                email_control_entrada.iniciar(k_entradas_tipo_email, ok);
+                procesar_formulario_registro_crear(ok, extra_array);
                 if (ok.es == false) { return false; }
-                email_repetir_control_entrada.iniciar(k_entradas_tipo_email, ok);
-                if (ok.es == false) { return false; }
-                corregir_control_entrada.iniciar(k_entradas_tipo_reset, ok);
-                if (ok.es == false) { return false; }
-                email_control_entrada.poner_en_formulario(clui_formulario, k_email_entrada
-                  , null, tr.in(in, "Introduzca el email asociado con la dirección de su wallet. "), null, ok);
-                if (ok.es == false) { return false; }
-                email_repetir_control_entrada.poner_en_formulario(clui_formulario, k_email_repetir_entrada
-                  , null, tr.in(in, "Repita el email. "), null, ok);
-                if (ok.es == false) { return false; }
-                corregir_control_entrada.poner_en_formulario(clui_formulario, k_email_corregir_entrada
-                  , null, tr.in(in, "¿Desea corregir? "), null, ok);
-                if (ok.es == false) { return false; }
-                clui_formulario.procesar(ok, extra_array);
-                if (ok.es == false) { return false; }
-                if (clui_formulario.ser_cancelar(ok, extra_array) == false) {
-                    if (ok.es == false) { break; }
-                    String email = email_control_entrada.valor.toString();
-                    if (direcciones_emails_mapas_web3j.estar_email(email, ok)) {
-                        if (ok.es == false) { break; }
-                        escribir_linea(tr.in(in, "El email indicado ya está registrado. "), ok);
-                        if (ok.es == false) { break; }
-                    } else {
-                        if (ok.es == false) { break; }
-                        direccion = direcciones_emails_mapas_web3j.web3j.credentials.getAddress();
-                        gas_estimado = direcciones_emails_mapas_web3j.estimar_gas_crear(email, ok, extra_array);
-                        if (ok.es == false) { break; }
-                        precio_gas = direcciones_emails_mapas_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
-                        if (ok.es == false) { break; }
-                        if (_procesar_formulario_de_aceptar_gas(gas_estimado, precio_gas, ok)) {
-                            if (ok.es == false) { return false; }
-                            escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extra_array);
-                            if (ok.es == false) { return false; }
-                            TransactionReceipt transactionReceipt = direcciones_emails_mapas_web3j.crear(gas_estimado, email, ok, extra_array);
-                            if (ok.es == false) { break; }
-                            web3_transacciones_mapas.filas fila = new web3_transacciones_mapas.filas();
-                            fila.destino_direccion = direccion;
-                            fila.transaccion_hash = transactionReceipt.getTransactionHash();
-                            fila.gas_usado = transactionReceipt.getGasUsed();
-                            BigInteger bigInteger = direcciones_emails_mapas_web3j.web3j.estimar_coste_gas(fila.gas_usado, ok);
-                            if (ok.es == false) { return false; }
-                            fila.precio_gas = blockchain_coin_web3j.poner_decimales_a_numero(bigInteger, ok);
-                            if (ok.es == false) { return false; }
-                            Long milisegundos = Instant.now().toEpochMilli();
-                            web3_transacciones_mapa.o.put(milisegundos, fila);
-                            String texto = web3_transacciones_mapa.formar_mensaje_transaccion(milisegundos, fila, ok);
-                            if (ok.es == false) { return false; }
-                            escribir_linea(tr.in(in, "Registro realizado. "), ok, extra_array);
-                            if (ok.es == false) { return false; }
-                            escribir_linea(texto, ok, extra_array);
-                            if (ok.es == false) { return false; }
-                        }
-                        if (ok.es == false) { break; }
-                    }
-                }
-                if (ok.es == false) { break; }
             }
             case k_leer -> {
                 direccion = direcciones_emails_mapas_web3j.web3j.credentials.getAddress();
@@ -273,6 +195,113 @@ public class direcciones_emails_operaciones extends bases {
                 escribir_linea_error(tr.in(in, "Opción no válida. "), ok, extra_array);
                 if (ok.es == false) { break; }
             }
+            }
+        } catch (Exception e) {
+            ok.setTxt(e);
+        }
+        return ok.es;
+    }
+    /**
+     * Crea un nuevo registro en direcciones-emails
+     * @param ok
+     * @param extra_array
+     * @return
+     * @throws Exception 
+     */
+    public boolean procesar_formulario_registro_crear(oks ok, Object... extra_array) throws Exception {
+        if (ok.es == false) { return false; }
+        ResourceBundle in;
+        in = ResourceBundles.getBundle(k_in_ruta);
+        try {
+            String direccion;
+            BigInteger gas_estimado;
+            BigInteger precio_gas;
+            boolean es_salir;
+            control_entradas email_control_entrada = new control_entradas();
+            control_entradas email_repetir_control_entrada = new control_entradas();
+            control_entradas corregir_control_entrada = new control_entradas();
+            clui_formularios clui_formulario = new clui_formularios() {
+                @Override
+                public boolean _terminar_formulario(String modo_operacion, oks ok, Object ... extras_array) throws Exception {
+                    try {
+                        if (ok.es == false) { return false; }
+                        String email = email_control_entrada.valor.toString();
+                        String email_repetido = email_repetir_control_entrada.valor.toString();
+                        if (email.equals(email_repetido) == false) {
+                            escribir_linea_error("El email no coincide con el email repetido. ", ok);
+                            if (ok.es == false) { return false; }
+                            repetir(ok);
+                            if (ok.es == false) { return false; }
+                        }
+                    } catch (Exception e) {
+                        throw e;
+                    }
+                    return ok.es;
+                }
+            };
+            email_control_entrada.iniciar(k_entradas_tipo_email, ok);
+            if (ok.es == false) { return false; }
+            email_repetir_control_entrada.iniciar(k_entradas_tipo_email, ok);
+            if (ok.es == false) { return false; }
+            corregir_control_entrada.iniciar(k_entradas_tipo_reset, ok);
+            if (ok.es == false) { return false; }
+            email_control_entrada.poner_en_formulario(clui_formulario, k_email_entrada
+              , null, tr.in(in, "Introduzca el email asociado con la dirección de su wallet. "), null, ok);
+            if (ok.es == false) { return false; }
+            email_repetir_control_entrada.poner_en_formulario(clui_formulario, k_email_repetir_entrada
+              , null, tr.in(in, "Repita el email. "), null, ok);
+            if (ok.es == false) { return false; }
+            corregir_control_entrada.poner_en_formulario(clui_formulario, k_email_corregir_entrada
+              , null, tr.in(in, "¿Desea corregir? "), null, ok);
+            if (ok.es == false) { return false; }
+            while (true) {
+                es_salir = true;
+                clui_formulario.procesar(ok, extra_array);
+                if (ok.es == false) { return false; }
+                if (clui_formulario.ser_cancelar(ok, extra_array) == false) {
+                    if (ok.es == false) { return false; }
+                    String email = email_control_entrada.valor.toString();
+                    if (direcciones_emails_mapas_web3j.estar_email(email, ok)) {
+                        if (ok.es == false) { return false; }
+                        escribir_linea(tr.in(in, "El email indicado ya está registrado. "), ok);
+                        if (ok.es == false) { return false; }
+                        es_salir = false;
+                    } else {
+                        if (ok.es == false) { return false; }
+                        direccion = direcciones_emails_mapas_web3j.web3j.credentials.getAddress();
+                        gas_estimado = direcciones_emails_mapas_web3j.estimar_gas_crear(email, ok, extra_array);
+                        if (ok.es == false) { return false; }
+                        precio_gas = direcciones_emails_mapas_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
+                        if (ok.es == false) { return false; }
+                        if (_procesar_formulario_de_aceptar_gas(gas_estimado, precio_gas, ok)) {
+                            if (ok.es == false) { return false; }
+                            escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extra_array);
+                            if (ok.es == false) { return false; }
+                            TransactionReceipt transactionReceipt = direcciones_emails_mapas_web3j.crear(gas_estimado, email, ok, extra_array);
+                            if (ok.es == false) { return false; }
+                            web3_transacciones_mapas.filas fila = new web3_transacciones_mapas.filas();
+                            fila.destino_direccion = direccion;
+                            fila.transaccion_hash = transactionReceipt.getTransactionHash();
+                            fila.gas_usado = transactionReceipt.getGasUsed();
+                            BigInteger bigInteger = direcciones_emails_mapas_web3j.web3j.estimar_coste_gas(fila.gas_usado, ok);
+                            if (ok.es == false) { return false; }
+                            fila.precio_gas = blockchain_coin_web3j.poner_decimales_a_numero(bigInteger, ok);
+                            if (ok.es == false) { return false; }
+                            Long milisegundos = Instant.now().toEpochMilli();
+                            web3_transacciones_mapa.o.put(milisegundos, fila);
+                            String texto = web3_transacciones_mapa.formar_mensaje_transaccion(milisegundos, fila, ok);
+                            if (ok.es == false) { return false; }
+                            escribir_linea(tr.in(in, "Registro realizado. "), ok, extra_array);
+                            if (ok.es == false) { return false; }
+                            escribir_linea(texto, ok, extra_array);
+                            if (ok.es == false) { return false; }
+                        }
+                    }
+                }
+                if (ok.es == false) { break; }
+                if (es_salir) {
+                    break;
+                }
             }
         } catch (Exception e) {
             ok.setTxt(e);
