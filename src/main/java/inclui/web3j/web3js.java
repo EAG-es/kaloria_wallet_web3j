@@ -13,25 +13,33 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import org.web3j.abi.FunctionReturnDecoder;
+import org.web3j.abi.TypeReference;
+import org.web3j.abi.datatypes.Uint;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.Hash;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.RemoteFunctionCall;
 import org.web3j.protocol.core.methods.request.EthFilter;
 import org.web3j.protocol.core.methods.request.Transaction;
+import org.web3j.protocol.core.methods.response.EthBlockNumber;
 import org.web3j.protocol.core.methods.response.EthCall;
 import org.web3j.protocol.core.methods.response.EthEstimateGas;
 import org.web3j.protocol.core.methods.response.EthGasPrice;
 import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
 import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
+import org.web3j.protocol.core.methods.response.EthLog;
+import org.web3j.protocol.core.methods.response.EthLog.LogResult;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
@@ -774,4 +782,86 @@ public class web3js extends bases {
         }
         return retorno;
     }
+    /**
+     * Busca los logs de una operación de puente por su identificador
+     * @param id
+     * @param contrato_direccion
+     * @param evento_encoded
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public Log buscar_logs_de_puente_por_id(BigInteger id, String contrato_direccion
+      , String evento_encoded, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return null; }
+        ResourceBundle in;
+        in = ResourceBundles.getBundle(k_in_ruta);
+        Log retorno = null;
+        try {
+            EthFilter ethFilter;
+            EthBlockNumber ethBlockNumber;
+            BigInteger inicio_busqueda_bigInteger;
+            DefaultBlockParameter fin_defaultBlockParameter; 
+            DefaultBlockParameter inicio_defaultBlockParameter; 
+            BigInteger cien = BigInteger.valueOf(100L);
+            ethBlockNumber = web3j.ethBlockNumber().send();
+            inicio_busqueda_bigInteger = ethBlockNumber.getBlockNumber();
+            fin_defaultBlockParameter = DefaultBlockParameter.valueOf(inicio_busqueda_bigInteger);
+            boolean es_salir = false;
+            int comparacion_num;
+            BigInteger resultado;
+            EthLog ethLog;
+            List<LogResult> logResult_list;
+            LinkedList<LogResult> logResult_linkedlist = new LinkedList<>();
+            Iterator<LogResult> desdending_iterator;
+            LogResult logResult;
+            Log log;
+            while (true) {
+                if (inicio_busqueda_bigInteger.compareTo(BigInteger.ZERO) <= 0) {
+                    ok.setTxt(tr.in(in, "No se ha encontrado el identificador buscado de operación de puente. "));
+                    break;
+                }
+                if (inicio_busqueda_bigInteger.compareTo(cien) < 0) {
+                    inicio_busqueda_bigInteger = BigInteger.ZERO;
+                } else {
+                    inicio_busqueda_bigInteger = inicio_busqueda_bigInteger.subtract(cien);
+                }
+                inicio_defaultBlockParameter = DefaultBlockParameter.valueOf(inicio_busqueda_bigInteger);
+                ethFilter = new EthFilter(inicio_defaultBlockParameter, fin_defaultBlockParameter, contrato_direccion); 
+                ethFilter.addSingleTopic(evento_encoded);
+                ethLog = web3j.ethGetLogs(ethFilter).send();
+                logResult_list = ethLog.getLogs();
+                logResult_linkedlist.addAll(logResult_list);
+                desdending_iterator = logResult_linkedlist.descendingIterator();
+                while (true) {
+                    if (desdending_iterator.hasNext() == false) {
+                        break;
+                    }
+                    logResult = desdending_iterator.next();
+                    log = (Log) logResult.get();
+                    resultado = ((Uint) FunctionReturnDecoder.decodeIndexedValue(log.getTopics().get(3), new TypeReference<Uint>() {})).getValue();
+                    comparacion_num = resultado.compareTo(id);
+                    if (comparacion_num == 0) {
+                        retorno = log;
+                        es_salir = true;
+                        break;
+                    } else if (comparacion_num < 0) {
+                        ok.setTxt(tr.in(in, "No se ha encontrado el identificador buscado de operación de puente. "));
+                        es_salir = true;
+                        break;
+                    }
+                }
+                if (es_salir) {
+                    break;
+                } else {
+                    fin_defaultBlockParameter = inicio_defaultBlockParameter;
+                }
+            }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return retorno;
+    }
+
 }

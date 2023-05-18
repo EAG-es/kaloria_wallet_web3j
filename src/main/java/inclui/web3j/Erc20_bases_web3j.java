@@ -101,8 +101,8 @@ public abstract class Erc20_bases_web3j extends bases {
      * @return
      * @throws Exception 
      */
-    public BigInteger avanzar_separador_decimal(Double numero, Integer decimales_num, oks ok, Object ... extras_array) throws Exception {
-        return web3js.avanzar_separador_decimal(numero, decimales_num, ok, extras_array);
+    public BigInteger avanzar_separador_decimal(Double numero, oks ok, Object ... extras_array) throws Exception {
+        return web3js.avanzar_separador_decimal(numero, decimales, ok, extras_array);
     }
     
     public web3js getWeb3j() {

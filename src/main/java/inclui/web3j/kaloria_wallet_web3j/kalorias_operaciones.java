@@ -231,8 +231,7 @@ public class kalorias_operaciones extends bases {
             if (ok.es == false) { return false; }
             if (clui_formulario.ser_cancelar(ok) == false) {
                 Double doble = (Double) regalo_cantidad_control_entrada.valor;
-                Integer decimales = kaloria_i_erc20_web3j.leer_decimales(ok, extra_array);
-                BigInteger cantidad = kaloria_i_erc20_web3j.avanzar_separador_decimal(doble, decimales, ok);
+                BigInteger cantidad = kaloria_i_erc20_web3j.avanzar_separador_decimal(doble, ok);
                 String direccion = direcciones_emails_operacion.web3j.credentials.getAddress();
                 if (direcciones_emails_operacion.direcciones_emails_mapas_web3j.estar_direccion(direccion, ok, extra_array) == false) {
                     if (ok.es == false) { return false; }
@@ -394,9 +393,8 @@ public class kalorias_operaciones extends bases {
             if (clui_formulario.ser_cancelar(ok) == false) {
                 if (ok.es == false) { return false; }
                 Double doble = (Double) devolucion_control_entrada.valor;
-                Integer decimales = kaloria_i_erc20_web3j.leer_decimales(ok, extra_array);
                 String direccion = web3_direccion_contrato_kaloria_faucet;
-                BigInteger cantidad = kaloria_i_erc20_web3j.avanzar_separador_decimal(doble, decimales, ok);
+                BigInteger cantidad = kaloria_i_erc20_web3j.avanzar_separador_decimal(doble, ok);
                 if (procesar_formulario_aprobar_gasto(direccion, cantidad, ok)) {
                     if (ok.es == false) { return false; }
                     BigInteger gas_estimado = kaloria_faucect_web3j.estimar_gas_devolver_prestamo(cantidad, ok, extra_array);
@@ -460,8 +458,7 @@ public class kalorias_operaciones extends bases {
             if (clui_formulario.ser_cancelar(ok) == false) {
                 if (ok.es == false) { return false; }
                 Double doble = (Double) para_regalo_control_entrada.valor;
-                Integer decimales = kaloria_i_erc20_web3j.leer_decimales(ok, extra_array);
-                BigInteger cantidad = kaloria_i_erc20_web3j.avanzar_separador_decimal(doble, decimales, ok, extra_array);
+                BigInteger cantidad = kaloria_i_erc20_web3j.avanzar_separador_decimal(doble, ok, extra_array);
                 String direccion = web3_direccion_contrato_kaloria_faucet;
                 if (procesar_formulario_aprobar_gasto(direccion, cantidad, ok)) {
                     BigInteger gas_estimado = kaloria_faucect_web3j.estimar_gas_poner_para_regalo(cantidad, ok, extra_array);
