@@ -73,14 +73,6 @@ public class I_erc20s_kopias extends Contract {
 
     public static final String FUNC_NAME = "name";
 
-    public static final String FUNC_PONER_DECIMALES = "poner_decimales";
-
-    public static final String FUNC_PONER_NOMBRE = "poner_nombre";
-
-    public static final String FUNC_PONER_SIMBOLO = "poner_simbolo";
-
-    public static final String FUNC_PONER_TOTAL_APORTADO = "poner_total_aportado";
-
     public static final String FUNC_SER_ADMINISTRADOR = "ser_administrador";
 
     public static final String FUNC_SYMBOL = "symbol";
@@ -105,6 +97,10 @@ public class I_erc20s_kopias extends Contract {
 
     public static final Event OK_EVENT = new Event("Ok", 
             Arrays.<TypeReference<?>>asList(new TypeReference<Bool>(true) {}, new TypeReference<Utf8String>() {}));
+    ;
+
+    public static final Event ST_U_EVENT = new Event("St_u", 
+            Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}, new TypeReference<Uint256>() {}));
     ;
 
     @Deprecated
@@ -257,6 +253,38 @@ public class I_erc20s_kopias extends Contract {
         EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
         filter.addSingleTopic(EventEncoder.encode(OK_EVENT));
         return okEventFlowable(filter);
+    }
+
+    public static List<St_uEventResponse> getSt_uEvents(TransactionReceipt transactionReceipt) {
+        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(ST_U_EVENT, transactionReceipt);
+        ArrayList<St_uEventResponse> responses = new ArrayList<St_uEventResponse>(valueList.size());
+        for (Contract.EventValuesWithLog eventValues : valueList) {
+            St_uEventResponse typedResponse = new St_uEventResponse();
+            typedResponse.log = eventValues.getLog();
+            typedResponse.texto = (String) eventValues.getNonIndexedValues().get(0).getValue();
+            typedResponse.cantidad = (BigInteger) eventValues.getNonIndexedValues().get(1).getValue();
+            responses.add(typedResponse);
+        }
+        return responses;
+    }
+
+    public static St_uEventResponse getSt_uEventFromLog(Log log) {
+        Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(ST_U_EVENT, log);
+        St_uEventResponse typedResponse = new St_uEventResponse();
+        typedResponse.log = log;
+        typedResponse.texto = (String) eventValues.getNonIndexedValues().get(0).getValue();
+        typedResponse.cantidad = (BigInteger) eventValues.getNonIndexedValues().get(1).getValue();
+        return typedResponse;
+    }
+
+    public Flowable<St_uEventResponse> st_uEventFlowable(EthFilter filter) {
+        return web3j.ethLogFlowable(filter).map(log -> getSt_uEventFromLog(log));
+    }
+
+    public Flowable<St_uEventResponse> st_uEventFlowable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
+        EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
+        filter.addSingleTopic(EventEncoder.encode(ST_U_EVENT));
+        return st_uEventFlowable(filter);
     }
 
     public RemoteFunctionCall<TransactionReceipt> activar() {
@@ -415,38 +443,6 @@ public class I_erc20s_kopias extends Contract {
         return executeRemoteCallSingleValueReturn(function, String.class);
     }
 
-    public RemoteFunctionCall<TransactionReceipt> poner_decimales(BigInteger nuevos_decimales_num) {
-        final Function function = new Function(
-                FUNC_PONER_DECIMALES, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint8(nuevos_decimales_num)), 
-                Collections.<TypeReference<?>>emptyList());
-        return executeRemoteCallTransaction(function);
-    }
-
-    public RemoteFunctionCall<TransactionReceipt> poner_nombre(String nuevo_nombre) {
-        final Function function = new Function(
-                FUNC_PONER_NOMBRE, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(nuevo_nombre)), 
-                Collections.<TypeReference<?>>emptyList());
-        return executeRemoteCallTransaction(function);
-    }
-
-    public RemoteFunctionCall<TransactionReceipt> poner_simbolo(String nuevo_simbolo) {
-        final Function function = new Function(
-                FUNC_PONER_SIMBOLO, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(nuevo_simbolo)), 
-                Collections.<TypeReference<?>>emptyList());
-        return executeRemoteCallTransaction(function);
-    }
-
-    public RemoteFunctionCall<TransactionReceipt> poner_total_aportado(BigInteger nuevo_total_aportado_num) {
-        final Function function = new Function(
-                FUNC_PONER_TOTAL_APORTADO, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint256(nuevo_total_aportado_num)), 
-                Collections.<TypeReference<?>>emptyList());
-        return executeRemoteCallTransaction(function);
-    }
-
     public RemoteFunctionCall<Boolean> ser_administrador(String direccion) {
         final Function function = new Function(FUNC_SER_ADMINISTRADOR, 
                 Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, direccion)), 
@@ -551,5 +547,11 @@ public class I_erc20s_kopias extends Contract {
         public Boolean es;
 
         public String mensaje;
+    }
+
+    public static class St_uEventResponse extends BaseEventResponse {
+        public String texto;
+
+        public BigInteger cantidad;
     }
 }

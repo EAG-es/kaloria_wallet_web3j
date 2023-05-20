@@ -1,6 +1,5 @@
 package inclui.web3j.kaloria;
 
-import static inclui.web3j.web3js.k_tiempo_maximo_esperando_milisegundos;
 import innui.modelos.errores.oks;
 import innui.web3j.generated.contracts.I_erc20s_kopias;
 import innui.web3j.generated.contracts.I_erc20s_kopias.OkEventResponse;
@@ -54,13 +53,6 @@ public class I_erc20s_kopias_web3j extends I_erc20_web3j {
                = web3j.firmar_y_llamar_funcion_con_gas_y_coin(i_erc20s_kopia.envolver(direccion, cantidad)
                    , gas_aceptable, cantidad, null, ok, extras_array);
             if (ok.es == false) { return null; }
-            transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
-                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
-            if (web3j.ser_recibo_vacio(transactionReceipt, ok) == false) {
-                if (ok.es == false) { return null; }
-                web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
-            }
-            if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {
             ok.setTxt(e); 
@@ -97,13 +89,6 @@ public class I_erc20s_kopias_web3j extends I_erc20_web3j {
                = web3j.firmar_y_llamar_funcion_con_gas_y_coin(i_erc20s_kopia.envolver(cantidad)
                    , gas_aceptable, cantidad, null, ok, extras_array);
             if (ok.es == false) { return null; }
-            transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
-                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
-            if (web3j.ser_recibo_vacio(transactionReceipt, ok) == false) {
-                if (ok.es == false) { return null; }
-                web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
-            }
-            if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {
             ok.setTxt(e); 
@@ -138,13 +123,6 @@ public class I_erc20s_kopias_web3j extends I_erc20_web3j {
         try {
             TransactionReceipt transactionReceipt 
                = web3j.firmar_y_llamar_funcion_con_gas(i_erc20s_kopia.desenvolver(direccion, cantidad), gas_aceptable, null, ok, extras_array);
-            if (ok.es == false) { return null; }
-            transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
-                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
-            if (web3j.ser_recibo_vacio(transactionReceipt, ok) == false) {
-                if (ok.es == false) { return null; }
-                web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
-            }
             if (ok.es == false) { return null; }
             List<OkEventResponse> oks_lista = getOkEvents(transactionReceipt);
             for (OkEventResponse okEventResponse: oks_lista) {
@@ -188,13 +166,6 @@ public class I_erc20s_kopias_web3j extends I_erc20_web3j {
         try {
             TransactionReceipt transactionReceipt 
                = web3j.firmar_y_llamar_funcion_con_gas(i_erc20s_kopia.desenvolver(cantidad), gas_aceptable, null, ok, extras_array);
-            if (ok.es == false) { return null; }
-            transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
-                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
-            if (web3j.ser_recibo_vacio(transactionReceipt, ok) == false) {
-                if (ok.es == false) { return null; }
-                web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
-            }
             if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {

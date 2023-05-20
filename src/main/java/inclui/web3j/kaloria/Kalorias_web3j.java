@@ -55,13 +55,6 @@ public class Kalorias_web3j extends bases {
             TransactionReceipt transactionReceipt 
                = web3j.firmar_y_llamar_funcion_con_gas(kaloria.regalar(direccion, cantidad, id), gas_aceptable, null, ok, extras_array);
             if (ok.es == false) { return null; }
-            transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
-                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
-            if (web3j.ser_recibo_vacio(transactionReceipt, ok) == false) {
-                if (ok.es == false) { return null; }
-                web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
-            }
-            if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {
             ok.setTxt(e); 

@@ -192,13 +192,6 @@ public class I_erc20_bases_web3j extends Erc20_bases_web3j {
             TransactionReceipt transactionReceipt 
                = web3j.firmar_y_llamar_funcion_con_gas(i_erc20_base.transfer(direccion, cantidad), gas_aceptable, null, ok, extras_array);
             if (ok.es == false) { return null; }
-            transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
-                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
-            if (web3j.ser_recibo_vacio(transactionReceipt, ok) == false) {
-                if (ok.es == false) { return null; }
-                web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
-            }
-            if (ok.es == false) { return null; }
             List<OkEventResponse> oks_lista = getOkEvents(transactionReceipt);
             for (OkEventResponse okEventResponse: oks_lista) {
                 if (okEventResponse.es == false) {

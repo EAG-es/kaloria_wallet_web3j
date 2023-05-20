@@ -76,6 +76,10 @@ public class I_erc20 extends Contract {
             Arrays.<TypeReference<?>>asList(new TypeReference<Bool>(true) {}, new TypeReference<Utf8String>() {}));
     ;
 
+    public static final Event ST_U_EVENT = new Event("St_u", 
+            Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}, new TypeReference<Uint256>() {}));
+    ;
+
     @Deprecated
     protected I_erc20(String contractAddress, Web3j web3j, Credentials credentials, BigInteger gasPrice, BigInteger gasLimit) {
         super(BINARY, contractAddress, web3j, credentials, gasPrice, gasLimit);
@@ -228,6 +232,38 @@ public class I_erc20 extends Contract {
         return okEventFlowable(filter);
     }
 
+    public static List<St_uEventResponse> getSt_uEvents(TransactionReceipt transactionReceipt) {
+        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(ST_U_EVENT, transactionReceipt);
+        ArrayList<St_uEventResponse> responses = new ArrayList<St_uEventResponse>(valueList.size());
+        for (Contract.EventValuesWithLog eventValues : valueList) {
+            St_uEventResponse typedResponse = new St_uEventResponse();
+            typedResponse.log = eventValues.getLog();
+            typedResponse.texto = (String) eventValues.getNonIndexedValues().get(0).getValue();
+            typedResponse.cantidad = (BigInteger) eventValues.getNonIndexedValues().get(1).getValue();
+            responses.add(typedResponse);
+        }
+        return responses;
+    }
+
+    public static St_uEventResponse getSt_uEventFromLog(Log log) {
+        Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(ST_U_EVENT, log);
+        St_uEventResponse typedResponse = new St_uEventResponse();
+        typedResponse.log = log;
+        typedResponse.texto = (String) eventValues.getNonIndexedValues().get(0).getValue();
+        typedResponse.cantidad = (BigInteger) eventValues.getNonIndexedValues().get(1).getValue();
+        return typedResponse;
+    }
+
+    public Flowable<St_uEventResponse> st_uEventFlowable(EthFilter filter) {
+        return web3j.ethLogFlowable(filter).map(log -> getSt_uEventFromLog(log));
+    }
+
+    public Flowable<St_uEventResponse> st_uEventFlowable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
+        EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
+        filter.addSingleTopic(EventEncoder.encode(ST_U_EVENT));
+        return st_uEventFlowable(filter);
+    }
+
     public RemoteFunctionCall<BigInteger> allowance(String owner, String spender) {
         final Function function = new Function(FUNC_ALLOWANCE, 
                 Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, owner), 
@@ -363,5 +399,11 @@ public class I_erc20 extends Contract {
         public Boolean es;
 
         public String mensaje;
+    }
+
+    public static class St_uEventResponse extends BaseEventResponse {
+        public String texto;
+
+        public BigInteger cantidad;
     }
 }

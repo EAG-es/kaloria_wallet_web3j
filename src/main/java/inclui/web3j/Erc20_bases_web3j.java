@@ -95,7 +95,6 @@ public abstract class Erc20_bases_web3j extends bases {
     /**
      * Avanza el separador decimal multiplicando por 10
      * @param numero
-     * @param decimales_num
      * @param ok
      * @param extras_array
      * @return
@@ -103,6 +102,17 @@ public abstract class Erc20_bases_web3j extends bases {
      */
     public BigInteger avanzar_separador_decimal(Double numero, oks ok, Object ... extras_array) throws Exception {
         return web3js.avanzar_separador_decimal(numero, decimales, ok, extras_array);
+    }
+    /**
+     * Retrocede el separador decimal dividiendo por 10
+     * @param numero
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public Double retroceder_separador_decimal(BigInteger numero, oks ok, Object ... extras_array) throws Exception {
+        return web3js.retroceder_separador_decimal(numero, decimales, ok, extras_array);
     }
     
     public web3js getWeb3j() {

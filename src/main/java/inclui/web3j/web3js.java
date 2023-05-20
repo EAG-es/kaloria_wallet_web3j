@@ -18,9 +18,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import org.web3j.abi.DefaultFunctionReturnDecoder;
 import org.web3j.abi.FunctionReturnDecoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Uint;
+import org.web3j.abi.datatypes.Utf8String;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.Hash;
 import org.web3j.crypto.RawTransaction;
@@ -244,7 +246,7 @@ public class web3js extends bases {
             ethSendTransaction = web3j.ethSendRawTransaction(transaccion_firmada).send();
             if (ethSendTransaction.hasError()) {
                 ok.setTxt(tr.in(in, "Llamada a función de contrato inteligente: ") 
-                        + encodedFunction_tex + " " 
+                        + rawTransaction.getTo() + " " 
                         + tr.in(in, "con error: ")
                         + ethSendTransaction.getError().getMessage(), ok, extras_array);
             } else {
@@ -298,7 +300,7 @@ public class web3js extends bases {
             ethSendTransaction = web3j.ethSendRawTransaction(transaccion_firmada).send();
             if (ethSendTransaction.hasError()) {
                 ok.setTxt(tr.in(in, "Llamada a función de contrato inteligente: ") 
-                        + encodedFunction_tex + " " 
+                        + rawTransaction.getTo() + " " 
                         + tr.in(in, "con error: ")
                         + ethSendTransaction.getError().getMessage(), ok, extras_array);
             } else {
@@ -394,16 +396,16 @@ public class web3js extends bases {
             Transaction transaction = Transaction.createEthCallTransaction(credentials.getAddress()
               , web3_direccion_contrato, encodedFunction_tex);            
             ethCall = web3j.ethCall(transaction, DefaultBlockParameterName.LATEST).send();
-            if (ethCall.isReverted()) {
+            if (ethCall.isReverted()) {                
                 ok.setTxt(tr.in(in, "Llamada a función de contrato inteligente: ") 
-                        + encodedFunction_tex + " " 
+                        + transaction.getTo() + " " 
                         + tr.in(in, "revertida: ")
                         + ethCall.getRevertReason(), ok, extras_array);
             }
             if (ok.es == false) { return null; }
             if (ethCall.hasError()) {
                 ok.setTxt(tr.in(in, "Llamada a función de contrato inteligente: ") 
-                        + encodedFunction_tex + " " 
+                        + transaction.getTo() + " " 
                         + tr.in(in, "con error: ")
                         + ethCall.getError().getMessage(), ok, extras_array);
             }
@@ -672,6 +674,34 @@ public class web3js extends bases {
             }
             numero = numero * multiplicador;
             retorno = BigInteger.valueOf(numero.longValue());
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return retorno;
+    }
+    /**
+     * Retrocede el separador decimal dividiendo por 10
+     * @param numero
+     * @param decimales_num
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public static Double retroceder_separador_decimal(BigInteger numero, Integer decimales_num, oks ok, Object ... extras_array) throws Exception {
+        Double retorno = null;
+        try {
+            if (ok.es == false) { return null; }
+            Double divisor = 1.0;
+            int i = 0;
+            while (true) {
+                if (i >= decimales_num) {
+                    break;
+                }
+                divisor = divisor / 10.0;
+                i = i + 1;
+            }
+            retorno = numero.doubleValue() / divisor;
         } catch (Exception e) {
             ok.setTxt(e); 
         }

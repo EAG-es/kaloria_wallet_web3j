@@ -13,8 +13,8 @@ import innui.bases;
 import innui.modelos.configuraciones.ResourceBundles;
 import innui.modelos.errores.oks;
 import innui.modelos.internacionalizacion.tr;
+import innui.ref;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.HashMap;
@@ -70,7 +70,7 @@ public class kalorias_operaciones extends bases {
                 filas fila;
                 fila = new filas();
                 fila.pos = "0";
-                fila.direccion_cripto = "0x911Bd611E4C4cdAd362234F03EA3B8825BE54F2E";
+                fila.direccion_cripto = "0x...";
                 o.add(fila);
             } catch (Exception e) {
                 ok.setTxt(e);            
@@ -245,8 +245,10 @@ public class kalorias_operaciones extends bases {
                 if (ok.es) { 
                     precio_gas = kaloria_faucect_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                     if (ok.es == false) { return false; }
-                    if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado, precio_gas, ok)) {
+                    ref<BigInteger> gas_estimado_ref = new ref<>(gas_estimado);
+                    if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
                         if (ok.es == false) { return false; }
+                        gas_estimado = gas_estimado_ref.get();
                         escribir_linea(tr.in(in,"Regalo en curso... Espere por favor. "), ok);
                         if (ok.es == false) { return false; }
                         transactionReceipt = kaloria_faucect_web3j.pedir_regalo(gas_estimado, cantidad, ok, extra_array);
@@ -274,8 +276,7 @@ public class kalorias_operaciones extends bases {
                     }
                     if (ok.es == false) { return false; }
                 } else {
-                    ok.iniciar();
-                    escribir_linea(tr.in(in, "Regalo denegado. ") + ok.getTxt(), ok, extra_array);
+                    escribir_linea(tr.in(in, "Regalo denegado. ") + ok.getTxt(), ok.iniciar(), extra_array);
                     if (ok.es == false) { return false; }
                     BigInteger prestamo_puntos_interes_a_retener = kaloria_faucect_web3j.leer_prestamo_puntos_interes_a_retener(ok);
                     if (ok.es == false) { return false; }
@@ -293,8 +294,10 @@ public class kalorias_operaciones extends bases {
                         if (ok.es == false) { return false; }
                         precio_gas = kaloria_faucect_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                         if (ok.es == false) { return false; }
-                        if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado, precio_gas, ok)) {
+                        ref<BigInteger> gas_estimado_ref = new ref<>(gas_estimado);
+                        if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
                             if (ok.es == false) { return false; }
+                            gas_estimado = gas_estimado_ref.get();
                             escribir_linea(tr.in(in,"Operación en curso... Espere por favor. "), ok);
                             if (ok.es == false) { return false; }
                             transactionReceipt = kaloria_faucect_web3j.pedir_prestamo(gas_estimado, cantidad, ok, extra_array);
@@ -401,8 +404,10 @@ public class kalorias_operaciones extends bases {
                     if (ok.es == false) { return false; }
                     BigInteger precio_gas = kaloria_faucect_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                     if (ok.es == false) { return false; }
-                    if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado, precio_gas, ok)) {
+                    ref<BigInteger> gas_estimado_ref = new ref<>(gas_estimado);
+                    if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
                         if (ok.es == false) { return false; }
+                        gas_estimado = gas_estimado_ref.get();
                         escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extra_array);
                         if (ok.es == false) { return false; }
                         TransactionReceipt transactionReceipt = kaloria_faucect_web3j.devolver_prestamo(gas_estimado, cantidad, ok, extra_array);
@@ -465,8 +470,10 @@ public class kalorias_operaciones extends bases {
                     if (ok.es == false) { return false; }
                     BigInteger precio_gas = kaloria_faucect_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                     if (ok.es == false) { return false; }
-                    if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado, precio_gas, ok)) {
+                    ref<BigInteger> gas_estimado_ref = new ref<>(gas_estimado);
+                    if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
                         if (ok.es == false) { return false; }
+                        gas_estimado = gas_estimado_ref.get();
                         escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extra_array);
                         if (ok.es == false) { return false; }
                         TransactionReceipt transactionReceipt = kaloria_faucect_web3j.poner_para_regalo(gas_estimado, cantidad, ok, extra_array);
@@ -517,8 +524,10 @@ public class kalorias_operaciones extends bases {
             if (ok.es == false) { return false; }
             BigInteger precio_gas = kaloria_i_erc20_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
             if (ok.es == false) { return false; }
-            if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado, precio_gas, ok)) {
+            ref<BigInteger> gas_estimado_ref = new ref<>(gas_estimado);
+            if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
                 if (ok.es == false) { return false; }
+                gas_estimado = gas_estimado_ref.get();
                 escribir_linea(tr.in(in,"Aprobación en curso... Espere por favor. "), ok);
                 if (ok.es == false) { return false; }
                 transactionReceipt = kaloria_i_erc20_web3j.aprobar(gas_estimado, destino_dir, cantidad, ok, extra_array);

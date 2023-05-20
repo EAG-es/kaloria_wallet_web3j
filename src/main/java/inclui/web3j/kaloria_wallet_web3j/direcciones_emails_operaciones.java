@@ -19,6 +19,7 @@ import innui.bases;
 import innui.modelos.configuraciones.ResourceBundles;
 import innui.modelos.errores.oks;
 import innui.modelos.internacionalizacion.tr;
+import innui.ref;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.time.Instant;
@@ -73,7 +74,7 @@ public class direcciones_emails_operaciones extends bases {
                 filas fila;
                 fila = new filas();
                 fila.pos = "0";
-                fila.direccion_cripto = "0x510DcEA2FDf286F66c0C7B9f3F68b145FAbd0128";
+                fila.direccion_cripto = "0x...";
                 o.add(fila);
             } catch (Exception e) {
                 ok.setTxt(e);            
@@ -164,8 +165,10 @@ public class direcciones_emails_operaciones extends bases {
                     if (ok.es == false) { return false; }
                     precio_gas = direcciones_emails_mapas_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                     if (ok.es == false) { break; }
-                    if (_procesar_formulario_de_aceptar_gas(gas_estimado, precio_gas, ok)) {
+                    ref<BigInteger> gas_estimado_ref = new ref<>(gas_estimado);
+                    if (_procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
                         if (ok.es == false) { return false; }
+                        gas_estimado = gas_estimado_ref.get();
                         escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extra_array);
                         if (ok.es == false) { return false; }
                         TransactionReceipt transactionReceipt = direcciones_emails_mapas_web3j.borrar(gas_estimado, ok);
@@ -269,32 +272,42 @@ public class direcciones_emails_operaciones extends bases {
                     } else {
                         if (ok.es == false) { return false; }
                         direccion = direcciones_emails_mapas_web3j.web3j.credentials.getAddress();
-                        gas_estimado = direcciones_emails_mapas_web3j.estimar_gas_crear(email, ok, extra_array);
-                        if (ok.es == false) { return false; }
-                        precio_gas = direcciones_emails_mapas_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
-                        if (ok.es == false) { return false; }
-                        if (_procesar_formulario_de_aceptar_gas(gas_estimado, precio_gas, ok)) {
+                        if (direcciones_emails_mapas_web3j.estar_direccion(direccion, ok)) {
                             if (ok.es == false) { return false; }
-                            escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extra_array);
+                            escribir_linea(tr.in(in, "Su dirección ya está registrada. "), ok);
                             if (ok.es == false) { return false; }
-                            TransactionReceipt transactionReceipt = direcciones_emails_mapas_web3j.crear(gas_estimado, email, ok, extra_array);
+                            es_salir = true;
+                        } else {
                             if (ok.es == false) { return false; }
-                            web3_transacciones_mapas.filas fila = new web3_transacciones_mapas.filas();
-                            fila.destino_direccion = direccion;
-                            fila.transaccion_hash = transactionReceipt.getTransactionHash();
-                            fila.gas_usado = transactionReceipt.getGasUsed();
-                            BigInteger bigInteger = direcciones_emails_mapas_web3j.web3j.estimar_coste_gas(fila.gas_usado, ok);
+                            gas_estimado = direcciones_emails_mapas_web3j.estimar_gas_crear(email, ok, extra_array);
                             if (ok.es == false) { return false; }
-                            fila.precio_gas = blockchain_coin_web3j.poner_decimales_a_numero(bigInteger, ok);
+                            precio_gas = direcciones_emails_mapas_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                             if (ok.es == false) { return false; }
-                            Long milisegundos = Instant.now().toEpochMilli();
-                            web3_transacciones_mapa.o.put(milisegundos, fila);
-                            String texto = web3_transacciones_mapa.formar_mensaje_transaccion(milisegundos, fila, ok);
-                            if (ok.es == false) { return false; }
-                            escribir_linea(tr.in(in, "Registro realizado. "), ok, extra_array);
-                            if (ok.es == false) { return false; }
-                            escribir_linea(texto, ok, extra_array);
-                            if (ok.es == false) { return false; }
+                            ref<BigInteger> gas_estimado_ref = new ref<>(gas_estimado);
+                            if (_procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
+                                if (ok.es == false) { return false; }
+                                gas_estimado = gas_estimado_ref.get();
+                                escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extra_array);
+                                if (ok.es == false) { return false; }
+                                TransactionReceipt transactionReceipt = direcciones_emails_mapas_web3j.crear(gas_estimado, email, ok, extra_array);
+                                if (ok.es == false) { return false; }
+                                web3_transacciones_mapas.filas fila = new web3_transacciones_mapas.filas();
+                                fila.destino_direccion = direccion;
+                                fila.transaccion_hash = transactionReceipt.getTransactionHash();
+                                fila.gas_usado = transactionReceipt.getGasUsed();
+                                BigInteger bigInteger = direcciones_emails_mapas_web3j.web3j.estimar_coste_gas(fila.gas_usado, ok);
+                                if (ok.es == false) { return false; }
+                                fila.precio_gas = blockchain_coin_web3j.poner_decimales_a_numero(bigInteger, ok);
+                                if (ok.es == false) { return false; }
+                                Long milisegundos = Instant.now().toEpochMilli();
+                                web3_transacciones_mapa.o.put(milisegundos, fila);
+                                String texto = web3_transacciones_mapa.formar_mensaje_transaccion(milisegundos, fila, ok);
+                                if (ok.es == false) { return false; }
+                                escribir_linea(tr.in(in, "Registro realizado. "), ok, extra_array);
+                                if (ok.es == false) { return false; }
+                                escribir_linea(texto, ok, extra_array);
+                                if (ok.es == false) { return false; }
+                            }
                         }
                     }
                 }
@@ -342,6 +355,8 @@ public class direcciones_emails_operaciones extends bases {
             if (clui_formulario.ser_cancelar(ok) == false) {
                 retorno = seleccion_control_seleccion.leer_seleccion(ok, extra_array).toString();
                 if (ok.es == false) { return null; }
+            } else {
+                ok.setTxt(tr.in(in, "Cancelado "));
             }
         } catch (Exception e) {
             ok.setTxt(e);
@@ -357,7 +372,7 @@ public class direcciones_emails_operaciones extends bases {
      * @return
      * @throws Exception 
      */
-    public boolean _procesar_formulario_de_aceptar_gas(BigInteger cantidad_gas
+    public boolean _procesar_formulario_de_aceptar_gas(ref<BigInteger> cantidad_gas
       , BigInteger precio_gas, oks ok, Object... extra_array) throws Exception {
         if (ok.es == false) { return false; }
         String k_aceptar_gas_submit = "aceptar_gas_submit";
@@ -372,10 +387,10 @@ public class direcciones_emails_operaciones extends bases {
               , null, tr.in(in, "¿Acepta pagar el gas indicado? "), null, ok);
             if (ok.es == false) { return false; }
             // Añadir un 10%
-            cantidad_gas = cantidad_gas.multiply(BigInteger.valueOf(110L));
-            cantidad_gas = cantidad_gas.divide(BigInteger.valueOf(100L));
+            cantidad_gas.o = cantidad_gas.o.multiply(BigInteger.valueOf(110L));
+            cantidad_gas.o = cantidad_gas.o.divide(BigInteger.valueOf(100L));
             // Fin Añadir un 10%
-            escribir_linea(tr.in(in, "Estimación de gas (al alza): ") + cantidad_gas.toString(), ok, extra_array);
+            escribir_linea(tr.in(in, "Estimación de gas (al alza): ") + cantidad_gas.get().toString(), ok, extra_array);
             precio_gas = precio_gas.multiply(BigInteger.valueOf(110L));
             precio_gas = precio_gas.divide(BigInteger.valueOf(100L));
             String precio = blockchain_coin_web3j.poner_decimales_a_numero(precio_gas, ok, extra_array);

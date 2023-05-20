@@ -52,10 +52,10 @@ public class Direcciones_emails_mapas_web3j extends bases {
     public Boolean estar_email(String email, oks ok, Object ... extras_array) throws Exception {
         Boolean retorno = null;
         try {
-            if (ok.es == false) { return null; }
+            if (ok.es == false) { return false; }
             RemoteFunctionCall<Boolean> remoteFunctionCall = direcciones_emails_mapa.estar_email(email);
             EthCall ethCall = web3j.llamar_funcion_sin_gas(remoteFunctionCall, ok, extras_array);
-            if (ok.es == false) { return null; }
+            if (ok.es == false) { return false; }
             List<Type> types_list = remoteFunctionCall.decodeFunctionResponse(ethCall.getValue());
             if (types_list != null) {
                 retorno = (Boolean) types_list.get(0).getValue();
@@ -225,49 +225,6 @@ public class Direcciones_emails_mapas_web3j extends bases {
      */
     public BigInteger estimar_gas_crear(String email, oks ok, Object ... extras_array) throws Exception {
         RemoteFunctionCall<TransactionReceipt> remoteFunctionCall = direcciones_emails_mapa.crear(email);
-        String encodedFunction = remoteFunctionCall.encodeFunctionCall();
-        return web3j.estimar_gas(encodedFunction, ok, extras_array);
-    }
-    /**
-     * Actualiza un registro
-     * @param gas_aceptable
-     * @param direccion
-     * @param email
-     * @param ok
-     * @param extras_array
-     * @return
-     * @throws Exception 
-     */
-    public TransactionReceipt actualizar(BigInteger gas_aceptable, String direccion, String email, oks ok, Object ... extras_array) throws Exception {
-        if (ok.es == false) { return null; }
-        TransactionReceipt transactionReceipt = null;
-        try {
-            if (email == null || email.isBlank()) {
-                ok.setTxt("No se puede poner un valor nulo o vacío. ", extras_array);
-            }
-            if (direccion == null || direccion.isBlank()) {
-                ok.setTxt(ok.getTxt(), "No se puede poner una direccion nula o vacía. ", extras_array);
-            }
-            if (ok.es == false) { return null; }
-            RemoteFunctionCall<TransactionReceipt> remoteFunctionCall = direcciones_emails_mapa.actualizar(direccion, email);
-            transactionReceipt = web3j.firmar_y_llamar_funcion_con_gas(remoteFunctionCall, gas_aceptable, null, ok, extras_array);
-            if (ok.es == false) { return null; }
-        } catch (Exception e) {
-            ok.setTxt(e); 
-        }
-        return transactionReceipt;
-    }
-    /**
-     * Estima el gas necesario para enviar una cantidad a una dirección
-     * @param direccion
-     * @param email
-     * @param ok
-     * @param extras_array
-     * @return
-     * @throws Exception 
-     */
-    public BigInteger estimar_gas_actualizar(String direccion, String email, oks ok, Object ... extras_array) throws Exception {
-        RemoteFunctionCall<TransactionReceipt> remoteFunctionCall = direcciones_emails_mapa.actualizar(direccion, email);
         String encodedFunction = remoteFunctionCall.encodeFunctionCall();
         return web3j.estimar_gas(encodedFunction, ok, extras_array);
     }

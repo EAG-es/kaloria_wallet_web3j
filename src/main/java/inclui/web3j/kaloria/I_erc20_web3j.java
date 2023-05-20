@@ -1,22 +1,14 @@
 package inclui.web3j.kaloria;
 
-import static inclui.web3j.web3js.k_tiempo_maximo_esperando_milisegundos;
 import innui.modelos.errores.oks;
 import innui.web3j.generated.contracts.I_erc20;
 import innui.web3j.generated.contracts.I_erc20.OkEventResponse;
 import static innui.web3j.generated.contracts.I_erc20.getOkEvents;
-import static innui.web3j.generated.contracts.Kalorias.OK_EVENT;
 import java.math.BigInteger;
 import java.util.List;
-import org.web3j.abi.EventEncoder;
-import org.web3j.abi.FunctionReturnDecoder;
-import org.web3j.abi.TypeReference;
-import org.web3j.abi.datatypes.Bool;
 import org.web3j.abi.datatypes.Type;
-import org.web3j.abi.datatypes.Utf8String;
 import org.web3j.protocol.core.RemoteFunctionCall;
 import org.web3j.protocol.core.methods.response.EthCall;
-import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 /**
@@ -63,13 +55,6 @@ public class I_erc20_web3j extends I_erc20_bases_web3j {
             TransactionReceipt transactionReceipt 
                = web3j.firmar_y_llamar_funcion_con_gas(i_erc20.approve(direccion, cantidad), gas_aceptable, null, ok, extras_array);
             if (ok.es == false) { return null; }
-            transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
-                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
-            if (web3j.ser_recibo_vacio(transactionReceipt, ok) == false) {
-                if (ok.es == false) { return null; }
-                web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
-            }
-            if (ok.es == false) { return null; }
             List<OkEventResponse> oks_lista = getOkEvents(transactionReceipt);
             for (OkEventResponse okEventResponse: oks_lista) {
                 if (okEventResponse.es == false) {
@@ -115,13 +100,6 @@ public class I_erc20_web3j extends I_erc20_bases_web3j {
         try {
             TransactionReceipt transactionReceipt 
                = web3j.firmar_y_llamar_funcion_con_gas(i_erc20.transferFrom(direccion_origen, direccion_destino, cantidad), gas_aceptable, null, ok, extras_array);
-            if (ok.es == false) { return null; }
-            transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
-                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
-            if (web3j.ser_recibo_vacio(transactionReceipt, ok) == false) {
-                if (ok.es == false) { return null; }
-                web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
-            }
             if (ok.es == false) { return null; }
             List<OkEventResponse> oks_lista = getOkEvents(transactionReceipt);
             for (OkEventResponse okEventResponse: oks_lista) {

@@ -56,13 +56,6 @@ public class Kalorias_faucets_web3j extends bases {
             TransactionReceipt transactionReceipt 
                = web3j.firmar_y_llamar_funcion_con_gas(kaloria_faucet.pedir_regalo(direccion, cantidad), gas_aceptable, null, ok, extras_array);
             if (ok.es == false) { return null; }
-            transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
-                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
-            if (web3j.ser_recibo_vacio(transactionReceipt, ok) == false) {
-                if (ok.es == false) { return null; }
-                web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
-            }
-            if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {
             ok.setTxt(e); 
@@ -105,13 +98,6 @@ public class Kalorias_faucets_web3j extends bases {
             TransactionReceipt transactionReceipt 
                = web3j.firmar_y_llamar_funcion_con_gas(kaloria_faucet.pedir_prestamo(direccion, cantidad), gas_aceptable, null, ok, extras_array);
             if (ok.es == false) { return null; }
-            transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
-                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
-            if (web3j.ser_recibo_vacio(transactionReceipt, ok) == false) {
-                if (ok.es == false) { return null; }
-                web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
-            }
-            if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {
             ok.setTxt(e); 
@@ -153,13 +139,6 @@ public class Kalorias_faucets_web3j extends bases {
             TransactionReceipt transactionReceipt 
                = web3j.firmar_y_llamar_funcion_con_gas(kaloria_faucet.pedir_regalo(cantidad), gas_aceptable, null, ok, extras_array);
             if (ok.es == false) { return null; }
-            transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
-                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
-            if (web3j.ser_recibo_vacio(transactionReceipt, ok) == false) {
-                if (ok.es == false) { return null; }
-                web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
-            }
-            if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {
             ok.setTxt(e); 
@@ -199,13 +178,6 @@ public class Kalorias_faucets_web3j extends bases {
         try {
             TransactionReceipt transactionReceipt 
                = web3j.firmar_y_llamar_funcion_con_gas(kaloria_faucet.pedir_prestamo(cantidad), gas_aceptable, null, ok, extras_array);
-            if (ok.es == false) { return null; }
-            transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
-                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
-            if (web3j.ser_recibo_vacio(transactionReceipt, ok) == false) {
-                if (ok.es == false) { return null; }
-                web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
-            }
             if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {
@@ -248,13 +220,6 @@ public class Kalorias_faucets_web3j extends bases {
             TransactionReceipt transactionReceipt 
                = web3j.firmar_y_llamar_funcion_con_gas(kaloria_faucet.devolver_prestamo(direccion, cantidad), gas_aceptable, null, ok, extras_array);
             if (ok.es == false) { return null; }
-            transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
-                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
-            if (web3j.ser_recibo_vacio(transactionReceipt, ok) == false) {
-                if (ok.es == false) { return null; }
-                web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
-            }
-            if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {
             ok.setTxt(e); 
@@ -295,13 +260,6 @@ public class Kalorias_faucets_web3j extends bases {
         try {
             TransactionReceipt transactionReceipt 
                = web3j.firmar_y_llamar_funcion_con_gas(kaloria_faucet.devolver_prestamo(cantidad), gas_aceptable, null, ok, extras_array);
-            if (ok.es == false) { return null; }
-            transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
-                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
-            if (web3j.ser_recibo_vacio(transactionReceipt, ok) == false) {
-                if (ok.es == false) { return null; }
-                web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
-            }
             if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {
@@ -459,13 +417,6 @@ public class Kalorias_faucets_web3j extends bases {
         try {
             TransactionReceipt transactionReceipt 
                = web3j.firmar_y_llamar_funcion_con_gas(kaloria_faucet.poner_para_regalo(cantidad), gas_aceptable, null, ok, extras_array);
-            if (ok.es == false) { return null; }
-            transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
-                  , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
-            if (web3j.ser_recibo_vacio(transactionReceipt, ok) == false) {
-                if (ok.es == false) { return null; }
-                web3j.restar_gas(transactionReceipt.getGasUsed(), ok);
-            }
             if (ok.es == false) { return null; }
             retorno = transactionReceipt;
         } catch (Exception e) {
