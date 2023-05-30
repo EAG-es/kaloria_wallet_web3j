@@ -23,12 +23,15 @@ import static inclui.formularios.control_tablas.k_control_tablas_opciones_mapa_l
 import inclui.web3j.Erc20_bases_web3j;
 import inclui.web3j.kaloria_wallet_web3j.direcciones_emails_operaciones.web3_direcciones_emails_mapas_listas;
 import inclui.web3j.kaloria_wallet_web3j.kalorias_operaciones.web3_direcciones_kalorias_listas;
+import static inclui.web3j.wallet_a_file_web3j.Wallet_a_file_web3j.k_wallet_ruta;
 import inclui.web3j.web3_transacciones_mapas;
 import inclui.web3j.web3js;
 import innui.formularios.controles;
+import static innui.formularios.controles.k_opciones_mapa_no_requerido;
 import innui.modelos.configuraciones.ResourceBundles;
 import innui.modelos.configuraciones.Resources;
 import innui.modelos.configuraciones.iniciales;
+import innui.modelos.configuraciones.rutas;
 import innui.modelos.errores.oks;
 import innui.modelos.internacionalizacion.tr;
 import innui.modelos.modelos;
@@ -48,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
+import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
@@ -77,6 +81,10 @@ public class Kaloria_wallet_web3j extends iniciales {
     public static String k_crear_wallet_contraseña_repetida_password = "contraseña_repetida_password";
     public static String k_wallet_tabla = "wallet_tabla";
     public static String k_wallet_seleccion = "wallet_seleccion";
+    public static String k_wallet_nueva_o_importar_seleccion = "wallet_nueva_o_importar_seleccion";
+    public static final String k_wallet_nueva = "wallet_nueva";
+    public static final String k_wallet_importar_desde_archivo = "wallet_importar_desde_archivo";
+    public static final String k_wallet_importar_desde_clave_privada = "wallet_importar_desde_clave_privada";
     public static String k_cambiar_de_blockchain_seleccion = "cambiar_de_blockchain_seleccion";
     public static String k_seleccionar_entrada = "seleccionar_entrada";
     public static String k_añadir_entrada = "añadir_entrada";
@@ -98,7 +106,7 @@ public class Kaloria_wallet_web3j extends iniciales {
     public static final String k_transacciones = "transacciones";
     public static final String k_cambiar_contraseña = "cambiar_contraseña";
     public static final String k_cambiar_direccion_de_wallet="cambiar_direccion_de_wallet";
-    public static final String k_crear_wallet="crear_wallet";
+    public static final String k_crear_o_importar_wallet="crear_wallet";
     public static final String k_quitar = "quitar";
     public static final String k_ver_direccion = "ver_direccion";
     public static final String k_envolver = "envolver";
@@ -303,7 +311,9 @@ public class Kaloria_wallet_web3j extends iniciales {
                             es_terminar = true;
                             break; 
                         }
-                        escribir_linea(web3j.web3_endpoint_https_nombre, ok);
+                        escribir_linea(tr.in(in, "Dirección de wallet: ") 
+                          + web3j.credentials.getAddress() + " " 
+                          + "Blockchain: " + web3j.web3_endpoint_https_nombre, ok);
                         if (ok.es == false) { 
                             es_terminar = true;
                             break; 
@@ -400,7 +410,7 @@ public class Kaloria_wallet_web3j extends iniciales {
                             if (ok.es == false) { break; }
                             es_llenar_lista_cripto = true;
                         }
-                        case k_crear_wallet -> {
+                        case k_crear_o_importar_wallet -> {
                             procesar_formulario_para_crear_wallet(ok);
                             if (ok.es == false) { break; }
                             es_llenar_lista_cripto = true;
@@ -643,19 +653,29 @@ public class Kaloria_wallet_web3j extends iniciales {
         try {
             String contraseña;
             clui_formularios clui_formulario = new clui_formularios();
-            control_entradas crear_wallet_control_entrada = new control_entradas();
-            crear_wallet_control_entrada.iniciar(k_entradas_tipo_submit, ok);
-            if (ok.es == false) { return false; }
-            crear_wallet_control_entrada.poner_en_formulario(clui_formulario, k_crear_wallet_submit
-              , null, tr.in(in, "Archivo json de wallet no encontrado. ¿Desea crear una nueva wallet? "), null, ok);
-            if (ok.es == false) { return false; }
+            control_selecciones crear_wallet_control_selecciones = new control_selecciones();
+            Map <String, Object> opciones_mapa = new HashMap<>();
+            opciones_mapa.put(k_control_selecciones_opciones_mapa, new LinkedHashMap<String, Object>() {{
+                ResourceBundle in = null;
+                in = ResourceBundles.getBundle(k_in_ruta);
+                put(k_wallet_nueva, tr.in(in,"Nueva wallet"));
+                put(k_wallet_importar_desde_archivo, tr.in(in,"Importar wallet desde archivo"));
+                put(k_wallet_importar_desde_clave_privada, tr.in(in,"Importar wallet desde clave privada"));
+            }});
+            opciones_mapa.put(k_control_selecciones_letras_por_linea_num, letras_por_linea);
+            crear_wallet_control_selecciones.poner_en_formulario(clui_formulario, k_wallet_nueva_o_importar_seleccion
+              , null, tr.in(in, "Seleccione una opción. "), opciones_mapa, ok);
+            if (ok.es == false) { return ok.es; }
             clui_formulario.procesar(ok);
             if (ok.es == false) { return false; }
             if (clui_formulario.ser_cancelar(ok) == false) {
-                if (crear_wallet_control_entrada.valor.toString().equals("1")) {
+                String seleccion = (String) crear_wallet_control_selecciones.leer_seleccion(ok, extra_array);
+                if (ok.es == false) { return false; }
+                switch (seleccion) {
+                case k_wallet_nueva -> {
                     contraseña = _procesar_formulario_para_obtener_contraseña(ok);
                     if (ok.es == false) { return false; }
-                    if (contraseña.isBlank() == false) {
+                    if (contraseña != null && contraseña.isBlank() == false) {
                         File archivo_file = crear_wallet(contraseña, ok);
                         if (ok.es == false) { return false; }
                         escribir_linea(tr.in(in, "Se ha creado la wallet. Su archivo de credenciales es: ")
@@ -670,6 +690,82 @@ public class Kaloria_wallet_web3j extends iniciales {
                         web3j.iniciar(ok, extra_array);
                         if (ok.es == false) { return false; }
                     }
+                }
+                case k_wallet_importar_desde_archivo -> {
+                    contraseña = _procesar_formulario_para_obtener_contraseña(ok);
+                    if (ok.es == false) { return false; }
+                    if (contraseña != null && contraseña.isBlank() == false) {
+                        String k_ruta_entrada = "ruta_entrada";
+                        clui_formulario = new clui_formularios();
+                        control_entradas wallet_ruta_control_entrada = new control_entradas();                    
+                        wallet_ruta_control_entrada.iniciar(k_entradas_tipo_ruta_archivo, ok);
+                        if (ok.es == false) { return false; }
+                        wallet_ruta_control_entrada.poner_en_formulario(clui_formulario, k_ruta_entrada
+                          , null, tr.in(in, "Introduzca la ruta absoluta del archivo de credeciales de la wallet. "), null, ok);
+                        if (ok.es == false) { return false; }
+                        clui_formulario.procesar(ok);
+                        if (ok.es == false) { return false; }
+                        if (clui_formulario.ser_cancelar(ok) == false) {
+                            if (ok.es == false) { return false; }
+                            escribir_linea(tr.in(in,"Operación en curso... Espere por favor. "), ok);
+                            if (ok.es == false) { return false; }
+                            String ruta = wallet_ruta_control_entrada.valor.toString();
+                            File file = new File(ruta);
+                            if (file.exists() == false) {
+                                ok.setTxt(tr.in(in, "No se ha encontrado el archivo de credenciales de la wallet web3. Puede crear uno a partir de las claves privadas con el jar: wallet_a_file_web3j. "));
+                                return false;
+                            }
+                            web3j.web3_clave_EAO = contraseña;
+                            web3j.web3_archivo_EAO = ruta;
+                            properties.setProperty(k_web3_archivo_EAO, web3j.web3_archivo_EAO);
+                            terminar(ok);
+                            if (ok.es == false) { return false; }
+                            web3j.iniciar(ok, extra_array);
+                            if (ok.es == false) { return false; }
+                            escribir_linea(tr.in(in,"Operación realizada. "), ok);
+                            if (ok.es == false) { return false; }
+                        }
+                        if (ok.es == false) { return false; }
+                    }
+                }
+                case k_wallet_importar_desde_clave_privada -> {
+                    contraseña = _procesar_formulario_para_obtener_contraseña(ok);
+                    if (ok.es == false) { return false; }
+                    if (contraseña != null && contraseña.isBlank() == false) {
+                        String k_ruta_entrada = "ruta_entrada";
+                        clui_formulario = new clui_formularios();
+                        control_entradas wallet_clave_privada_control_entrada = new control_entradas();                    
+                        wallet_clave_privada_control_entrada.iniciar(k_entradas_tipo_texto, ok);
+                        if (ok.es == false) { return false; }
+                        wallet_clave_privada_control_entrada.poner_en_formulario(clui_formulario, k_ruta_entrada
+                          , null, tr.in(in, "Introduzca la clave privada de la wallet. "), null, ok);
+                        if (ok.es == false) { return false; }
+                        clui_formulario.procesar(ok);
+                        if (ok.es == false) { return false; }
+                        if (clui_formulario.ser_cancelar(ok) == false) {
+                            String clave_privada = wallet_clave_privada_control_entrada.valor.toString();
+                            escribir_linea(tr.in(in,"Operación en curso... Espere por favor (puede llevar bastante tiempo). "), ok);
+                            if (ok.es == false) { return false; }
+                            importar_wallet_web3(contraseña, clave_privada, ok, extra_array);
+                            if (ok.es == false) { return false; }
+                            web3j.web3_clave_EAO = contraseña;
+                            URL url = Resources.getResource(this.getClass(), k_wallet_ruta);
+                            File file = new File(url.toURI());
+                            web3j.web3_archivo_EAO = file.getCanonicalPath();
+                            properties.setProperty(k_web3_archivo_EAO, web3j.web3_archivo_EAO);
+                            terminar(ok);
+                            if (ok.es == false) { return false; }
+                            web3j.iniciar(ok, extra_array);
+                            if (ok.es == false) { return false; }
+                            escribir_linea(tr.in(in,"Operación realizada. "), ok);
+                            if (ok.es == false) { return false; }
+                        }
+                    }
+                }
+                default -> {
+                    escribir_linea_error(tr.in(in, "Opción no válida. "), ok, extra_array);
+                    if (ok.es == false) { break; }
+                }
                 }
             }
         } catch (Exception e) {
@@ -888,7 +984,7 @@ public class Kaloria_wallet_web3j extends iniciales {
                 put(k_transacciones, tr.in(in, "Ver transacciones"));
                 put(k_cambiar_contraseña, tr.in(in, "Cambiar contraseña"));
                 put(k_cambiar_direccion_de_wallet, tr.in(in, "Cambiar dirección de wallet"));
-                put(k_crear_wallet, tr.in(in, "Crear nueva wallet"));
+                put(k_crear_o_importar_wallet, tr.in(in, "Crear o importar wallet"));
                 if (direcciones_emails_operacion.web3_direccion_contrato_direcciones_emails_mapa != null) {
                     put(k_operar_registro_email, tr.in(in,"Operar registro email"));
                 }
@@ -1334,8 +1430,11 @@ public class Kaloria_wallet_web3j extends iniciales {
             control_entradas contraseña_control_entrada = new control_entradas();
             contraseña_control_entrada.iniciar(k_entradas_tipo_password, ok);
             if (ok.es == false) { return null; }
+            Map<String, Object> opciones_mapa = new HashMap<>();
+            opciones_mapa.put(k_opciones_mapa_no_requerido, "");
             contraseña_control_entrada.poner_en_formulario(clui_formulario, k_contraseña_entrada
-              , null, tr.in(in, "Contraseña del wallet. "), null, ok);
+              , null, tr.in(in, "Contraseña del wallet (dejar en blanco si desea crear o importar wallet). ")
+              , opciones_mapa, ok);
             if (ok.es == false) { return null; }
             clui_formulario.procesar(ok);
             if (ok.es == false) { return null; }
@@ -1759,6 +1858,33 @@ public class Kaloria_wallet_web3j extends iniciales {
             ok.setTxt(e);
         }
         return ok.es;
+    }
+    /**
+     * Genera un archivo de credenciales a partir de la clave privada.
+     * @param clave
+     * @param clave_privada
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public String importar_wallet_web3(String clave, String clave_privada, oks ok, Object ... extras_array) throws Exception {
+        String texto = null;
+        try {
+            if (ok.es == false) { return null; }
+            File file;
+            String ruta = rutas.crear_ruta_desde_clase(getClass(), k_wallet_ruta, ok);
+            if (ok.es == false) { return null; }
+            file = new File(ruta);
+            Credentials credentials = Credentials.create(clave_privada); 
+            texto = WalletUtils.generateWalletFile(clave
+            , credentials.getEcKeyPair(), file, true);
+            file = new File(file.getCanonicalPath(), texto);
+            texto = file.getCanonicalPath();
+        } catch (Exception e) {
+            ok.setTxt(e);            
+        }
+        return texto;
     }
 
 }
