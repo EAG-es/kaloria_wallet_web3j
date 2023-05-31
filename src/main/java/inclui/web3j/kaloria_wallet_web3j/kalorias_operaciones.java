@@ -1,14 +1,14 @@
 package inclui.web3j.kaloria_wallet_web3j;
 
-import inclui.web3j.kaloria.Kalorias_faucets_web3j;
-import inclui.web3j.kaloria.I_erc20_web3j;
+import innui.web3j.kaloria.Kalorias_faucets_web3j;
+import innui.web3j.kaloria.I_erc20_web3j;
 import inclui.formularios.clui_formularios;
 import inclui.formularios.control_entradas;
 import static inclui.formularios.control_entradas.k_entradas_tipo_numero;
 import inclui.formularios.control_selecciones;
 import static inclui.formularios.control_selecciones.k_control_selecciones_letras_por_linea_num;
 import static inclui.formularios.control_selecciones.k_control_selecciones_opciones_mapa;
-import inclui.web3j.web3_transacciones_mapas;
+import innui.web3j.web3_transacciones_mapas;
 import innui.bases;
 import innui.modelos.configuraciones.ResourceBundles;
 import innui.modelos.errores.oks;

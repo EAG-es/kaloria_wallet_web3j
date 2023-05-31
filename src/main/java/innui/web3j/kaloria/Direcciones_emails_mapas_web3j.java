@@ -1,6 +1,6 @@
-package inclui.web3j.kaloria;
+package innui.web3j.kaloria;
 
-import inclui.web3j.web3js;
+import innui.web3j.web3js;
 import innui.bases;
 import innui.modelos.configuraciones.ResourceBundles;
 import innui.modelos.errores.oks;
@@ -18,7 +18,7 @@ import org.web3j.protocol.core.methods.response.TransactionReceipt;
  * @author emilio
  */
 public class Direcciones_emails_mapas_web3j extends bases {
-    public static String k_in_ruta = "in/inclui/web3j/kaloria/in";  //NOI18N
+    public static String k_in_ruta = "in/innui/web3j/kaloria/in";  //NOI18N
     public web3js web3j;
     public Direcciones_emails_mapas direcciones_emails_mapa;
     

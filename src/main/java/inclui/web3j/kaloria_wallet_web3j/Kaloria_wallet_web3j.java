@@ -1,11 +1,11 @@
 package inclui.web3j.kaloria_wallet_web3j;
 
-import inclui.web3j.kaloria.Kalorias_faucets_web3j;
-import inclui.web3j.kaloria.Direcciones_emails_mapas_web3j;
-import inclui.web3j.kaloria.I_erc20_bases_web3j;
-import inclui.web3j.kaloria.I_erc20_web3j;
-import inclui.web3j.kaloria.I_erc20s_kopias_web3j;
-import inclui.web3j.kaloria.Blockchain_coin_web3j;
+import innui.web3j.kaloria.Kalorias_faucets_web3j;
+import innui.web3j.kaloria.Direcciones_emails_mapas_web3j;
+import innui.web3j.kaloria.I_erc20_bases_web3j;
+import innui.web3j.kaloria.I_erc20_web3j;
+import innui.web3j.kaloria.I_erc20s_kopias_web3j;
+import innui.web3j.kaloria.Blockchain_coin_web3j;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import inclui.formularios.clui_formularios;
 import inclui.formularios.control_entradas;
@@ -20,12 +20,11 @@ import static inclui.formularios.control_selecciones.k_control_selecciones_opcio
 import inclui.formularios.control_tablas;
 import static inclui.formularios.control_tablas.k_control_tablas_letras_por_linea_num;
 import static inclui.formularios.control_tablas.k_control_tablas_opciones_mapa_lista;
-import inclui.web3j.Erc20_bases_web3j;
+import innui.web3j.Erc20_bases_web3j;
 import inclui.web3j.kaloria_wallet_web3j.direcciones_emails_operaciones.web3_direcciones_emails_mapas_listas;
 import inclui.web3j.kaloria_wallet_web3j.kalorias_operaciones.web3_direcciones_kalorias_listas;
-import static inclui.web3j.wallet_a_file_web3j.Wallet_a_file_web3j.k_wallet_ruta;
-import inclui.web3j.web3_transacciones_mapas;
-import inclui.web3j.web3js;
+import innui.web3j.web3_transacciones_mapas;
+import innui.web3j.web3js;
 import innui.formularios.controles;
 import static innui.formularios.controles.k_opciones_mapa_no_requerido;
 import innui.modelos.configuraciones.ResourceBundles;
@@ -482,6 +481,16 @@ public class Kaloria_wallet_web3j extends iniciales {
             texto = properties.getProperty(kaloria_wallet_letras_por_linea);
             letras_por_linea = Integer.valueOf(texto);
             web3j.web3_archivo_EAO = properties.getProperty(k_web3_archivo_EAO);
+            if (web3j.web3_clave_EAO == null
+             || web3j.web3_clave_EAO.isBlank()
+             || web3j.web3_archivo_EAO == null
+             || web3j.web3_archivo_EAO.isBlank()) {
+                procesar_formulario_para_crear_wallet(ok);
+                if (ok.es == false) { return false; }
+            } else {
+                web3j.iniciar(ok, extras_array);
+                if (ok.es == false) { return false; }
+            }
             texto = properties.getProperty(k_web3_endpoint_https_pos);
             blockchain_pos = Integer.valueOf(texto);
             texto = properties.getProperty(k_web3_endpoint_https_datos_lista);
@@ -582,13 +591,6 @@ public class Kaloria_wallet_web3j extends iniciales {
                   = direcciones_emails_operacion.web3_direcciones_emails_mapas_lista.o.get(blockchain_pos).direccion_cripto;
             } else {
                 ok.setTxt(tr.in(in, "Faltan datos en las propiedades de configuración. "));
-                if (ok.es == false) { return false; }
-            }
-            if (web3j.web3_archivo_EAO.isBlank()) {
-                procesar_formulario_para_crear_wallet(ok);
-                if (ok.es == false) { return false; }
-            } else {
-                web3j.iniciar(ok, extras_array);
                 if (ok.es == false) { return false; }
             }
         } catch (Exception e) {
@@ -801,8 +803,6 @@ public class Kaloria_wallet_web3j extends iniciales {
                         for (controles control : _controles_lista) {
                             if (control.clave.equals(k_crear_wallet_contraseña_password)) {
                                 password = (String) control.valor;
-                                contraseña_stringbuilder.delete(0, contraseña_stringbuilder.length());
-                                contraseña_stringbuilder.append(password);
                             } else if (control.clave.equals(k_crear_wallet_contraseña_repetida_password)) {
                                 password_repetida = (String) control.valor;
                             }
@@ -814,7 +814,7 @@ public class Kaloria_wallet_web3j extends iniciales {
                             repetir(ok);
                             if (ok.es == false) { return false; }
                             ok.iniciar();
-                        }
+                        } 
                     } catch (Exception e) {
                         throw e;
                     }
@@ -844,7 +844,7 @@ public class Kaloria_wallet_web3j extends iniciales {
         return retorno;
     }    
     /**
-     * Llena la lista con los criptos indicadas en l archivo de configuración
+     * Llena la lista con los criptos indicadas en el archivo de configuración
      * @param ok
      * @param extra_array
      * @return

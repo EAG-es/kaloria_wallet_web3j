@@ -1,7 +1,7 @@
 package inclui.web3j.kaloria_wallet_web3j;
 
-import inclui.web3j.kaloria.Direcciones_emails_mapas_web3j;
-import inclui.web3j.kaloria.Blockchain_coin_web3j;
+import innui.web3j.kaloria.Direcciones_emails_mapas_web3j;
+import innui.web3j.kaloria.Blockchain_coin_web3j;
 import inclui.formularios.clui_formularios;
 import inclui.formularios.control_entradas;
 import static inclui.formularios.control_entradas.k_entradas_tipo_email;
@@ -13,8 +13,8 @@ import static inclui.formularios.control_entradas.k_in_ruta;
 import inclui.formularios.control_selecciones;
 import static inclui.formularios.control_selecciones.k_control_selecciones_letras_por_linea_num;
 import static inclui.formularios.control_selecciones.k_control_selecciones_opciones_mapa;
-import inclui.web3j.web3_transacciones_mapas;
-import inclui.web3j.web3js;
+import innui.web3j.web3_transacciones_mapas;
+import innui.web3j.web3js;
 import innui.bases;
 import innui.modelos.configuraciones.ResourceBundles;
 import innui.modelos.errores.oks;
