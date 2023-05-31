@@ -1,4 +1,4 @@
-package inclui.web3j;
+package innui.web3j;
 
 import innui.modelos.errores.oks;
 import java.io.Serializable;

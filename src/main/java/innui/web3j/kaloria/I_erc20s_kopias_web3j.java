@@ -1,4 +1,4 @@
-package inclui.web3j.kaloria;
+package innui.web3j.kaloria;
 
 import innui.modelos.errores.oks;
 import innui.web3j.generated.contracts.I_erc20s_kopias;

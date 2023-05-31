@@ -1,4 +1,4 @@
-package inclui.web3j;
+package innui.web3j;
 
 import innui.bases;
 import innui.modelos.concurrencias.Threads;
@@ -58,7 +58,7 @@ import org.web3j.utils.TxHashVerifier;
  * @author emilio
  */
 public class web3js extends bases {
-    public static String k_in_ruta = "in/inclui/web3j/in";  //NOI18N
+    public static String k_in_ruta = "in/innui/web3j/in";  //NOI18N
     public static String k_comprobar_y_esperar_recibo_tiempo_excedido = "comprobar_y_esperar_recibo_tiempo_excedido";
     public static Long k_tiempo_durmiendo_milisegundos = 10000L;
     public static Long k_tiempo_maximo_esperando_milisegundos = 30*60*1000L; // 1/2 hora

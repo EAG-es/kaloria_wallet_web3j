@@ -1,11 +1,11 @@
 package inclui.web3j.kaloria_wallet_web3j;
 
-import inclui.web3j.kaloria.Kalorias_faucets_web3j;
-import inclui.web3j.kaloria.Direcciones_emails_mapas_web3j;
-import inclui.web3j.kaloria.I_erc20_bases_web3j;
-import inclui.web3j.kaloria.I_erc20_web3j;
-import inclui.web3j.kaloria.I_erc20s_kopias_web3j;
-import inclui.web3j.kaloria.Blockchain_coin_web3j;
+import innui.web3j.kaloria.Kalorias_faucets_web3j;
+import innui.web3j.kaloria.Direcciones_emails_mapas_web3j;
+import innui.web3j.kaloria.I_erc20_bases_web3j;
+import innui.web3j.kaloria.I_erc20_web3j;
+import innui.web3j.kaloria.I_erc20s_kopias_web3j;
+import innui.web3j.kaloria.Blockchain_coin_web3j;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import inclui.formularios.clui_formularios;
 import inclui.formularios.control_entradas;
@@ -20,12 +20,11 @@ import static inclui.formularios.control_selecciones.k_control_selecciones_opcio
 import inclui.formularios.control_tablas;
 import static inclui.formularios.control_tablas.k_control_tablas_letras_por_linea_num;
 import static inclui.formularios.control_tablas.k_control_tablas_opciones_mapa_lista;
-import inclui.web3j.Erc20_bases_web3j;
+import innui.web3j.Erc20_bases_web3j;
 import inclui.web3j.kaloria_wallet_web3j.direcciones_emails_operaciones.web3_direcciones_emails_mapas_listas;
 import inclui.web3j.kaloria_wallet_web3j.kalorias_operaciones.web3_direcciones_kalorias_listas;
-import static inclui.web3j.wallet_a_file_web3j.Wallet_a_file_web3j.k_wallet_ruta;
-import inclui.web3j.web3_transacciones_mapas;
-import inclui.web3j.web3js;
+import innui.web3j.web3_transacciones_mapas;
+import innui.web3j.web3js;
 import innui.formularios.controles;
 import static innui.formularios.controles.k_opciones_mapa_no_requerido;
 import innui.modelos.configuraciones.ResourceBundles;
@@ -844,7 +843,7 @@ public class Kaloria_wallet_web3j extends iniciales {
         return retorno;
     }    
     /**
-     * Llena la lista con los criptos indicadas en l archivo de configuración
+     * Llena la lista con los criptos indicadas en el archivo de configuración
      * @param ok
      * @param extra_array
      * @return
