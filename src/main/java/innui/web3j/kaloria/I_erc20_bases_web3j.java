@@ -1,7 +1,6 @@
 package innui.web3j.kaloria;
 
 import innui.web3j.Erc20_bases_web3j;
-import static innui.web3j.web3js.k_tiempo_maximo_esperando_milisegundos;
 import innui.modelos.errores.oks;
 import innui.web3j.generated.contracts.I_erc20_bases;
 import innui.web3j.generated.contracts.I_erc20_bases.OkEventResponse;

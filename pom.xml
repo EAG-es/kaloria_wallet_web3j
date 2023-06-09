@@ -126,7 +126,7 @@
         <dependency>
             <groupId>org.web3j</groupId>
             <artifactId>core</artifactId>
-            <version>4.9.4</version>
+            <version>4.9.8</version>
         </dependency>
         <dependency>
             <groupId>inclui.web3j.wallet_a_file_web3j</groupId>

@@ -11,7 +11,6 @@ import inclui.formularios.clui_formularios;
 import inclui.formularios.control_entradas;
 import static inclui.formularios.control_entradas.k_entradas_tipo_numero;
 import static inclui.formularios.control_entradas.k_entradas_tipo_password;
-import static inclui.formularios.control_entradas.k_entradas_tipo_ruta_archivo;
 import static inclui.formularios.control_entradas.k_entradas_tipo_submit;
 import static inclui.formularios.control_entradas.k_entradas_tipo_texto;
 import inclui.formularios.control_selecciones;
@@ -53,6 +52,7 @@ import java.util.ResourceBundle;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import static inclui.formularios.control_entradas.k_entradas_tipo_archivo;
 
 /**
  *
@@ -678,6 +678,7 @@ public class Kaloria_wallet_web3j extends iniciales {
                     contraseña = _procesar_formulario_para_obtener_contraseña(ok);
                     if (ok.es == false) { return false; }
                     if (contraseña != null && contraseña.isBlank() == false) {
+                        escribir_linea(tr.in(in,"Operación en curso... Espere por favor (puede llevar bastante tiempo). "), ok);
                         File archivo_file = crear_wallet(contraseña, ok);
                         if (ok.es == false) { return false; }
                         escribir_linea(tr.in(in, "Se ha creado la wallet. Su archivo de credenciales es: ")
@@ -700,7 +701,7 @@ public class Kaloria_wallet_web3j extends iniciales {
                         String k_ruta_entrada = "ruta_entrada";
                         clui_formulario = new clui_formularios();
                         control_entradas wallet_ruta_control_entrada = new control_entradas();                    
-                        wallet_ruta_control_entrada.iniciar(k_entradas_tipo_ruta_archivo, ok);
+                        wallet_ruta_control_entrada.iniciar(k_entradas_tipo_archivo, ok);
                         if (ok.es == false) { return false; }
                         wallet_ruta_control_entrada.poner_en_formulario(clui_formulario, k_ruta_entrada
                           , null, tr.in(in, "Introduzca la ruta absoluta del archivo de credeciales de la wallet. "), null, ok);
@@ -709,7 +710,7 @@ public class Kaloria_wallet_web3j extends iniciales {
                         if (ok.es == false) { return false; }
                         if (clui_formulario.ser_cancelar(ok) == false) {
                             if (ok.es == false) { return false; }
-                            escribir_linea(tr.in(in,"Operación en curso... Espere por favor. "), ok);
+                            escribir_linea(tr.in(in,"Operación en curso... Espere por favor (puede llevar bastante tiempo). "), ok);
                             if (ok.es == false) { return false; }
                             String ruta = wallet_ruta_control_entrada.valor.toString();
                             File file = new File(ruta);
@@ -794,6 +795,7 @@ public class Kaloria_wallet_web3j extends iniciales {
                 public boolean _terminar_formulario(String modo_operacion, oks ok, Object ... extras_array) throws Exception {
                     try {
                         if (ok.es == false) { return false; }
+                        super._terminar_formulario(modo_operacion, ok, extras_array);
                         if (_es_cancelar) {
                             return ok.es;
                         }
@@ -814,7 +816,9 @@ public class Kaloria_wallet_web3j extends iniciales {
                             repetir(ok);
                             if (ok.es == false) { return false; }
                             ok.iniciar();
-                        } 
+                        } else {
+                            contraseña_stringbuilder.replace(0, contraseña_stringbuilder.length(), password);
+                        }
                     } catch (Exception e) {
                         throw e;
                     }
@@ -1469,6 +1473,8 @@ public class Kaloria_wallet_web3j extends iniciales {
                 public boolean _terminar_formulario(String modo_operacion, oks ok, Object ... extras_array) throws Exception {
                     try {
                         if (ok.es == false) { return false; }
+                        super._terminar_formulario(modo_operacion, ok, extras_array);
+                        if (ok.es == false) { return false; }
                         String contraseña = contraseña_control_entrada.valor.toString();
                         String contraseña_repetida = contraseña_repetir_control_entrada.valor.toString();
                         if (contraseña.equals(contraseña_repetida) == false) {
@@ -1669,6 +1675,8 @@ public class Kaloria_wallet_web3j extends iniciales {
                 public boolean _terminar_formulario(String modo_operacion, oks ok, Object ... extras_array) throws Exception {
                     try {
                         if (ok.es == false) { return false; }
+                        super._terminar_formulario(modo_operacion, ok, extras_array);
+                        if (ok.es == false) { return false; }
                         String contraseña = wallet_contraseña_control_entrada.valor.toString();
                         String contraseña_repetida = wallet_contraseña_repetir_control_entrada.valor.toString();
                         if (contraseña.equals(contraseña_repetida) == false) {
@@ -1687,7 +1695,7 @@ public class Kaloria_wallet_web3j extends iniciales {
             if (ok.es == false) { return false; }
             wallet_contraseña_repetir_control_entrada.iniciar(k_entradas_tipo_password, ok);
             if (ok.es == false) { return false; }
-            wallet_ruta_control_entrada.iniciar(k_entradas_tipo_ruta_archivo, ok);
+            wallet_ruta_control_entrada.iniciar(k_entradas_tipo_archivo, ok);
             if (ok.es == false) { return false; }
             wallet_contraseña_control_entrada.poner_en_formulario(clui_formulario, k_nueva_contraseña_entrada
               , null, tr.in(in, "Contraseña del wallet al que cambiar. "), null, ok);

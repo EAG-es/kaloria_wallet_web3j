@@ -228,6 +228,8 @@ public class direcciones_emails_operaciones extends bases {
                 public boolean _terminar_formulario(String modo_operacion, oks ok, Object ... extras_array) throws Exception {
                     try {
                         if (ok.es == false) { return false; }
+                        super._terminar_formulario(modo_operacion, ok, extras_array);
+                        if (ok.es == false) { return false; }
                         String email = email_control_entrada.valor.toString();
                         String email_repetido = email_repetir_control_entrada.valor.toString();
                         if (email.equals(email_repetido) == false) {
