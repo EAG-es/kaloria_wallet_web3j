@@ -91,7 +91,7 @@ public class kalorias_operaciones extends bases {
      * @param _web3_direcciones_kalorias_faucets_lista
      * @param _letras_por_linea
      * @param ok
-     * @param extra_array
+     * @param extras_array
      * @return
      * @throws Exception 
      */
@@ -103,7 +103,7 @@ public class kalorias_operaciones extends bases {
       , direcciones_emails_operaciones _direcciones_emails_operacion
       , web3_direcciones_kalorias_listas _web3_direcciones_kalorias_faucets_lista
       , Integer _letras_por_linea
-      , oks ok, Object... extra_array) throws Exception {
+      , oks ok, Object... extras_array) throws Exception {
         if (ok.es == false) { return false; }            
         try {
             kaloria_i_erc20_web3j = _kaloria_i_erc20_web3j;
@@ -173,11 +173,11 @@ public class kalorias_operaciones extends bases {
     /**
      * Crea el formulario de la wallet.
      * @param ok
-     * @param extra_array
+     * @param extras_array
      * @return
      * @throws Exception 
      */
-    public boolean crear_formulario_operar_kalorias(oks ok, Object... extra_array) throws Exception {
+    public boolean crear_formulario_operar_kalorias(oks ok, Object... extras_array) throws Exception {
         if (ok.es == false) { return ok.es; }
         ResourceBundle in = null;
         try {
@@ -205,11 +205,11 @@ public class kalorias_operaciones extends bases {
     /**
      * Crea y procesa el formulario de seleccion de criptomoneda
      * @param ok
-     * @param extra_array
+     * @param extras_array
      * @return La linea del elemento seleccionado en wallet (menos la linea de cabecera)
      * @throws Exception 
      */
-    public boolean procesar_formulario_de_pedir_kalorias_regaladas(oks ok, Object... extra_array) throws Exception {
+    public boolean procesar_formulario_de_pedir_kalorias_regaladas(oks ok, Object... extras_array) throws Exception {
         if (ok.es == false) { return false; }
         String k_regalo_cantidad_entrada = "regalo_cantidad_entrada";
         ResourceBundle in;
@@ -233,7 +233,7 @@ public class kalorias_operaciones extends bases {
                 Double doble = (Double) regalo_cantidad_control_entrada.valor;
                 BigInteger cantidad = kaloria_i_erc20_web3j.avanzar_separador_decimal(doble, ok);
                 String direccion = direcciones_emails_operacion.web3j.credentials.getAddress();
-                if (direcciones_emails_operacion.direcciones_emails_mapas_web3j.estar_direccion(direccion, ok, extra_array) == false) {
+                if (direcciones_emails_operacion.direcciones_emails_mapas_web3j.estar_direccion(direccion, ok, extras_array) == false) {
                     if (ok.es == false) { return false; }
                     escribir_linea(tr.in(in, "Para obtener regalo o pedir préstamo debe estar registrado. "), ok);
                     if (ok.es == false) { return false; }
@@ -241,7 +241,7 @@ public class kalorias_operaciones extends bases {
                     if (ok.es == false) { return false; }
                 }
                 if (ok.es == false) { return false; }
-                BigInteger gas_estimado = kaloria_faucect_web3j.estimar_gas_pedir_regalo(cantidad, ok, extra_array);
+                BigInteger gas_estimado = kaloria_faucect_web3j.estimar_gas_pedir_regalo(cantidad, ok, extras_array);
                 if (ok.es) { 
                     precio_gas = kaloria_faucect_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                     if (ok.es == false) { return false; }
@@ -251,13 +251,13 @@ public class kalorias_operaciones extends bases {
                         gas_estimado = gas_estimado_ref.get();
                         escribir_linea(tr.in(in,"Regalo en curso... Espere por favor. "), ok);
                         if (ok.es == false) { return false; }
-                        transactionReceipt = kaloria_faucect_web3j.pedir_regalo(gas_estimado, cantidad, ok, extra_array);
+                        transactionReceipt = kaloria_faucect_web3j.pedir_regalo(gas_estimado, cantidad, ok, extras_array);
                         if (ok.es == false) { return false; }
-                        cantidad_concedida_acumulada = kaloria_faucect_web3j.leer_cantidad_regalo(ok, extra_array);
+                        cantidad_concedida_acumulada = kaloria_faucect_web3j.leer_cantidad_regalo(ok, extras_array);
                         if (ok.es == false) { return false; }
                         web3_transacciones_mapas.filas fila = new web3_transacciones_mapas.filas();
                         fila.destino_direccion = direccion;
-                        fila.cantidad = kaloria_i_erc20_web3j.poner_decimales_a_numero(cantidad_concedida_acumulada, ok, extra_array);
+                        fila.cantidad = kaloria_i_erc20_web3j.poner_decimales_a_numero(cantidad_concedida_acumulada, ok, extras_array);
                         if (ok.es == false) { return false; }
                         fila.transaccion_hash = transactionReceipt.getTransactionHash();
                         fila.gas_usado = transactionReceipt.getGasUsed();
@@ -269,14 +269,14 @@ public class kalorias_operaciones extends bases {
                         web3_transacciones_mapa.o.put(milisegundos, fila);
                         String texto = web3_transacciones_mapa.formar_mensaje_transaccion(milisegundos, fila, ok);
                         if (ok.es == false) { return false; }
-                        escribir_linea(tr.in(in, "Regalo realizado. Total regalado acumulado: ") + fila.cantidad, ok, extra_array);
+                        escribir_linea(tr.in(in, "Regalo realizado. Total regalado acumulado: ") + fila.cantidad, ok, extras_array);
                         if (ok.es == false) { return false; }
-                        escribir_linea(texto, ok, extra_array);
+                        escribir_linea(texto, ok, extras_array);
                         if (ok.es == false) { return false; }
                     }
                     if (ok.es == false) { return false; }
                 } else {
-                    escribir_linea(tr.in(in, "Regalo denegado. ") + ok.getTxt(), ok.iniciar(), extra_array);
+                    escribir_linea(tr.in(in, "Regalo denegado. ") + ok.getTxt(), ok.iniciar(), extras_array);
                     if (ok.es == false) { return false; }
                     BigInteger prestamo_puntos_interes_a_retener = kaloria_faucect_web3j.leer_prestamo_puntos_interes_a_retener(ok);
                     if (ok.es == false) { return false; }
@@ -290,7 +290,7 @@ public class kalorias_operaciones extends bases {
                     if (ok.es == false) { return false; }
                     if (direcciones_emails_operacion._procesar_formulario_si_o_no(tr.in(in, "¿Desea continuar?"), ok) == true) {
                         if (ok.es == false) { return false; }
-                        gas_estimado = kaloria_faucect_web3j.estimar_gas_pedir_prestamo(cantidad, ok, extra_array);
+                        gas_estimado = kaloria_faucect_web3j.estimar_gas_pedir_prestamo(cantidad, ok, extras_array);
                         if (ok.es == false) { return false; }
                         precio_gas = kaloria_faucect_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                         if (ok.es == false) { return false; }
@@ -300,13 +300,13 @@ public class kalorias_operaciones extends bases {
                             gas_estimado = gas_estimado_ref.get();
                             escribir_linea(tr.in(in,"Operación en curso... Espere por favor. "), ok);
                             if (ok.es == false) { return false; }
-                            transactionReceipt = kaloria_faucect_web3j.pedir_prestamo(gas_estimado, cantidad, ok, extra_array);
+                            transactionReceipt = kaloria_faucect_web3j.pedir_prestamo(gas_estimado, cantidad, ok, extras_array);
                             if (ok.es == false) { return false; }
-                            cantidad_concedida_acumulada = kaloria_faucect_web3j.leer_cantidad_prestamo(ok, extra_array);
+                            cantidad_concedida_acumulada = kaloria_faucect_web3j.leer_cantidad_prestamo(ok, extras_array);
                             if (ok.es == false) { return false; }
                             web3_transacciones_mapas.filas fila = new web3_transacciones_mapas.filas();
                             fila.destino_direccion = direccion;
-                            fila.cantidad = kaloria_i_erc20_web3j.poner_decimales_a_numero(cantidad_concedida_acumulada, ok, extra_array);
+                            fila.cantidad = kaloria_i_erc20_web3j.poner_decimales_a_numero(cantidad_concedida_acumulada, ok, extras_array);
                             if (ok.es == false) { return false; }
                             fila.transaccion_hash = transactionReceipt.getTransactionHash();
                             fila.gas_usado = transactionReceipt.getGasUsed();
@@ -318,9 +318,9 @@ public class kalorias_operaciones extends bases {
                             web3_transacciones_mapa.o.put(milisegundos, fila);
                             String texto = web3_transacciones_mapa.formar_mensaje_transaccion(milisegundos, fila, ok);
                             if (ok.es == false) { return false; }
-                            escribir_linea(tr.in(in, "Préstamo realizado. Total prestado acumulado: ") + fila.cantidad , ok, extra_array);
+                            escribir_linea(tr.in(in, "Préstamo realizado. Total prestado acumulado: ") + fila.cantidad , ok, extras_array);
                             if (ok.es == false) { return false; }
-                            escribir_linea(texto, ok, extra_array);
+                            escribir_linea(texto, ok, extras_array);
                             if (ok.es == false) { return false; }
                         }
                         if (ok.es == false) { return false; }
@@ -336,11 +336,11 @@ public class kalorias_operaciones extends bases {
     /**
      * Crea y procesa el formulario de seleccion de criptomoneda
      * @param ok
-     * @param extra_array
+     * @param extras_array
      * @return La linea del elemento seleccionado en wallet (menos la linea de cabecera)
      * @throws Exception 
      */
-    public boolean procesar_formulario_de_informacion_kalorias_regaladas_y_prestadas(oks ok, Object... extra_array) throws Exception {
+    public boolean procesar_formulario_de_informacion_kalorias_regaladas_y_prestadas(oks ok, Object... extras_array) throws Exception {
         if (ok.es == false) { return false; }
         ResourceBundle in;
         in = ResourceBundles.getBundle(k_in_ruta);
@@ -350,21 +350,21 @@ public class kalorias_operaciones extends bases {
             if (ok.es == false) { return false; }
             String direccion = direcciones_emails_operacion.web3j.credentials.getAddress();
             if (ok.es == false) { return false; }
-            if (direcciones_emails_operacion.direcciones_emails_mapas_web3j.estar_direccion(direccion, ok, extra_array) == false) {
+            if (direcciones_emails_operacion.direcciones_emails_mapas_web3j.estar_direccion(direccion, ok, extras_array) == false) {
                 direcciones_emails_operacion.procesar_formulario_registro(ok);
                 if (ok.es == false) { return false; }
             }
-            cantidad_concedida_acumulada = kaloria_faucect_web3j.leer_cantidad_regalo(ok, extra_array);
+            cantidad_concedida_acumulada = kaloria_faucect_web3j.leer_cantidad_regalo(ok, extras_array);
             if (ok.es == false) { return false; }
-            cantidad_tex = kaloria_i_erc20_web3j.poner_decimales_a_numero(cantidad_concedida_acumulada, ok, extra_array);
+            cantidad_tex = kaloria_i_erc20_web3j.poner_decimales_a_numero(cantidad_concedida_acumulada, ok, extras_array);
             if (ok.es == false) { return false; }
-            escribir_linea(tr.in(in, "Total regalado acumulado: ") + cantidad_tex, ok, extra_array);
+            escribir_linea(tr.in(in, "Total regalado acumulado: ") + cantidad_tex, ok, extras_array);
             if (ok.es == false) { return false; }
-            cantidad_concedida_acumulada = kaloria_faucect_web3j.leer_cantidad_prestamo(ok, extra_array);
+            cantidad_concedida_acumulada = kaloria_faucect_web3j.leer_cantidad_prestamo(ok, extras_array);
             if (ok.es == false) { return false; }
-            cantidad_tex = kaloria_i_erc20_web3j.poner_decimales_a_numero(cantidad_concedida_acumulada, ok, extra_array);
+            cantidad_tex = kaloria_i_erc20_web3j.poner_decimales_a_numero(cantidad_concedida_acumulada, ok, extras_array);
             if (ok.es == false) { return false; }
-            escribir_linea(tr.in(in, "Total prestado acumulado: ") + cantidad_tex, ok, extra_array);
+            escribir_linea(tr.in(in, "Total prestado acumulado: ") + cantidad_tex, ok, extras_array);
             if (ok.es == false) { return false; }
         } catch (Exception e) {
             ok.setTxt(e);
@@ -374,11 +374,11 @@ public class kalorias_operaciones extends bases {
     /**
      * Crea y procesa el formulario de devolución de cantidades prestadas
      * @param ok
-     * @param extra_array
+     * @param extras_array
      * @return La linea del elemento seleccionado en wallet (menos la linea de cabecera)
      * @throws Exception 
      */
-    public boolean procesar_formulario_devolver_prestamo(oks ok, Object... extra_array) throws Exception {
+    public boolean procesar_formulario_devolver_prestamo(oks ok, Object... extras_array) throws Exception {
         if (ok.es == false) { return false; }
         String k_devolucion_cantidad_entrada = "devolucion_cantidad_entrada";
         ResourceBundle in;
@@ -400,7 +400,7 @@ public class kalorias_operaciones extends bases {
                 BigInteger cantidad = kaloria_i_erc20_web3j.avanzar_separador_decimal(doble, ok);
                 if (procesar_formulario_aprobar_gasto(direccion, cantidad, ok)) {
                     if (ok.es == false) { return false; }
-                    BigInteger gas_estimado = kaloria_faucect_web3j.estimar_gas_devolver_prestamo(cantidad, ok, extra_array);
+                    BigInteger gas_estimado = kaloria_faucect_web3j.estimar_gas_devolver_prestamo(cantidad, ok, extras_array);
                     if (ok.es == false) { return false; }
                     BigInteger precio_gas = kaloria_faucect_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                     if (ok.es == false) { return false; }
@@ -408,9 +408,9 @@ public class kalorias_operaciones extends bases {
                     if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
                         if (ok.es == false) { return false; }
                         gas_estimado = gas_estimado_ref.get();
-                        escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extra_array);
+                        escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extras_array);
                         if (ok.es == false) { return false; }
-                        TransactionReceipt transactionReceipt = kaloria_faucect_web3j.devolver_prestamo(gas_estimado, cantidad, ok, extra_array);
+                        TransactionReceipt transactionReceipt = kaloria_faucect_web3j.devolver_prestamo(gas_estimado, cantidad, ok, extras_array);
                         if (ok.es == false) { return false; }
                         web3_transacciones_mapas.filas fila = new web3_transacciones_mapas.filas();
                         fila.destino_direccion = kaloria_faucect_web3j.web3j.credentials.getAddress();
@@ -424,9 +424,9 @@ public class kalorias_operaciones extends bases {
                         web3_transacciones_mapa.o.put(milisegundos, fila);
                         String texto = web3_transacciones_mapa.formar_mensaje_transaccion(milisegundos, fila, ok);
                         if (ok.es == false) { return false; }
-                        escribir_linea(tr.in(in, "Devolución realizada. "), ok, extra_array);
+                        escribir_linea(tr.in(in, "Devolución realizada. "), ok, extras_array);
                         if (ok.es == false) { return false; }
-                        escribir_linea(texto, ok, extra_array);
+                        escribir_linea(texto, ok, extras_array);
                         if (ok.es == false) { return false; }
                     }
                     if (ok.es == false) { return false; }
@@ -442,11 +442,11 @@ public class kalorias_operaciones extends bases {
     /**
      * Crea y procesa el formulario de puesta de cantidades para que sean regaladas
      * @param ok
-     * @param extra_array
+     * @param extras_array
      * @return La linea del elemento seleccionado en wallet (menos la linea de cabecera)
      * @throws Exception 
      */
-    public boolean procesar_formulario_poner_para_regalo(oks ok, Object... extra_array) throws Exception {
+    public boolean procesar_formulario_poner_para_regalo(oks ok, Object... extras_array) throws Exception {
         if (ok.es == false) { return false; }
         String k_parar_regalo_cantidad_entrada = "parar_regalo_cantidad_entrada";
         ResourceBundle in;
@@ -463,10 +463,10 @@ public class kalorias_operaciones extends bases {
             if (clui_formulario.ser_cancelar(ok) == false) {
                 if (ok.es == false) { return false; }
                 Double doble = (Double) para_regalo_control_entrada.valor;
-                BigInteger cantidad = kaloria_i_erc20_web3j.avanzar_separador_decimal(doble, ok, extra_array);
+                BigInteger cantidad = kaloria_i_erc20_web3j.avanzar_separador_decimal(doble, ok, extras_array);
                 String direccion = web3_direccion_contrato_kaloria_faucet;
                 if (procesar_formulario_aprobar_gasto(direccion, cantidad, ok)) {
-                    BigInteger gas_estimado = kaloria_faucect_web3j.estimar_gas_poner_para_regalo(cantidad, ok, extra_array);
+                    BigInteger gas_estimado = kaloria_faucect_web3j.estimar_gas_poner_para_regalo(cantidad, ok, extras_array);
                     if (ok.es == false) { return false; }
                     BigInteger precio_gas = kaloria_faucect_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                     if (ok.es == false) { return false; }
@@ -474,9 +474,9 @@ public class kalorias_operaciones extends bases {
                     if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
                         if (ok.es == false) { return false; }
                         gas_estimado = gas_estimado_ref.get();
-                        escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extra_array);
+                        escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extras_array);
                         if (ok.es == false) { return false; }
-                        TransactionReceipt transactionReceipt = kaloria_faucect_web3j.poner_para_regalo(gas_estimado, cantidad, ok, extra_array);
+                        TransactionReceipt transactionReceipt = kaloria_faucect_web3j.poner_para_regalo(gas_estimado, cantidad, ok, extras_array);
                         if (ok.es == false) { return false; }
                         web3_transacciones_mapas.filas fila = new web3_transacciones_mapas.filas();
                         fila.destino_direccion = kaloria_faucect_web3j.web3j.credentials.getAddress();
@@ -490,9 +490,9 @@ public class kalorias_operaciones extends bases {
                         web3_transacciones_mapa.o.put(milisegundos, fila);
                         String texto = web3_transacciones_mapa.formar_mensaje_transaccion(milisegundos, fila, ok);
                         if (ok.es == false) { return false; }
-                        escribir_linea(tr.in(in, "Operación realizada. "), ok, extra_array);
+                        escribir_linea(tr.in(in, "Operación realizada. "), ok, extras_array);
                         if (ok.es == false) { return false; }
-                        escribir_linea(texto, ok, extra_array);
+                        escribir_linea(texto, ok, extras_array);
                         if (ok.es == false) { return false; }
                     }
                     if (ok.es == false) { return false; }
@@ -509,18 +509,18 @@ public class kalorias_operaciones extends bases {
      * @param destino_dir
      * @param cantidad
      * @param ok
-     * @param extra_array
+     * @param extras_array
      * @return
      * @throws Exception 
      */
     public boolean procesar_formulario_aprobar_gasto(String destino_dir, BigInteger cantidad
-      , oks ok, Object... extra_array) throws Exception {
+      , oks ok, Object... extras_array) throws Exception {
         if (ok.es == false) { return false; }
         ResourceBundle in;
         in = ResourceBundles.getBundle(k_in_ruta);
         try {
             TransactionReceipt transactionReceipt = null;
-            BigInteger gas_estimado = kaloria_i_erc20_web3j.estimar_gas_aprobar(destino_dir, cantidad, ok, extra_array);
+            BigInteger gas_estimado = kaloria_i_erc20_web3j.estimar_gas_aprobar(destino_dir, cantidad, ok, extras_array);
             if (ok.es == false) { return false; }
             BigInteger precio_gas = kaloria_i_erc20_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
             if (ok.es == false) { return false; }
@@ -530,11 +530,11 @@ public class kalorias_operaciones extends bases {
                 gas_estimado = gas_estimado_ref.get();
                 escribir_linea(tr.in(in,"Aprobación en curso... Espere por favor. "), ok);
                 if (ok.es == false) { return false; }
-                transactionReceipt = kaloria_i_erc20_web3j.aprobar(gas_estimado, destino_dir, cantidad, ok, extra_array);
+                transactionReceipt = kaloria_i_erc20_web3j.aprobar(gas_estimado, destino_dir, cantidad, ok, extras_array);
                 if (ok.es == false) { return false; }
                 web3_transacciones_mapas.filas fila = new web3_transacciones_mapas.filas();
                 fila.destino_direccion = destino_dir;
-                fila.cantidad = kaloria_i_erc20_web3j.poner_decimales_a_numero(cantidad, ok, extra_array);
+                fila.cantidad = kaloria_i_erc20_web3j.poner_decimales_a_numero(cantidad, ok, extras_array);
                 if (ok.es == false) { return false; }
                 fila.transaccion_hash = transactionReceipt.getTransactionHash();
                 fila.gas_usado = transactionReceipt.getGasUsed();
@@ -548,7 +548,7 @@ public class kalorias_operaciones extends bases {
                 if (ok.es == false) { return false; }
                 escribir_linea(tr.in(in, "Aprobación realizada. "), ok);
                 if (ok.es == false) { return false; }
-                escribir_linea(texto, ok, extra_array);
+                escribir_linea(texto, ok, extras_array);
                 if (ok.es == false) { return false; }
             } else {
                 ok.setTxt(tr.in(in, "Cancelado "));

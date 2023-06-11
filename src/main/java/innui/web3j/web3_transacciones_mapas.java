@@ -27,12 +27,12 @@ public class web3_transacciones_mapas implements Serializable {
      * @param milisegundos
      * @param fila
      * @param ok
-     * @param extra_array
+     * @param extras_array
      * @return
      * @throws Exception 
      */
     public String formar_mensaje_transaccion(Long milisegundos, web3_transacciones_mapas.filas fila
-      , oks ok, Object... extra_array) throws Exception {
+      , oks ok, Object... extras_array) throws Exception {
         if (ok.es == false) { return null; }
         String texto = null;
         try {

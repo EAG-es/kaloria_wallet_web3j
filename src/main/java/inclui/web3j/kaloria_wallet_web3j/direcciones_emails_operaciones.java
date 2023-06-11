@@ -94,7 +94,7 @@ public class direcciones_emails_operaciones extends bases {
      * @param _web3j
      * @param _web3_direcciones_emails_mapas_lista
      * @param ok
-     * @param extra_array
+     * @param extras_array
      * @return
      * @throws Exception 
      */
@@ -105,7 +105,7 @@ public class direcciones_emails_operaciones extends bases {
       , String _web3_direccion_contrato_direccione_emails_mapa
       , web3js _web3j
       , web3_direcciones_emails_mapas_listas _web3_direcciones_emails_mapas_lista
-      , oks ok, Object... extra_array) throws Exception {
+      , oks ok, Object... extras_array) throws Exception {
         if (ok.es == false) { return false; }
         try {
             blockchain_coin_web3j = _blockchain_coin_web3j;
@@ -123,11 +123,11 @@ public class direcciones_emails_operaciones extends bases {
     /**
      * Procesa la operativa de altas y bajas en el registro de direcciones_emails
      * @param ok
-     * @param extra_array
+     * @param extras_array
      * @return
      * @throws Exception 
      */
-    public boolean procesar_formulario_registro(oks ok, Object... extra_array) throws Exception {
+    public boolean procesar_formulario_registro(oks ok, Object... extras_array) throws Exception {
         if (ok.es == false) { return false; }
         ResourceBundle in;
         in = ResourceBundles.getBundle(k_in_ruta);
@@ -139,14 +139,14 @@ public class direcciones_emails_operaciones extends bases {
             if (ok.es == false) { return false; }
             switch (opcion) {
             case k_crear -> {
-                procesar_formulario_registro_crear(ok, extra_array);
+                procesar_formulario_registro_crear(ok, extras_array);
                 if (ok.es == false) { return false; }
             }
             case k_leer -> {
                 direccion = direcciones_emails_mapas_web3j.web3j.credentials.getAddress();
                 if (direcciones_emails_mapas_web3j.estar_direccion(direccion, ok)) {
                     if (ok.es == false) { return false; }
-                    escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extra_array);
+                    escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extras_array);
                     if (ok.es == false) { return false; }
                     direccion = direcciones_emails_mapas_web3j.leer_email(direccion, ok);
                     escribir_linea(tr.in(in, "Su email asociado es: ") + direccion, ok);
@@ -159,9 +159,9 @@ public class direcciones_emails_operaciones extends bases {
                 if (ok.es == false) { return false; }
             }
             case k_borrar -> {
-                if (_procesar_formulario_si_o_no(tr.in(in, "¿Está seguro? "), ok, extra_array)) {
+                if (_procesar_formulario_si_o_no(tr.in(in, "¿Está seguro? "), ok, extras_array)) {
                     if (ok.es == false) { return false; }
-                    gas_estimado = direcciones_emails_mapas_web3j.estimar_gas_borrar(ok, extra_array);
+                    gas_estimado = direcciones_emails_mapas_web3j.estimar_gas_borrar(ok, extras_array);
                     if (ok.es == false) { return false; }
                     precio_gas = direcciones_emails_mapas_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                     if (ok.es == false) { break; }
@@ -169,7 +169,7 @@ public class direcciones_emails_operaciones extends bases {
                     if (_procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
                         if (ok.es == false) { return false; }
                         gas_estimado = gas_estimado_ref.get();
-                        escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extra_array);
+                        escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extras_array);
                         if (ok.es == false) { return false; }
                         TransactionReceipt transactionReceipt = direcciones_emails_mapas_web3j.borrar(gas_estimado, ok);
                         if (ok.es == false) { break; }
@@ -185,9 +185,9 @@ public class direcciones_emails_operaciones extends bases {
                         web3_transacciones_mapa.o.put(milisegundos, fila);
                         String texto = web3_transacciones_mapa.formar_mensaje_transaccion(milisegundos, fila, ok);
                         if (ok.es == false) { return false; }
-                        escribir_linea(tr.in(in, "Registro borrado. "), ok, extra_array);
+                        escribir_linea(tr.in(in, "Registro borrado. "), ok, extras_array);
                         if (ok.es == false) { return false; }
-                        escribir_linea(texto, ok, extra_array);
+                        escribir_linea(texto, ok, extras_array);
                         if (ok.es == false) { return false; }
                     }
                     if (ok.es == false) { return false; }
@@ -195,7 +195,7 @@ public class direcciones_emails_operaciones extends bases {
                 if (ok.es == false) { return false; }
             }
             default -> {
-                escribir_linea_error(tr.in(in, "Opción no válida. "), ok, extra_array);
+                escribir_linea_error(tr.in(in, "Opción no válida. "), ok, extras_array);
                 if (ok.es == false) { break; }
             }
             }
@@ -207,11 +207,11 @@ public class direcciones_emails_operaciones extends bases {
     /**
      * Crea un nuevo registro en direcciones-emails
      * @param ok
-     * @param extra_array
+     * @param extras_array
      * @return
      * @throws Exception 
      */
-    public boolean procesar_formulario_registro_crear(oks ok, Object... extra_array) throws Exception {
+    public boolean procesar_formulario_registro_crear(oks ok, Object... extras_array) throws Exception {
         if (ok.es == false) { return false; }
         ResourceBundle in;
         in = ResourceBundles.getBundle(k_in_ruta);
@@ -261,9 +261,9 @@ public class direcciones_emails_operaciones extends bases {
             if (ok.es == false) { return false; }
             while (true) {
                 es_salir = true;
-                clui_formulario.procesar(ok, extra_array);
+                clui_formulario.procesar(ok, extras_array);
                 if (ok.es == false) { return false; }
-                if (clui_formulario.ser_cancelar(ok, extra_array) == false) {
+                if (clui_formulario.ser_cancelar(ok, extras_array) == false) {
                     if (ok.es == false) { return false; }
                     String email = email_control_entrada.valor.toString();
                     if (direcciones_emails_mapas_web3j.estar_email(email, ok)) {
@@ -281,7 +281,7 @@ public class direcciones_emails_operaciones extends bases {
                             es_salir = true;
                         } else {
                             if (ok.es == false) { return false; }
-                            gas_estimado = direcciones_emails_mapas_web3j.estimar_gas_crear(email, ok, extra_array);
+                            gas_estimado = direcciones_emails_mapas_web3j.estimar_gas_crear(email, ok, extras_array);
                             if (ok.es == false) { return false; }
                             precio_gas = direcciones_emails_mapas_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                             if (ok.es == false) { return false; }
@@ -289,9 +289,9 @@ public class direcciones_emails_operaciones extends bases {
                             if (_procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
                                 if (ok.es == false) { return false; }
                                 gas_estimado = gas_estimado_ref.get();
-                                escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extra_array);
+                                escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extras_array);
                                 if (ok.es == false) { return false; }
-                                TransactionReceipt transactionReceipt = direcciones_emails_mapas_web3j.crear(gas_estimado, email, ok, extra_array);
+                                TransactionReceipt transactionReceipt = direcciones_emails_mapas_web3j.crear(gas_estimado, email, ok, extras_array);
                                 if (ok.es == false) { return false; }
                                 web3_transacciones_mapas.filas fila = new web3_transacciones_mapas.filas();
                                 fila.destino_direccion = direccion;
@@ -305,9 +305,9 @@ public class direcciones_emails_operaciones extends bases {
                                 web3_transacciones_mapa.o.put(milisegundos, fila);
                                 String texto = web3_transacciones_mapa.formar_mensaje_transaccion(milisegundos, fila, ok);
                                 if (ok.es == false) { return false; }
-                                escribir_linea(tr.in(in, "Registro realizado. "), ok, extra_array);
+                                escribir_linea(tr.in(in, "Registro realizado. "), ok, extras_array);
                                 if (ok.es == false) { return false; }
-                                escribir_linea(texto, ok, extra_array);
+                                escribir_linea(texto, ok, extras_array);
                                 if (ok.es == false) { return false; }
                             }
                         }
@@ -326,11 +326,11 @@ public class direcciones_emails_operaciones extends bases {
     /**
      * Crea y procesa el formulario de registro de direcciones y emails
      * @param ok
-     * @param extra_array
+     * @param extras_array
      * @return La linea del elemento seleccionado en wallet (menos la linea de cabecera)
      * @throws Exception 
      */
-    public String _procesar_formulario_registro_opciones(oks ok, Object... extra_array) throws Exception {
+    public String _procesar_formulario_registro_opciones(oks ok, Object... extras_array) throws Exception {
         if (ok.es == false) { return null; }
         String k_seleccion = "seleccion";
         String retorno = null;
@@ -355,7 +355,7 @@ public class direcciones_emails_operaciones extends bases {
             clui_formulario.procesar(ok);
             if (ok.es == false) { return null; }
             if (clui_formulario.ser_cancelar(ok) == false) {
-                retorno = seleccion_control_seleccion.leer_seleccion(ok, extra_array).toString();
+                retorno = seleccion_control_seleccion.leer_seleccion(ok, extras_array).toString();
                 if (ok.es == false) { return null; }
             } else {
                 ok.setTxt(tr.in(in, "Cancelado "));
@@ -370,12 +370,12 @@ public class direcciones_emails_operaciones extends bases {
      * @param cantidad_gas Importe de gas por el que preguntar
      * @param precio_gas
      * @param ok
-     * @param extra_array
+     * @param extras_array
      * @return
      * @throws Exception 
      */
     public boolean _procesar_formulario_de_aceptar_gas(ref<BigInteger> cantidad_gas
-      , BigInteger precio_gas, oks ok, Object... extra_array) throws Exception {
+      , BigInteger precio_gas, oks ok, Object... extras_array) throws Exception {
         if (ok.es == false) { return false; }
         String k_aceptar_gas_submit = "aceptar_gas_submit";
         ResourceBundle in;
@@ -392,11 +392,11 @@ public class direcciones_emails_operaciones extends bases {
             cantidad_gas.o = cantidad_gas.o.multiply(BigInteger.valueOf(110L));
             cantidad_gas.o = cantidad_gas.o.divide(BigInteger.valueOf(100L));
             // Fin Añadir un 10%
-            escribir_linea(tr.in(in, "Estimación de gas (al alza): ") + cantidad_gas.get().toString(), ok, extra_array);
+            escribir_linea(tr.in(in, "Estimación de gas (al alza): ") + cantidad_gas.get().toString(), ok, extras_array);
             precio_gas = precio_gas.multiply(BigInteger.valueOf(110L));
             precio_gas = precio_gas.divide(BigInteger.valueOf(100L));
-            String precio = blockchain_coin_web3j.poner_decimales_a_numero(precio_gas, ok, extra_array);
-            escribir_linea(tr.in(in, "Estimación del precio por ese gas: ") + precio, ok, extra_array);
+            String precio = blockchain_coin_web3j.poner_decimales_a_numero(precio_gas, ok, extras_array);
+            escribir_linea(tr.in(in, "Estimación del precio por ese gas: ") + precio, ok, extras_array);
             clui_formulario.procesar(ok);
             if (ok.es == false) { return false; }
             if (clui_formulario.ser_cancelar(ok) == false) {
@@ -414,11 +414,11 @@ public class direcciones_emails_operaciones extends bases {
      * Crea y procesa el formulario de quitar de criptomoneda
      * @param mensaje
      * @param ok
-     * @param extra_array
+     * @param extras_array
      * @return
      * @throws Exception 
      */
-    public Boolean _procesar_formulario_si_o_no(String mensaje, oks ok, Object... extra_array) throws Exception {
+    public Boolean _procesar_formulario_si_o_no(String mensaje, oks ok, Object... extras_array) throws Exception {
         if (ok.es == false) { return null; }
         String k_si_o_no_submit = "si_o_no_submit";
         Boolean retorno = false;
@@ -448,11 +448,11 @@ public class direcciones_emails_operaciones extends bases {
     /**
      * Crea y procesa el formulario de creación de registro de direcciones y emails
      * @param ok
-     * @param extra_array
+     * @param extras_array
      * @return La linea del elemento seleccionado en wallet (menos la linea de cabecera)
      * @throws Exception 
      */
-    public String _procesar_formulario_leer_direccion(oks ok, Object... extra_array) throws Exception {
+    public String _procesar_formulario_leer_direccion(oks ok, Object... extras_array) throws Exception {
         if (ok.es == false) { return null; }
         String k_direccion_entrada = "direccion_entrada";
         String retorno = null;
