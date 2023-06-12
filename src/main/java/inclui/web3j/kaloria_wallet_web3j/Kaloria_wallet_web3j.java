@@ -1163,7 +1163,7 @@ public class Kaloria_wallet_web3j extends iniciales {
                         fila.pos = "0";
                         fila.criptos_lista = new LinkedList<>();
                         web3_direcciones_criptos_lista.o.add(fila);
-                    }
+                    } 
                     while (true) {
                         if (blockchain_pos < web3_direcciones_criptos_lista.o.size()) {
                             break;
