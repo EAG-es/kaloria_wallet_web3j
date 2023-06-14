@@ -194,6 +194,46 @@ public class Direcciones_emails_mapas_web3j extends bases {
      * Crear un nuevo registro
      * @param gas_aceptable
      * @param email
+     * @param coste
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public TransactionReceipt auto_crear(BigInteger gas_aceptable, String email, BigInteger coste, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return null; }
+        TransactionReceipt transactionReceipt = null;
+        try {
+            if (email == null || email.isBlank()) {
+                ok.setTxt("No se puede poner un valor nulo o vacío. ", extras_array);
+            }
+            if (ok.es == false) { return null; }
+            RemoteFunctionCall<TransactionReceipt> remoteFunctionCall = direcciones_emails_mapa.auto_crear(email, coste);
+            transactionReceipt = web3j.firmar_y_llamar_funcion_con_gas_y_coin(remoteFunctionCall, gas_aceptable, coste, null, ok, extras_array);
+            if (ok.es == false) { return null; }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return transactionReceipt;
+    }
+    /**
+     * Estima el gas necesario para enviar una cantidad a una dirección
+     * @param email
+     * @param coste
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public BigInteger estimar_gas_auto_crear(String email, BigInteger coste, oks ok, Object ... extras_array) throws Exception {
+        RemoteFunctionCall<TransactionReceipt> remoteFunctionCall = direcciones_emails_mapa.auto_crear(email, coste);
+        String encodedFunction = remoteFunctionCall.encodeFunctionCall();
+        return web3j.estimar_gas(encodedFunction, ok, extras_array);
+    }
+    /**
+     * Crear un nuevo registro
+     * @param gas_aceptable
+     * @param email
      * @param ok
      * @param extras_array
      * @return
@@ -299,17 +339,18 @@ public class Direcciones_emails_mapas_web3j extends bases {
     /**
      * Borrar un registro utilizando la dirección
      * @param gas_aceptable
+     * @param coste
      * @param ok
      * @param extras_array
      * @return
      * @throws Exception 
      */
-    public TransactionReceipt borrar(BigInteger gas_aceptable, oks ok, Object ... extras_array) throws Exception {
+    public TransactionReceipt auto_borrar(BigInteger gas_aceptable, BigInteger coste, oks ok, Object ... extras_array) throws Exception {
         if (ok.es == false) { return null; }
         TransactionReceipt transactionReceipt = null;
         try {
-            RemoteFunctionCall<TransactionReceipt> remoteFunctionCall = direcciones_emails_mapa.borrar();
-            transactionReceipt = web3j.firmar_y_llamar_funcion_con_gas(remoteFunctionCall, gas_aceptable, null, ok, extras_array);
+            RemoteFunctionCall<TransactionReceipt> remoteFunctionCall = direcciones_emails_mapa.auto_borrar(coste);
+            transactionReceipt = web3j.firmar_y_llamar_funcion_con_gas_y_coin(remoteFunctionCall, gas_aceptable, coste, null, ok, extras_array);
             if (ok.es == false) { return null; }
         } catch (Exception e) {
             ok.setTxt(e); 
@@ -318,14 +359,40 @@ public class Direcciones_emails_mapas_web3j extends bases {
     }
     /**
      * Estima el gas necesario para enviar una cantidad a una dirección
+     * @param coste
      * @param ok
      * @param extras_array
      * @return
      * @throws Exception 
      */
-    public BigInteger estimar_gas_borrar(oks ok, Object ... extras_array) throws Exception {
-        RemoteFunctionCall<TransactionReceipt> remoteFunctionCall = direcciones_emails_mapa.borrar();
+    public BigInteger estimar_gas_auto_borrar(BigInteger coste, oks ok, Object ... extras_array) throws Exception {
+        RemoteFunctionCall<TransactionReceipt> remoteFunctionCall = direcciones_emails_mapa.auto_borrar(coste);
         String encodedFunction = remoteFunctionCall.encodeFunctionCall();
         return web3j.estimar_gas(encodedFunction, ok, extras_array);
+    }
+    /**
+     * Leer el coste de auto_crear y de auto_borrar
+     * @param ok
+     * @param extras_array
+     * @return El hash de la trasaccion
+     * @throws Exception 
+     */
+    public BigInteger leer_coste(oks ok, Object ... extras_array) throws Exception {
+        BigInteger retorno = null;
+        ResourceBundle in;
+        in = ResourceBundles.getBundle(k_in_ruta);        
+        try {
+            if (ok.es == false) { return null; }
+            RemoteFunctionCall<BigInteger> remoteFunctionCall = direcciones_emails_mapa.leer_coste();
+            EthCall ethCall = web3j.llamar_funcion_sin_gas(remoteFunctionCall, ok, extras_array);
+            if (ok.es == false) { return null; }
+            List<Type> types_list = remoteFunctionCall.decodeFunctionResponse(ethCall.getValue());
+            if (types_list != null) {
+                retorno = (BigInteger) types_list.get(0).getValue();
+            }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return retorno;
     }
 }

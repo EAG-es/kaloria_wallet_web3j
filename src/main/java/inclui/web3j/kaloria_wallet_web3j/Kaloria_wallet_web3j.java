@@ -1384,7 +1384,8 @@ public class Kaloria_wallet_web3j extends iniciales {
                 BigInteger gas_estimado = i_erc20_web3j.estimar_gas_enviar(direccion, cantidad, ok);
                 BigInteger precio_gas = i_erc20_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                 ref<BigInteger> gas_estimado_ref = new ref<>(gas_estimado);
-                if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
+                if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref
+                   , precio_gas, BigInteger.ZERO, ok)) {
                     if (ok.es == false) { return false; }
                     gas_estimado = gas_estimado_ref.get();
                     escribir_linea(tr.in(in,"Envío en curso... Espere por favor. "), ok);
@@ -1614,7 +1615,8 @@ public class Kaloria_wallet_web3j extends iniciales {
                         BigInteger precio_gas = i_erc20_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                         if (ok.es == false) { return false; }
                         ref<BigInteger> gas_estimado_ref = new ref<>(gas_estimado);
-                        if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
+                        if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref
+                          , precio_gas, BigInteger.ZERO, ok)) {
                             if (ok.es == false) { return false; }
                             gas_estimado = gas_estimado_ref.get();
                             escribir_linea(tr.in(in,"Aprobación en curso... Espere por favor. "), ok);
@@ -1766,7 +1768,8 @@ public class Kaloria_wallet_web3j extends iniciales {
                 if (ok.es == false) { return false; }
                 BigInteger precio_gas = blockchain_coin_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                 ref<BigInteger> gas_estimado_ref = new ref<>(gas_estimado);
-                if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
+                if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref
+                  , precio_gas, BigInteger.ZERO, ok)) {
                     if (ok.es == false) { return false; }
                     gas_estimado = gas_estimado_ref.get();
                     escribir_linea(tr.in(in,"Operación en curso... Espere por favor. "), ok);
@@ -1831,7 +1834,8 @@ public class Kaloria_wallet_web3j extends iniciales {
                 if (ok.es == false) { return false; }
                 BigInteger precio_gas = blockchain_coin_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                 ref<BigInteger> gas_estimado_ref = new ref<>(gas_estimado);
-                if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
+                if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref
+                  , precio_gas, BigInteger.ZERO, ok)) {
                     if (ok.es == false) { return false; }
                     gas_estimado = gas_estimado_ref.get();
                     escribir_linea(tr.in(in,"Operación en curso... Espere por favor. "), ok);

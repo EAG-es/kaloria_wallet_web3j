@@ -246,7 +246,8 @@ public class kalorias_operaciones extends bases {
                     precio_gas = kaloria_faucect_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                     if (ok.es == false) { return false; }
                     ref<BigInteger> gas_estimado_ref = new ref<>(gas_estimado);
-                    if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
+                    if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref
+                      , precio_gas, BigInteger.ZERO, ok)) {
                         if (ok.es == false) { return false; }
                         gas_estimado = gas_estimado_ref.get();
                         escribir_linea(tr.in(in,"Regalo en curso... Espere por favor. "), ok);
@@ -295,7 +296,8 @@ public class kalorias_operaciones extends bases {
                         precio_gas = kaloria_faucect_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                         if (ok.es == false) { return false; }
                         ref<BigInteger> gas_estimado_ref = new ref<>(gas_estimado);
-                        if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
+                        if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref
+                          , precio_gas, BigInteger.ZERO, ok)) {
                             if (ok.es == false) { return false; }
                             gas_estimado = gas_estimado_ref.get();
                             escribir_linea(tr.in(in,"Operación en curso... Espere por favor. "), ok);
@@ -405,7 +407,8 @@ public class kalorias_operaciones extends bases {
                     BigInteger precio_gas = kaloria_faucect_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                     if (ok.es == false) { return false; }
                     ref<BigInteger> gas_estimado_ref = new ref<>(gas_estimado);
-                    if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
+                    if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref
+                      , precio_gas, BigInteger.ZERO, ok)) {
                         if (ok.es == false) { return false; }
                         gas_estimado = gas_estimado_ref.get();
                         escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extras_array);
@@ -471,7 +474,8 @@ public class kalorias_operaciones extends bases {
                     BigInteger precio_gas = kaloria_faucect_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
                     if (ok.es == false) { return false; }
                     ref<BigInteger> gas_estimado_ref = new ref<>(gas_estimado);
-                    if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
+                    if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref
+                      , precio_gas, BigInteger.ZERO, ok)) {
                         if (ok.es == false) { return false; }
                         gas_estimado = gas_estimado_ref.get();
                         escribir_linea(tr.in(in, "Operación en curso... Espere por favor. "), ok, extras_array);
@@ -525,7 +529,8 @@ public class kalorias_operaciones extends bases {
             BigInteger precio_gas = kaloria_i_erc20_web3j.web3j.estimar_coste_gas(gas_estimado, ok);
             if (ok.es == false) { return false; }
             ref<BigInteger> gas_estimado_ref = new ref<>(gas_estimado);
-            if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref, precio_gas, ok)) {
+            if (direcciones_emails_operacion._procesar_formulario_de_aceptar_gas(gas_estimado_ref
+              , precio_gas, BigInteger.ZERO, ok)) {
                 if (ok.es == false) { return false; }
                 gas_estimado = gas_estimado_ref.get();
                 escribir_linea(tr.in(in,"Aprobación en curso... Espere por favor. "), ok);
