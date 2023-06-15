@@ -217,6 +217,31 @@ public class Direcciones_emails_mapas_web3j extends bases {
         return transactionReceipt;
     }
     /**
+     * Crear un nuevo registro
+     * @param gas_aceptable
+     * @param email
+     * @param coste
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public boolean auto_crear_asincrono(BigInteger gas_aceptable, String email, BigInteger coste, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return false; }
+        try {
+            if (email == null || email.isBlank()) {
+                ok.setTxt("No se puede poner un valor nulo o vacío. ", extras_array);
+            }
+            if (ok.es == false) { return false; }
+            RemoteFunctionCall<TransactionReceipt> remoteFunctionCall = direcciones_emails_mapa.auto_crear(email, coste);
+            web3j.firmar_y_llamar_asincrono_funcion_con_gas_y_coin(remoteFunctionCall, gas_aceptable, coste, null, null, ok, extras_array);
+            if (ok.es == false) { return false; }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return ok.es;
+    }
+    /**
      * Estima el gas necesario para enviar una cantidad a una dirección
      * @param email
      * @param coste
@@ -358,6 +383,26 @@ public class Direcciones_emails_mapas_web3j extends bases {
         return transactionReceipt;
     }
     /**
+     * Borrar un registro utilizando la dirección
+     * @param gas_aceptable
+     * @param coste
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public boolean auto_borrar_asincrono(BigInteger gas_aceptable, BigInteger coste, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return false; }
+        try {
+            RemoteFunctionCall<TransactionReceipt> remoteFunctionCall = direcciones_emails_mapa.auto_borrar(coste);
+            web3j.firmar_y_llamar_asincrono_funcion_con_gas_y_coin(remoteFunctionCall, gas_aceptable, coste, null, null, ok, extras_array);
+            if (ok.es == false) { return false; }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return ok.es;
+    }
+    /**
      * Estima el gas necesario para enviar una cantidad a una dirección
      * @param coste
      * @param ok
@@ -379,8 +424,6 @@ public class Direcciones_emails_mapas_web3j extends bases {
      */
     public BigInteger leer_coste(oks ok, Object ... extras_array) throws Exception {
         BigInteger retorno = null;
-        ResourceBundle in;
-        in = ResourceBundles.getBundle(k_in_ruta);        
         try {
             if (ok.es == false) { return null; }
             RemoteFunctionCall<BigInteger> remoteFunctionCall = direcciones_emails_mapa.leer_coste();

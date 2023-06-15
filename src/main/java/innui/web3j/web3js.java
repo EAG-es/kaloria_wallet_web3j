@@ -7,22 +7,26 @@ import innui.modelos.configuraciones.Resources;
 import innui.modelos.errores.oks;
 import innui.modelos.internacionalizacion.tr;
 import innui.utiles.bigdecimals.BigDecimals;
+import innui.web3j.generated.contracts.I_erc20;
+import static innui.web3j.generated.contracts.I_erc20.getOkEvents;
 import io.reactivex.disposables.Disposable;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import org.web3j.abi.DefaultFunctionReturnDecoder;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 import org.web3j.abi.FunctionReturnDecoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Uint;
-import org.web3j.abi.datatypes.Utf8String;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.Hash;
 import org.web3j.crypto.RawTransaction;
@@ -58,6 +62,56 @@ import org.web3j.utils.TxHashVerifier;
  * @author emilio
  */
 public class web3js extends bases {
+    public static interface i_notificaciones_asincronas {
+        /**
+         * Método llamado por los escuchadores de transacciones por defecto
+         * @param transactionReceipt
+         * @param datos_mapa
+         * @param ok
+         * @param extras_array
+         * @return 
+         * @throws java.lang.Exception 
+         */
+        public boolean procesar_transaccion_asincrona(TransactionReceipt transactionReceipt
+          , Map<String, Object> datos_mapa, oks ok, Object ... extras_array) throws Exception;
+        /**
+         * Método llamado por los escuchadores de llamadas (sin gas) por defecto
+         * @param ethCall
+         * @param datos_mapa
+         * @param ok
+         * @param extras_array
+         * @return
+         * @throws Exception 
+         */
+        public boolean procesar_llamada_asincrono(EthCall ethCall
+          , Map<String, Object> datos_mapa, oks ok, Object ... extras_array) throws Exception;
+        /**
+         * Método llamado por los escuchadores por defecto en caso de error
+         * @param mensaje
+         * @param datos_mapa
+         * @param ok
+         * @param extras_array
+         * @return 
+         */
+        public boolean poner_error_asincrono(Boolean es_transaccion_fallida, String mensaje, Map<String, Object> datos_mapa, oks ok, Object ... extras_array);
+    }
+    public i_notificaciones_asincronas i_notificacion_asincrona = new i_notificaciones_asincronas() {
+        @Override
+        public boolean procesar_transaccion_asincrona(TransactionReceipt transactionReceipt
+          , Map<String, Object> datos_mapa, oks ok, Object ... extras_array) throws Exception {
+            return web3js.this.procesar_transaccion_asincrona_por_defecto(transactionReceipt, datos_mapa, ok, extras_array);
+        }
+        @Override
+        public boolean procesar_llamada_asincrono(EthCall ethCall
+          , Map<String, Object> datos_mapa, oks ok, Object ... extras_array) throws Exception {
+            return web3js.this.procesar_llamada_asincrona_por_defecto(ethCall, datos_mapa, ok, extras_array);
+        }
+        @Override
+        public boolean poner_error_asincrono(Boolean es_transaccion_fallida, String mensaje, Map<String, Object> datos_mapa, oks ok, Object ... extras_array) {
+            escribir_linea_error(mensaje, ok, extras_array);
+            return ok.es;
+        }
+    };
     public static String k_in_ruta = "in/innui/web3j/in";  //NOI18N
     public static String k_comprobar_y_esperar_recibo_tiempo_excedido = "comprobar_y_esperar_recibo_tiempo_excedido";
     public static Long k_tiempo_durmiendo_milisegundos = 10000L;
@@ -99,6 +153,7 @@ public class web3js extends bases {
         gasPrice = origen.gasPrice;
         gasLimit = origen.gasLimit;
         gas = origen.gas;
+        i_notificacion_asincrona = origen.i_notificacion_asincrona;
     }
     /**
      * Realiza las operaciones de inicio de la clase
@@ -118,7 +173,7 @@ public class web3js extends bases {
             if (file.exists() == false) {
                 URL url = Resources.getResource(this.getClass(), web3_archivo, ok, extras_array);
                 if (ok.es == false) {
-                    ok.setTxt(tr.in(in, "No se ha encontrado el archivo de credenciales de la wallet web3. Puede crear uno a partir de las claves privadas con el jar: wallet_a_file_web3j. "));
+                    ok.setTxt(tr.in(in, "No se ha encontrado el archivo de credenciales de la wallet web3. "));
                     return false;
                 } else {
                     file = new File(url.toURI());
@@ -217,6 +272,52 @@ public class web3js extends bases {
     }
     /**
      * Llama a una función remota que consume gas_precios (firmándola) utilizando transacciones raw
+     * @param remoteFunctionCall
+     * @param resultado
+     * @param datos_mapa
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public CompletableFuture<EthSendTransaction> _firmar_y_llamar_asincrono_funcion_con_gas(RemoteFunctionCall<?> remoteFunctionCall, StringBuilder resultado
+      , Map<String, Object> datos_mapa, oks ok, Object ... extras_array) throws Exception {
+        String encodedFunction_tex = remoteFunctionCall.encodeFunctionCall();
+        return _firmar_y_llamar_asincrono_funcion_con_gas(encodedFunction_tex, resultado, datos_mapa, ok, extras_array);
+    }
+    /**
+     * Llama a una función remota que consume gas_precios (firmándola) utilizando transacciones raw
+     * @param encodedFunction_tex
+     * @param resultado
+     * @param datos_mapa
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public CompletableFuture<EthSendTransaction> _firmar_y_llamar_asincrono_funcion_con_gas(String encodedFunction_tex, StringBuilder resultado
+      , Map<String, Object> datos_mapa, oks ok, Object ... extras_array) throws Exception {
+        CompletableFuture<EthSendTransaction> completableFuture = null;
+        try {
+            if (ok.es == false) { return null; }
+            BigInteger nonce;
+            RawTransaction rawTransaction;
+            String transaccion_firmada;
+            nonce = obtener_nonce(credentials.getAddress(), ok);
+            if (ok.es == false) { return null; }
+            rawTransaction = RawTransaction.createTransaction(nonce
+            , gasPrice, gasLimit, web3_direccion_contrato, encodedFunction_tex);
+            transaccion_firmada = firmar(rawTransaction, ok);
+            if (ok.es == false) { return null; }
+            completableFuture = web3j.ethSendRawTransaction(transaccion_firmada).sendAsync();
+            poner_escuchador_por_defecto_con_gas(completableFuture, datos_mapa, ok, extras_array);
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return completableFuture;
+    }
+    /**
+     * Llama a una función remota que consume gas_precios (firmándola) utilizando transacciones raw
      * @param encodedFunction_tex
      * @param resultado
      * @param ok
@@ -266,6 +367,39 @@ public class web3js extends bases {
             ok.setTxt(e); 
         }
         return transactionReceipt;
+    }
+    /**
+     * Llama a una función remota que consume gas_precios y envía blockchain-coins (firmándola) utilizando transacciones raw
+     * @param encodedFunction_tex
+     * @param valor Unidades de coin que enviar
+     * @param resultado
+     * @param datos_mapa
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public CompletableFuture<EthSendTransaction> _firmar_y_llamar_asincrono_funcion_con_gas_y_coin(String encodedFunction_tex
+      , BigInteger valor, StringBuilder resultado
+      , Map<String, Object> datos_mapa, oks ok, Object ... extras_array) throws Exception {
+        CompletableFuture<EthSendTransaction> completableFuture = null;
+        try {
+            if (ok.es == false) { return null; }
+            BigInteger nonce;
+            RawTransaction rawTransaction;
+            String transaccion_firmada;
+            nonce = obtener_nonce(credentials.getAddress(), ok);
+            if (ok.es == false) { return null; }
+            rawTransaction = RawTransaction.createTransaction(nonce
+            , gasPrice, gasLimit, web3_direccion_contrato, valor, encodedFunction_tex);
+            transaccion_firmada = firmar(rawTransaction, ok);
+            if (ok.es == false) { return null; }
+            completableFuture = web3j.ethSendRawTransaction(transaccion_firmada).sendAsync();
+            poner_escuchador_por_defecto_con_gas(completableFuture, datos_mapa, ok, extras_array);
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return completableFuture;
     }
     /**
      * Llama a una función remota que consume gas_precios y envía blockchain-coins (firmándola) utilizando transacciones raw
@@ -326,6 +460,24 @@ public class web3js extends bases {
      * @param remoteFunctionCall
      * @param valor Unidades de coin que enviar
      * @param resultado
+     * @param datos_mapa
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public CompletableFuture<EthSendTransaction> _firmar_y_llamar_asincrono_funcion_con_gas_y_coin(RemoteFunctionCall<?> remoteFunctionCall
+      , BigInteger valor, StringBuilder resultado
+      , Map<String, Object> datos_mapa, oks ok, Object ... extras_array) throws Exception {
+        String encodedFunction_tex = remoteFunctionCall.encodeFunctionCall();
+        return web3js.this._firmar_y_llamar_asincrono_funcion_con_gas_y_coin(encodedFunction_tex
+          , valor, resultado, datos_mapa, ok, extras_array);
+    }
+    /**
+     * Llama a una función remota que consume gas_precios (firmándola) utilizando transacciones raw
+     * @param remoteFunctionCall
+     * @param valor Unidades de coin que enviar
+     * @param resultado
      * @param ok
      * @param extras_array
      * @return
@@ -368,6 +520,20 @@ public class web3js extends bases {
     /**
      * Llama a una función remota que no consume gas_precios utilizando createEthCallTransaction
      * @param remoteFunctionCall
+     * @param datos_mapa
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public CompletableFuture<EthCall> llamar_funcion_asincrono_sin_gas(RemoteFunctionCall<?> remoteFunctionCall
+      , Map<String, Object> datos_mapa, oks ok, Object ... extras_array) throws Exception {
+        String encodedFunction_tex = remoteFunctionCall.encodeFunctionCall();
+        return llamar_funcion_asincrono_sin_gas(encodedFunction_tex, datos_mapa, ok, extras_array);
+    }
+    /**
+     * Llama a una función remota que no consume gas_precios utilizando createEthCallTransaction
+     * @param remoteFunctionCall
      * @param ok
      * @param extras_array
      * @return
@@ -377,6 +543,31 @@ public class web3js extends bases {
         String encodedFunction_tex = remoteFunctionCall.encodeFunctionCall();
         return llamar_funcion_sin_gas(encodedFunction_tex,ok, extras_array);
     }
+    /**
+     * Llama a una función remota que no consume gas_precios utilizando createEthCallTransaction
+     * @param encodedFunction_tex
+     * @param datos_mapa
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public CompletableFuture<EthCall> llamar_funcion_asincrono_sin_gas(String encodedFunction_tex
+      , Map<String, Object> datos_mapa, oks ok, Object ... extras_array) throws Exception {
+        CompletableFuture<EthCall> completableFuture = null;
+        ResourceBundle in;
+        in = ResourceBundles.getBundle(k_in_ruta);
+        try {
+            if (ok.es == false) { return null; }
+            Transaction transaction = Transaction.createEthCallTransaction(credentials.getAddress()
+              , web3_direccion_contrato, encodedFunction_tex);            
+            completableFuture = web3j.ethCall(transaction, DefaultBlockParameterName.LATEST).sendAsync();
+            poner_escuchador_por_defecto_sin_gas(completableFuture, datos_mapa, ok, extras_array);
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return completableFuture;
+    }    
     /**
      * Llama a una función remota que no consume gas_precios utilizando createEthCallTransaction
      * @param encodedFunction_tex
@@ -390,8 +581,6 @@ public class web3js extends bases {
         ResourceBundle in;
         in = ResourceBundles.getBundle(k_in_ruta);
         try {
-            if (ok.es == false) { return null; }
-            BigInteger nonce = obtener_nonce(credentials.getAddress(), ok);
             if (ok.es == false) { return null; }
             Transaction transaction = Transaction.createEthCallTransaction(credentials.getAddress()
               , web3_direccion_contrato, encodedFunction_tex);            
@@ -506,6 +695,33 @@ public class web3js extends bases {
      * @param remoteFunctionCall
      * @param gas_aceptable
      * @param resultado
+     * @param datos_mapa
+     * @param ok
+     * @param extras_array
+     * @return El hash de la trasaccion
+     * @throws Exception 
+     */
+    public CompletableFuture<EthSendTransaction> firmar_y_llamar_asincrono_funcion_con_gas(RemoteFunctionCall<?> remoteFunctionCall
+      , BigInteger gas_aceptable, StringBuilder resultado
+      , Map<String, Object> datos_mapa, oks ok, Object ... extras_array) throws Exception {
+        CompletableFuture<EthSendTransaction> completableFuture = null;
+        try {
+            if (ok.es == false) { return null; }
+            estimar_gas(gas_aceptable, remoteFunctionCall, ok, extras_array);
+            if (ok.es == false) { return null; }
+            completableFuture = web3js.this._firmar_y_llamar_asincrono_funcion_con_gas(remoteFunctionCall
+              , resultado, datos_mapa, ok); // Forma con más código
+            if (ok.es == false) { return null; }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return completableFuture;
+    }
+    /**
+     * Llama a la función con gasto de gas_precios de un contrato inteligente
+     * @param remoteFunctionCall
+     * @param gas_aceptable
+     * @param resultado
      * @param ok
      * @param extras_array
      * @return El hash de la trasaccion
@@ -533,6 +749,34 @@ public class web3js extends bases {
             ok.setTxt(e); 
         }
         return transactionReceipt;
+    }
+    /**
+     * Llama a la función con gasto de gas_precios de un contrato inteligente
+     * @param remoteFunctionCall
+     * @param gas_aceptable
+     * @param valor
+     * @param resultado
+     * @param datos_mapa
+     * @param ok
+     * @param extras_array
+     * @return El hash de la trasaccion
+     * @throws Exception 
+     */
+    public CompletableFuture<EthSendTransaction> firmar_y_llamar_asincrono_funcion_con_gas_y_coin(RemoteFunctionCall<?> remoteFunctionCall
+      , BigInteger gas_aceptable, BigInteger valor, StringBuilder resultado
+      , Map<String, Object> datos_mapa, oks ok, Object ... extras_array) throws Exception {
+        CompletableFuture<EthSendTransaction> completableFuture = null;
+        try {
+            if (ok.es == false) { return null; }
+            estimar_gas(gas_aceptable, remoteFunctionCall, ok, extras_array);
+            if (ok.es == false) { return null; }
+            completableFuture = _firmar_y_llamar_asincrono_funcion_con_gas_y_coin(remoteFunctionCall
+              , valor, resultado, datos_mapa, ok); // Forma con más código
+            if (ok.es == false) { return null; }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return completableFuture;
     }
     /**
      * Llama a la función con gasto de gas_precios de un contrato inteligente
@@ -568,6 +812,166 @@ public class web3js extends bases {
         }
         return transactionReceipt;
     }
+    /**
+     * Establece un comportamiento por defecto para las transacciones
+     * @param completable
+     * @param datos_a_guardar_mapa Datos que guardar de la llamada asíncrona.
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public CompletableFuture<EthSendTransaction> poner_escuchador_por_defecto_con_gas(CompletableFuture<EthSendTransaction> completable
+      , Map<String, Object> datos_a_guardar_mapa, oks ok, Object ... extras_array) throws Exception {
+        CompletableFuture<EthSendTransaction> completableFuture = null;
+        try {
+            if (ok.es == false) { return null; }
+            completableFuture = completable.handleAsync(new BiFunction<EthSendTransaction, Throwable, EthSendTransaction>() {
+                public Map<String, Object> datos_mapa;
+                // Constructor anónimo
+                {
+                    if (datos_a_guardar_mapa != null) {
+                        this.datos_mapa = new HashMap<>(datos_a_guardar_mapa);
+                    }
+                }
+
+                @Override
+                public EthSendTransaction apply(EthSendTransaction ethSendTransaction, Throwable throwable) {
+                    oks ok = new oks();
+                    try {
+                        if (ethSendTransaction != null) {
+                            String transactionHash = ethSendTransaction.getTransactionHash();
+                            TransactionReceipt transactionReceipt = obtener_recibo_de_transaccion(transactionHash, ok, extras_array);
+                            transactionReceipt = comprobar_y_esperar_recibo(transactionReceipt
+                              , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
+                            if (ok.es == false) { 
+                                i_notificacion_asincrona.poner_error_asincrono(false, ok.getTxt(), datos_mapa, ok.iniciar());
+                            }
+                            i_notificacion_asincrona.procesar_transaccion_asincrona(transactionReceipt, datos_mapa, ok, extras_array);
+                            if (ok.es == false) {
+                                i_notificacion_asincrona.poner_error_asincrono(false, ok.getTxt(), datos_mapa, ok.iniciar());
+                            }
+                        } else if (throwable != null) {
+                            Exception exception = new Exception(throwable);
+                            ok.setTxt(exception);
+                            try {
+                                i_notificacion_asincrona.poner_error_asincrono(true, ok.getTxt(), datos_mapa, ok.iniciar());
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    } catch (Exception e) {
+                        ok.setTxt(e);
+                        try {
+                            i_notificacion_asincrona.poner_error_asincrono((throwable != null), ok.getTxt(), datos_mapa, ok.iniciar());
+                        } catch (Exception es) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    return ethSendTransaction;
+                }
+            });
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return completableFuture;
+    }
+    /**
+     * Establece un comportamiento por defecto para las llamadas
+     * @param completable
+     * @param datos_a_guardar_mapa Datos que guardar de la llamada asíncrona.
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public CompletableFuture<EthCall> poner_escuchador_por_defecto_sin_gas(CompletableFuture<EthCall> completable
+      , Map<String, Object> datos_a_guardar_mapa, oks ok, Object ... extras_array) throws Exception {
+        CompletableFuture<EthCall> completableFuture = null;
+        try {
+            if (ok.es == false) { return null; }
+            completableFuture = completable.handleAsync(new BiFunction<EthCall, Throwable, EthCall>() {
+                public Map<String, Object> datos_mapa;
+                // Constructor anónimo
+                {
+                    this.datos_mapa = new HashMap<>(datos_a_guardar_mapa);
+                }
+
+                @Override
+                public EthCall apply(EthCall ethCall, Throwable throwable) {
+                    oks ok = new oks();
+                    try {
+                        if (ethCall != null) {
+                            i_notificacion_asincrona.procesar_llamada_asincrono(ethCall, datos_mapa, ok);
+                            if (ok.es == false) {
+                                i_notificacion_asincrona.poner_error_asincrono(false, ok.getTxt(), datos_mapa, ok.iniciar());
+                            }
+
+                        } else if (throwable != null) {
+                            Exception exception = new Exception(throwable);
+                            ok.setTxt(exception);
+                            try {
+                                i_notificacion_asincrona.poner_error_asincrono(true, ok.getTxt(), datos_mapa, ok.iniciar());
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    } catch (Exception e) {
+                        ok.setTxt(e);
+                        try {
+                            i_notificacion_asincrona.poner_error_asincrono(throwable != null, ok.getTxt(), datos_mapa, ok.iniciar());
+                        } catch (Exception es) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    return ethCall;
+                }
+            });
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return completableFuture;
+    }
+    /**
+     * Pone un escuchador en lugar del escucahdor por defecto
+     * @param completable
+     * @param escuchador
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public CompletableFuture<EthSendTransaction> poner_escuchador_con_gas(CompletableFuture<EthSendTransaction> completable
+      , BiFunction<EthSendTransaction, Throwable, EthSendTransaction> escuchador, oks ok, Object ... extras_array) throws Exception {
+        CompletableFuture<EthSendTransaction> completableFuture = null;
+        try {
+            if (ok.es == false) { return null; }
+            completableFuture = completable.handleAsync(escuchador);
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return completableFuture;
+    }
+    /**
+     * Pone un escuchador en lugar del escucahdor por defecto
+     * @param completable
+     * @param escuchador
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public CompletableFuture<EthCall> poner_escuchador_sin_gas(CompletableFuture<EthCall> completable
+      , BiFunction<EthCall, Throwable, EthCall> escuchador, oks ok, Object ... extras_array) throws Exception {
+        CompletableFuture<EthCall> completableFuture = null;
+        try {
+            if (ok.es == false) { return null; }
+            completableFuture = completable.handleAsync(escuchador);
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return completableFuture;
+    }    
     /**
      * Informa si el recibo de una transaccón es vacío
      * @param transactionReceipt
@@ -612,7 +1016,14 @@ public class web3js extends bases {
                         if (ok.es == false) { return null; }
                     } else {
                         if (ok.es == false) { return null; }
-                        break;
+                        try {
+                            // Testear transaccion
+                            transactionReceipt.getFrom();
+                            break;
+                        } catch (Exception e) {}
+                        if (transactionReceipt.isStatusOK()) {
+                            break;
+                        }
                     }
                 }
             }
@@ -802,8 +1213,8 @@ public class web3js extends bases {
         try {
             if (gas.ultimo_precio_gas_gwei == null 
              || gas.ultimo_precio_gas_gwei.compareTo(BigInteger.ZERO) == 0) {
-            EthGasPrice ethGasPrice = web3j.ethGasPrice().send();
-            BigInteger actual_gasPrice = ethGasPrice.getGasPrice();
+                EthGasPrice ethGasPrice = web3j.ethGasPrice().send();
+                BigInteger actual_gasPrice = ethGasPrice.getGasPrice();
                 gas.ultimo_precio_gas_gwei = actual_gasPrice;
             }
             retorno = gas_a_valorar.multiply(gas.ultimo_precio_gas_gwei);
@@ -845,7 +1256,7 @@ public class web3js extends bases {
             List<LogResult> logResult_list;
             LinkedList<LogResult> logResult_linkedlist = new LinkedList<>();
             Iterator<LogResult> desdending_iterator;
-            LogResult logResult;
+            LogResult<?> logResult;
             Log log;
             while (true) {
                 if (inicio_busqueda_bigInteger.compareTo(BigInteger.ZERO) <= 0) {
@@ -892,6 +1303,88 @@ public class web3js extends bases {
             ok.setTxt(e); 
         }
         return retorno;
+    }
+    /**
+     * Método llamado por los escuchadores de transacciones por defecto
+     * @param transactionReceipt
+     * @param datos_mapa
+     * @param ok
+     * @param extras_array
+     * @return 
+     * @throws java.lang.Exception 
+     */
+    public boolean procesar_transaccion_asincrona_por_defecto(TransactionReceipt transactionReceipt
+      , Map<String, Object> datos_mapa, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return false; }
+        try {
+            if (ser_recibo_vacio(transactionReceipt, ok) == false) {
+                if (ok.es == false) { return false; }
+                restar_gas(transactionReceipt.getGasUsed(), ok);
+            }
+            if (ok.es == false) { return false; }
+            try {
+                List<Log> logs_lista = transactionReceipt.getLogs();
+                if (logs_lista != null && logs_lista.isEmpty() == false) {
+                    List<I_erc20.OkEventResponse> oks_lista = getOkEvents(transactionReceipt);
+                    if (oks_lista != null) {
+                        for (I_erc20.OkEventResponse okEventResponse: oks_lista) {
+                            if (okEventResponse.es == false) {
+                                ok.es = okEventResponse.es;
+                                ok.setTxt(okEventResponse.mensaje);
+                                break;
+                            }
+                        }
+                    }
+                }
+                poner_ultimo_precio_gas(transactionReceipt, ok, extras_array);
+                if (ok.es == false) { return false; }
+            } catch (Exception e_ignorada) {
+                // Si no se pueden leer los logs, se ignoran
+            }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return ok.es;
+    }
+    /**
+     * Método llamado por los escuchadores de llamadas (sin gas) por defecto
+     * @param ethCall
+     * @param datos_mapa
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public boolean procesar_llamada_asincrona_por_defecto(EthCall ethCall
+      , Map<String, Object> datos_mapa, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return false; }
+        ResourceBundle in;
+        in = ResourceBundles.getBundle(k_in_ruta);
+        try {
+            oks ok_extra = new oks();
+            if (ethCall.isReverted()) {                
+                ok.setTxt(tr.in(in, "Llamada a función de contrato inteligente: ") 
+                        + ethCall.getId()
+                        + tr.in(in, "revertida: ")
+                        + ethCall.getRevertReason(), ok, extras_array);
+                i_notificacion_asincrona.poner_error_asincrono(true, ok.getTxt(), datos_mapa, ok_extra);
+            }
+            if (ok.es == false) { return false; }
+            if (ethCall.hasError()) {
+                ok.setTxt(tr.in(in, "Llamada a función de contrato inteligente: ") 
+                        + ethCall.getId()
+                        + tr.in(in, "con error: ")
+                        + ethCall.getError().getMessage(), ok, extras_array);
+                i_notificacion_asincrona.poner_error_asincrono(true, ok.getTxt(), datos_mapa, ok_extra);
+            }
+            if (ok_extra.es == false) {
+                ok.setTxt(ok.getTxt(), ok_extra.getTxt(), extras_array);
+            }
+            if (ok.es == false) { return false; }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return ok.es;
     }
 
 }
