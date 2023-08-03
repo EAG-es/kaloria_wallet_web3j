@@ -91,6 +91,10 @@ public class I_erc20s_kopias extends Contract {
             Arrays.<TypeReference<?>>asList(new TypeReference<Address>(true) {}, new TypeReference<Uint256>(true) {}, new TypeReference<Uint256>(true) {}, new TypeReference<Utf8String>() {}));
     ;
 
+    public static final Event APPROVAL_EVENT = new Event("Approval", 
+            Arrays.<TypeReference<?>>asList(new TypeReference<Address>(true) {}, new TypeReference<Address>(true) {}, new TypeReference<Uint256>() {}));
+    ;
+
     public static final Event MENSAJE_EVENT = new Event("Mensaje", 
             Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
     ;
@@ -101,6 +105,10 @@ public class I_erc20s_kopias extends Contract {
 
     public static final Event ST_U_EVENT = new Event("St_u", 
             Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}, new TypeReference<Uint256>() {}));
+    ;
+
+    public static final Event TRANSFER_EVENT = new Event("Transfer", 
+            Arrays.<TypeReference<?>>asList(new TypeReference<Address>(true) {}, new TypeReference<Address>(true) {}, new TypeReference<Uint256>() {}));
     ;
 
     @Deprecated
@@ -191,6 +199,40 @@ public class I_erc20s_kopias extends Contract {
         EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
         filter.addSingleTopic(EventEncoder.encode(AD_U_U_EVENT));
         return ad_u_uEventFlowable(filter);
+    }
+
+    public static List<ApprovalEventResponse> getApprovalEvents(TransactionReceipt transactionReceipt) {
+        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(APPROVAL_EVENT, transactionReceipt);
+        ArrayList<ApprovalEventResponse> responses = new ArrayList<ApprovalEventResponse>(valueList.size());
+        for (Contract.EventValuesWithLog eventValues : valueList) {
+            ApprovalEventResponse typedResponse = new ApprovalEventResponse();
+            typedResponse.log = eventValues.getLog();
+            typedResponse._owner = (String) eventValues.getIndexedValues().get(0).getValue();
+            typedResponse._spender = (String) eventValues.getIndexedValues().get(1).getValue();
+            typedResponse._value = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+            responses.add(typedResponse);
+        }
+        return responses;
+    }
+
+    public static ApprovalEventResponse getApprovalEventFromLog(Log log) {
+        Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(APPROVAL_EVENT, log);
+        ApprovalEventResponse typedResponse = new ApprovalEventResponse();
+        typedResponse.log = log;
+        typedResponse._owner = (String) eventValues.getIndexedValues().get(0).getValue();
+        typedResponse._spender = (String) eventValues.getIndexedValues().get(1).getValue();
+        typedResponse._value = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+        return typedResponse;
+    }
+
+    public Flowable<ApprovalEventResponse> approvalEventFlowable(EthFilter filter) {
+        return web3j.ethLogFlowable(filter).map(log -> getApprovalEventFromLog(log));
+    }
+
+    public Flowable<ApprovalEventResponse> approvalEventFlowable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
+        EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
+        filter.addSingleTopic(EventEncoder.encode(APPROVAL_EVENT));
+        return approvalEventFlowable(filter);
     }
 
     public static List<MensajeEventResponse> getMensajeEvents(TransactionReceipt transactionReceipt) {
@@ -285,6 +327,40 @@ public class I_erc20s_kopias extends Contract {
         EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
         filter.addSingleTopic(EventEncoder.encode(ST_U_EVENT));
         return st_uEventFlowable(filter);
+    }
+
+    public static List<TransferEventResponse> getTransferEvents(TransactionReceipt transactionReceipt) {
+        List<Contract.EventValuesWithLog> valueList = staticExtractEventParametersWithLog(TRANSFER_EVENT, transactionReceipt);
+        ArrayList<TransferEventResponse> responses = new ArrayList<TransferEventResponse>(valueList.size());
+        for (Contract.EventValuesWithLog eventValues : valueList) {
+            TransferEventResponse typedResponse = new TransferEventResponse();
+            typedResponse.log = eventValues.getLog();
+            typedResponse._from = (String) eventValues.getIndexedValues().get(0).getValue();
+            typedResponse._to = (String) eventValues.getIndexedValues().get(1).getValue();
+            typedResponse._value = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+            responses.add(typedResponse);
+        }
+        return responses;
+    }
+
+    public static TransferEventResponse getTransferEventFromLog(Log log) {
+        Contract.EventValuesWithLog eventValues = staticExtractEventParametersWithLog(TRANSFER_EVENT, log);
+        TransferEventResponse typedResponse = new TransferEventResponse();
+        typedResponse.log = log;
+        typedResponse._from = (String) eventValues.getIndexedValues().get(0).getValue();
+        typedResponse._to = (String) eventValues.getIndexedValues().get(1).getValue();
+        typedResponse._value = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+        return typedResponse;
+    }
+
+    public Flowable<TransferEventResponse> transferEventFlowable(EthFilter filter) {
+        return web3j.ethLogFlowable(filter).map(log -> getTransferEventFromLog(log));
+    }
+
+    public Flowable<TransferEventResponse> transferEventFlowable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
+        EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
+        filter.addSingleTopic(EventEncoder.encode(TRANSFER_EVENT));
+        return transferEventFlowable(filter);
     }
 
     public RemoteFunctionCall<TransactionReceipt> activar() {
@@ -539,6 +615,14 @@ public class I_erc20s_kopias extends Contract {
         public String mensaje;
     }
 
+    public static class ApprovalEventResponse extends BaseEventResponse {
+        public String _owner;
+
+        public String _spender;
+
+        public BigInteger _value;
+    }
+
     public static class MensajeEventResponse extends BaseEventResponse {
         public String mensaje;
     }
@@ -553,5 +637,13 @@ public class I_erc20s_kopias extends Contract {
         public String texto;
 
         public BigInteger cantidad;
+    }
+
+    public static class TransferEventResponse extends BaseEventResponse {
+        public String _from;
+
+        public String _to;
+
+        public BigInteger _value;
     }
 }
