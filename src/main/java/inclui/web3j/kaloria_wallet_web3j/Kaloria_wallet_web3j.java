@@ -137,6 +137,7 @@ public class Kaloria_wallet_web3j extends iniciales {
             public String endpoint_https;
             public String simbolo;
             public Integer decimales;
+            public String gas_limite;
             public String explorador_bloques_https;
         }
         public LinkedList<filas> o = new LinkedList<>();
@@ -481,16 +482,6 @@ public class Kaloria_wallet_web3j extends iniciales {
             texto = properties.getProperty(kaloria_wallet_letras_por_linea);
             letras_por_linea = Integer.valueOf(texto);
             web3j.web3_archivo_EAO = properties.getProperty(k_web3_archivo_EAO);
-            if (web3j.web3_clave_EAO == null
-             || web3j.web3_clave_EAO.isBlank()
-             || web3j.web3_archivo_EAO == null
-             || web3j.web3_archivo_EAO.isBlank()) {
-                procesar_formulario_para_crear_wallet(ok);
-                if (ok.es == false) { return false; }
-            } else {
-                web3j.iniciar(ok, extras_array);
-                if (ok.es == false) { return false; }
-            }
             texto = properties.getProperty(k_web3_endpoint_https_pos);
             blockchain_pos = Integer.valueOf(texto);
             texto = properties.getProperty(k_web3_endpoint_https_datos_lista);
@@ -506,10 +497,16 @@ public class Kaloria_wallet_web3j extends iniciales {
                 terminar(ok);
                 if (ok.es == false) { return false; }
             }
+            int pos = Integer.parseInt(web3_endpoint_https_datos_lista.o.get(blockchain_pos).pos);
+            if (pos != blockchain_pos) {
+                ok.setTxt(tr.in(in, "No se encuentran los datos para la blockchain: ") + blockchain_pos);
+                return false;
+            }
             web3j.web3_endpoint_https = web3_endpoint_https_datos_lista.o.get(blockchain_pos).endpoint_https;
             web3j.web3_endpoint_https_nombre  = web3_endpoint_https_datos_lista.o.get(blockchain_pos).nombre;
             web3j.web3_endpoint_https_simbolo  = web3_endpoint_https_datos_lista.o.get(blockchain_pos).simbolo;
             web3j.web3_endpoint_https_decimales =  web3_endpoint_https_datos_lista.o.get(blockchain_pos).decimales;
+            web3j.web3_endpoint_https_gas_limite = web3_endpoint_https_datos_lista.o.get(blockchain_pos).gas_limite;
             texto = properties.getProperty(k_web3_direcciones_criptos_lista);
             if (texto.isBlank() == false) {
                 web3_direcciones_criptos_lista = objectMapper.readValue(texto
@@ -532,7 +529,7 @@ public class Kaloria_wallet_web3j extends iniciales {
             texto = properties.getProperty(k_web3_direcciones_kaloria_lista);
             if (texto.isBlank() == false) {
                 web3_direcciones_kalorias_lista = objectMapper.readValue(texto
-                  , web3_direcciones_kalorias_listas.class);
+                        , web3_direcciones_kalorias_listas.class);
             } else {
                 web3_direcciones_kalorias_lista = new web3_direcciones_kalorias_listas();
                 web3_direcciones_kalorias_lista.iniciar(ok, extras_array);
@@ -543,8 +540,16 @@ public class Kaloria_wallet_web3j extends iniciales {
                 if (ok.es == false) { return false; }
             }
             if (web3_direcciones_kalorias_lista != null
-              && blockchain_pos < web3_direcciones_kalorias_lista.o.size()) {
+              /* && blockchain_pos < web3_direcciones_kalorias_lista.o.size() */) {
+                if (blockchain_pos < web3_direcciones_kalorias_lista.o.size()) {
                 web3_direccion_contrato_kaloria = web3_direcciones_kalorias_lista.o.get(blockchain_pos).direccion_cripto;
+                    pos = Integer.parseInt(web3_direcciones_kalorias_lista.o.get(blockchain_pos).pos);
+                    if (pos != blockchain_pos) {
+                        web3_direccion_contrato_kaloria = null;
+                    }
+                } else {
+                   web3_direccion_contrato_kaloria = null;
+                }
             } else {
                 ok.setTxt(tr.in(in, "Faltan datos en las propiedades de configuración. "));
                 if (ok.es == false) { return false; }
@@ -552,11 +557,19 @@ public class Kaloria_wallet_web3j extends iniciales {
             texto = properties.getProperty(k_web3_direcciones_kopias_lista);
             if (texto.isBlank() == false) {
                 web3_direcciones_kopias_lista = objectMapper.readValue(texto
-                  , web3_direcciones_kalorias_listas.class);
+                        , web3_direcciones_kalorias_listas.class);
             }
             if (web3_direcciones_kopias_lista != null
-              && blockchain_pos < web3_direcciones_kopias_lista.o.size()) {
-                web3_direccion_contrato_blockchain_erc20s_kopia = web3_direcciones_kopias_lista.o.get(blockchain_pos).direccion_cripto;
+              /* && blockchain_pos < web3_direcciones_kopias_lista.o.size() */) {
+                if (blockchain_pos < web3_direcciones_kopias_lista.o.size()) {
+                    web3_direccion_contrato_blockchain_erc20s_kopia = web3_direcciones_kopias_lista.o.get(blockchain_pos).direccion_cripto;
+                    pos = Integer.parseInt(web3_direcciones_kopias_lista.o.get(blockchain_pos).pos);
+                    if (pos != blockchain_pos) {
+                        web3_direccion_contrato_blockchain_erc20s_kopia = null;
+                    }
+                } else {
+                    web3_direccion_contrato_blockchain_erc20s_kopia = null;
+                }
             } else {
                 ok.setTxt(tr.in(in, "Faltan datos en las propiedades de configuración. "));
                 if (ok.es == false) { return false; }
@@ -564,18 +577,22 @@ public class Kaloria_wallet_web3j extends iniciales {
             texto = properties.getProperty(k_web3_direcciones_kalorias_faucets_lista);
             if (texto.isBlank() == false) {
                 kaloria_operacion.web3_direcciones_kalorias_faucets_lista = objectMapper.readValue(texto
-                  , kalorias_operaciones.web3_direcciones_kalorias_listas.class);
+                        , web3_direcciones_kalorias_listas.class);
             }
             if (kaloria_operacion.web3_direcciones_kalorias_faucets_lista != null
-              && blockchain_pos < kaloria_operacion.web3_direcciones_kalorias_faucets_lista.o.size()) {
+             && blockchain_pos < kaloria_operacion.web3_direcciones_kalorias_faucets_lista.o.size()) {
                 kaloria_operacion.web3_direccion_contrato_kaloria_faucet = kaloria_operacion.web3_direcciones_kalorias_faucets_lista.o.get(blockchain_pos).direccion_cripto;
+                pos = Integer.parseInt(kaloria_operacion.web3_direcciones_kalorias_faucets_lista.o.get(blockchain_pos).pos);
+                if (pos != blockchain_pos) {
+                    kaloria_operacion.web3_direccion_contrato_kaloria_faucet = null;
+                }
             } else {
                 kaloria_operacion.web3_direccion_contrato_kaloria_faucet = null;
             }
             texto = properties.getProperty(k_web3_direcciones_emails_mapas_lista);
             if (texto.isBlank() == false) {
                 direcciones_emails_operacion.web3_direcciones_emails_mapas_lista = objectMapper.readValue(texto
-                  , web3_direcciones_emails_mapas_listas.class);
+                        , web3_direcciones_emails_mapas_listas.class);
             } else {
                 direcciones_emails_operacion.web3_direcciones_emails_mapas_lista = new web3_direcciones_emails_mapas_listas();
                 direcciones_emails_operacion.web3_direcciones_emails_mapas_lista.iniciar(ok, extras_array);
@@ -586,11 +603,29 @@ public class Kaloria_wallet_web3j extends iniciales {
                 if (ok.es == false) { return false; }
             }
             if (direcciones_emails_operacion.web3_direcciones_emails_mapas_lista != null
-              && blockchain_pos < direcciones_emails_operacion.web3_direcciones_emails_mapas_lista.o.size()) {
-                direcciones_emails_operacion.web3_direccion_contrato_direcciones_emails_mapa 
-                  = direcciones_emails_operacion.web3_direcciones_emails_mapas_lista.o.get(blockchain_pos).direccion_cripto;
+              /* && blockchain_pos < web3_direcciones_emails_mapas_lista.o.size() */) {
+                if (blockchain_pos < direcciones_emails_operacion.web3_direcciones_emails_mapas_lista.o.size()) {
+                    direcciones_emails_operacion.web3_direccion_contrato_direcciones_emails_mapa
+                        = direcciones_emails_operacion.web3_direcciones_emails_mapas_lista.o.get(blockchain_pos).direccion_cripto;
+                    pos = Integer.parseInt(direcciones_emails_operacion.web3_direcciones_emails_mapas_lista.o.get(blockchain_pos).pos);
+                    if (pos != blockchain_pos) {
+                        direcciones_emails_operacion.web3_direccion_contrato_direcciones_emails_mapa = null;
+                    }
+                } else {
+                    direcciones_emails_operacion.web3_direccion_contrato_direcciones_emails_mapa = null;
+                }
             } else {
                 ok.setTxt(tr.in(in, "Faltan datos en las propiedades de configuración. "));
+                if (ok.es == false) { return false; }
+            }
+            if (web3j.web3_clave_EAO == null
+             || web3j.web3_clave_EAO.isBlank()
+             || web3j.web3_archivo_EAO == null
+             || web3j.web3_archivo_EAO.isBlank()) {
+                procesar_formulario_para_crear_wallet(ok);
+                if (ok.es == false) { return false; }
+            } else {
+                web3j.iniciar(ok, extras_array);
                 if (ok.es == false) { return false; }
             }
         } catch (Exception e) {

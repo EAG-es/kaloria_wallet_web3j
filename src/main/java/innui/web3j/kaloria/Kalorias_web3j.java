@@ -1,7 +1,6 @@
 package innui.web3j.kaloria;
 
 import innui.web3j.web3js;
-import static innui.web3j.web3js.k_tiempo_maximo_esperando_milisegundos;
 import innui.bases;
 import innui.modelos.errores.oks;
 import innui.web3j.generated.contracts.Kalorias;
@@ -50,6 +49,7 @@ public class Kalorias_web3j extends bases {
     public TransactionReceipt regalar(BigInteger gas_aceptable, String direccion
         , BigInteger cantidad, BigInteger id
         , oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return null; }
         TransactionReceipt retorno = null;
         try {
             TransactionReceipt transactionReceipt 
@@ -60,6 +60,30 @@ public class Kalorias_web3j extends bases {
             ok.setTxt(e); 
         }
         return retorno;
+    }
+    /**
+     * Regala una cantidad (sin decimales) a una dirección, aceptando un gasto de gas
+     * @param gas_aceptable
+     * @param direccion
+     * @param cantidad
+     * @param id
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public boolean regalar_asincrono(BigInteger gas_aceptable, String direccion
+        , BigInteger cantidad, BigInteger id
+        , oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return false; }
+        try {
+            web3j.firmar_y_llamar_asincrono_funcion_con_gas(kaloria.regalar(direccion, cantidad, id)
+              , gas_aceptable, null, null, ok, extras_array);
+            if (ok.es == false) { return false; }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return ok.es;
     }
     /**
      * Estima el gas necesario para regalar una cantidad a una dirección

@@ -70,6 +70,27 @@ public class I_erc20_web3j extends I_erc20_bases_web3j {
         return retorno;
     }
     /**
+     * Aprobar una transferencia de gasto, el envío de una cantidad de una dirección a otra
+     * @param gas_aceptable
+     * @param direccion
+     * @param cantidad
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public boolean aprobar_asincrono(BigInteger gas_aceptable, String direccion, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        try {
+            if (ok.es == false) { return false; }
+            web3j.firmar_y_llamar_asincrono_funcion_con_gas(i_erc20.approve(direccion, cantidad)
+              , gas_aceptable, null, null, ok, extras_array);
+            if (ok.es == false) { return false; }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return ok.es;
+    }
+    /**
      * Estima el gas necesario para aprovar una transferencia de gasto, el envío de una cantidad de una dirección a otra
      * @param direccion
      * @param cantidad
@@ -96,6 +117,7 @@ public class I_erc20_web3j extends I_erc20_bases_web3j {
      */
     public TransactionReceipt transferir(BigInteger gas_aceptable, String direccion_origen, String direccion_destino
             , BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return null; }
         TransactionReceipt retorno = null;
         try {
             TransactionReceipt transactionReceipt 
@@ -116,7 +138,31 @@ public class I_erc20_web3j extends I_erc20_bases_web3j {
         return retorno;
     }
     /**
-     * Estima el gas necesario para aprovar el gasto, el envío de una cantidad de una dirección a otra
+     * Transferir de una cantidad de una dirección a otra
+     * @param gas_aceptable
+     * @param direccion_origen
+     * @param direccion_destino
+     * @param cantidad
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public boolean transferir_asincrono(BigInteger gas_aceptable
+      , String direccion_origen, String direccion_destino, BigInteger cantidad
+      , oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return false; }
+        try {
+            web3j.firmar_y_llamar_asincrono_funcion_con_gas(i_erc20.transferFrom(direccion_origen, direccion_destino, cantidad)
+              , gas_aceptable, null, null, ok, extras_array);
+            if (ok.es == false) { return false; }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return ok.es;
+    }
+    /**
+     * Estima el gas necesario para aprobar el gasto, el envío de una cantidad de una dirección a otra
      * @param direccion_origen
      * @param direccion_destino
      * @param cantidad

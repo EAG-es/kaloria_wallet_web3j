@@ -4,6 +4,7 @@ import innui.bases;
 import innui.modelos.errores.oks;
 import innui.web3j.generated.contracts.I_erc20_bases;
 import java.math.BigInteger;
+import java.util.Map;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 /**
@@ -71,6 +72,20 @@ public abstract class Erc20_bases_web3j extends bases {
      * @throws Exception 
      */
     abstract public TransactionReceipt enviar(BigInteger gas_aceptable, String direccion, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception;
+    /**
+     * Envía una cantidad (sin decimales) a una dirección, aceptando un gasto de gas
+     * @param gas_aceptable
+     * @param direccion
+     * @param cantidad
+     * @param datos_mapa
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    abstract public boolean enviar_asincrono(BigInteger gas_aceptable
+      , String direccion, BigInteger cantidad
+      , Map<String, Object> datos_mapa, oks ok, Object ... extras_array) throws Exception;
     /**
      * Estima el gas necesario para enviar una cantidad a una dirección
      * @param direccion

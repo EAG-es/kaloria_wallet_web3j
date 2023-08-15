@@ -3,11 +3,12 @@ package innui.web3j.kaloria;
 import innui.web3j.Erc20_bases_web3j;
 import innui.web3j.web3js;
 import static innui.web3j.web3js.k_tiempo_maximo_esperando_milisegundos;
-import innui.modelos.configuraciones.ResourceBundles;
 import innui.modelos.errores.oks;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ResourceBundle;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.RemoteCall;
 import org.web3j.protocol.core.methods.request.Transaction;
@@ -130,8 +131,8 @@ public class Blockchain_coin_web3j extends Erc20_bases_web3j {
               , web3j.credentials, direccion
               , bigDecimal, Convert.Unit.WEI //unit
               , gas_aceptable
-              , web3j.defaultGasProvider.getGasLimit() //maxPriorityFeePerGas (max fee per gas transaction willing to give to miners)
-              , web3j.defaultGasProvider.getGasLimit());
+              , web3j.gas.gasLimitEIP1559 //maxPriorityFeePerGas (max fee per gas transaction willing to give to miners)
+              , web3j.gas.gasLimitEIP1559);
             TransactionReceipt transactionReceipt = remoteCall.send();
             transactionReceipt = web3j.comprobar_y_esperar_recibo(transactionReceipt
                   , k_tiempo_maximo_esperando_milisegundos, ok, extras_array);
@@ -145,6 +146,37 @@ public class Blockchain_coin_web3j extends Erc20_bases_web3j {
             ok.setTxt(e); 
         }
         return retorno;
+    }
+    /**
+     * Envía una cantidad (sin decimales) a una dirección, aceptando un gasto de gas
+     * @param gas_aceptable
+     * @param direccion
+     * @param cantidad
+     * @param datos_mapa
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    @Override
+    public boolean enviar_asincrono(BigInteger gas_aceptable
+      , String direccion, BigInteger cantidad
+      , Map<String, Object> datos_mapa, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return false; }
+        try {
+            BigDecimal bigDecimal = new BigDecimal(cantidad);
+            RemoteCall<TransactionReceipt> remoteCall = Transfer.sendFundsEIP1559(web3j.web3j
+              , web3j.credentials, direccion
+              , bigDecimal, Convert.Unit.WEI //unit
+              , gas_aceptable
+              , web3j.gas.gasLimitEIP1559 // maxPriorityFeePerGas (max fee per gas transaction willing to give to miners)
+              , web3j.gas.gasLimitEIP1559);
+            CompletableFuture<TransactionReceipt> completable = remoteCall.sendAsync();
+            poner_escuchador_por_defecto_con_gas(completable, datos_mapa, ok, extras_array);
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return ok.es;
     }
     /**
      * Estima el gas necesario para enviar una cantidad a una dirección
@@ -168,6 +200,59 @@ public class Blockchain_coin_web3j extends Erc20_bases_web3j {
             ok.setTxt(e); 
         }
         return retorno;
+    }
+    /**
+     * Establece un comportamiento por defecto para las transacciones
+     * @param completable
+     * @param datos_mapa
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public CompletableFuture<TransactionReceipt> poner_escuchador_por_defecto_con_gas(CompletableFuture<TransactionReceipt> completable
+      , Map<String, Object> datos_mapa, oks ok, Object ... extras_array) throws Exception {
+        CompletableFuture<TransactionReceipt> completableFuture = null;
+        try {
+            if (ok.es == false) { return null; }
+            completableFuture = completable.handleAsync(new BiFunction<TransactionReceipt, Throwable, TransactionReceipt>() {
+                @Override
+                public TransactionReceipt apply(TransactionReceipt transactionReceipt, Throwable throwable) {
+                    oks ok = new oks();
+                    try {
+                        if (transactionReceipt != null) {
+                            web3j.i_notificacion_asincrona.procesar_transaccion_asincrona(transactionReceipt
+                              , datos_mapa, ok);
+                            if (ok.es == false) {
+                                web3j.i_notificacion_asincrona.poner_error_asincrono(false, ok.getTxt()
+                                  ,datos_mapa, ok.iniciar());
+                            }
+                        } else if (throwable != null) {
+                            Exception exception = new Exception(throwable);
+                            ok.setTxt(exception);
+                            try {
+                                web3j.i_notificacion_asincrona.poner_error_asincrono(true, ok.getTxt()
+                                  , datos_mapa, ok.iniciar());
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    } catch (Exception e) {
+                        ok.setTxt(e);
+                        try {
+                            web3j.i_notificacion_asincrona.poner_error_asincrono(throwable != null, ok.getTxt()
+                              , datos_mapa, ok.iniciar());
+                        } catch (Exception es) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    return transactionReceipt;
+                }
+            });
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return completableFuture;
     }
     
 }

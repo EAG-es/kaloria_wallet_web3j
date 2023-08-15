@@ -120,6 +120,7 @@ public class web3js extends bases {
     public String web3_endpoint_https_nombre;
     public String web3_endpoint_https_simbolo;
     public Integer web3_endpoint_https_decimales;
+    public String web3_endpoint_https_gas_limite;
     public String web3_archivo_EAO;
     public String web3_clave_EAO;
     public String web3_direccion_contrato;
@@ -128,12 +129,14 @@ public class web3js extends bases {
     public Web3j web3j;
     public Credentials credentials;
     public TransactionManager transactionManager;
-    public DefaultGasProvider defaultGasProvider = new DefaultGasProvider();
-    public BigInteger gasPrice = defaultGasProvider.getGasPrice();
-    public BigInteger gasLimit = defaultGasProvider.getGasLimit();
+    public DefaultGasProvider defaultGasProvider;
     public gas_precios gas = new gas_precios();
 
     public web3js() {
+        defaultGasProvider = new DefaultGasProvider();
+        gas.gasPrice = defaultGasProvider.getGasPrice();
+        gas.gasLimit = defaultGasProvider.getGasLimit();
+        gas.gasLimitEIP1559 = defaultGasProvider.getGasLimit();
     }
     
     public web3js(web3js origen) {
@@ -150,8 +153,8 @@ public class web3js extends bases {
         credentials = origen.credentials;
         transactionManager = origen.transactionManager;
         defaultGasProvider = origen.defaultGasProvider;
-        gasPrice = origen.gasPrice;
-        gasLimit = origen.gasLimit;
+        gas.gasPrice = origen.gas.gasPrice;
+        gas.gasLimit = origen.gas.gasLimit;
         gas = origen.gas;
         i_notificacion_asincrona = origen.i_notificacion_asincrona;
     }
@@ -206,8 +209,26 @@ public class web3js extends bases {
             if (ok.es == false) { return false; }
             String blockchain_id = web3j.netVersion().send().getNetVersion();
             Long blockchain_id_long = Long.valueOf(blockchain_id);
-            transactionManager = new RawTransactionManager(web3j, credentials, blockchain_id_long);
+//            transactionManager = new RawTransactionManager(web3j, credentials, blockchain_id_long);
+            int tiempo_de_espera = 15 * 1000;
+            int intentos = 8; // DEFAULT_POLLING_ATTEMPTS_PER_TX_HASH;
+            transactionManager = new RawTransactionManager(web3j, credentials, blockchain_id_long
+              , intentos, tiempo_de_espera);
+            gas.gasPrice = estimar_coste_gas(BigInteger.ONE, ok);
+            if (ok.es == false) { return false; }
+            if (web3_endpoint_https_gas_limite != null
+             && web3_endpoint_https_gas_limite.trim().isEmpty() == false
+             && web3_endpoint_https_gas_limite.trim().equals("0") == false) {
+                gas.gasLimitEIP1559 = gas.gasPrice.multiply(BigInteger.TWO);
+                BigInteger bigInteger = new BigInteger(web3_endpoint_https_gas_limite);
+                if (bigInteger.compareTo(gas.gasLimitEIP1559) > 0) {
+                    gas.gasLimitEIP1559 = bigInteger;
+                }
+            }
         } catch (Exception e) {
+            web3j = null;
+            credentials = null;
+            transactionManager = null;
             ok.setTxt(e);            
         }
         return ok.es;
@@ -306,7 +327,7 @@ public class web3js extends bases {
             nonce = obtener_nonce(credentials.getAddress(), ok);
             if (ok.es == false) { return null; }
             rawTransaction = RawTransaction.createTransaction(nonce
-            , gasPrice, gasLimit, web3_direccion_contrato, encodedFunction_tex);
+            , gas.gasPrice, gas.gasLimit, web3_direccion_contrato, encodedFunction_tex);
             transaccion_firmada = firmar(rawTransaction, ok);
             if (ok.es == false) { return null; }
             completableFuture = web3j.ethSendRawTransaction(transaccion_firmada).sendAsync();
@@ -341,7 +362,7 @@ public class web3js extends bases {
             nonce = obtener_nonce(credentials.getAddress(), ok);
             if (ok.es == false) { return null; }
             rawTransaction = RawTransaction.createTransaction(nonce
-            , gasPrice, gasLimit, web3_direccion_contrato, encodedFunction_tex);
+            , gas.gasPrice, gas.gasLimit, web3_direccion_contrato, encodedFunction_tex);
             transaccion_firmada = firmar(rawTransaction, ok);
             if (ok.es == false) { return null; }
             ethSendTransaction = web3j.ethSendRawTransaction(transaccion_firmada).send();
@@ -391,7 +412,7 @@ public class web3js extends bases {
             nonce = obtener_nonce(credentials.getAddress(), ok);
             if (ok.es == false) { return null; }
             rawTransaction = RawTransaction.createTransaction(nonce
-            , gasPrice, gasLimit, web3_direccion_contrato, valor, encodedFunction_tex);
+            , gas.gasPrice, gas.gasLimit, web3_direccion_contrato, valor, encodedFunction_tex);
             transaccion_firmada = firmar(rawTransaction, ok);
             if (ok.es == false) { return null; }
             completableFuture = web3j.ethSendRawTransaction(transaccion_firmada).sendAsync();
@@ -428,7 +449,7 @@ public class web3js extends bases {
             nonce = obtener_nonce(credentials.getAddress(), ok);
             if (ok.es == false) { return null; }
             rawTransaction = RawTransaction.createTransaction(nonce
-            , gasPrice, gasLimit, web3_direccion_contrato, valor, encodedFunction_tex);
+            , gas.gasPrice, gas.gasLimit, web3_direccion_contrato, valor, encodedFunction_tex);
             transaccion_firmada = firmar(rawTransaction, ok);
             if (ok.es == false) { return null; }
             ethSendTransaction = web3j.ethSendRawTransaction(transaccion_firmada).send();
@@ -1121,20 +1142,24 @@ public class web3js extends bases {
     /**
      * Extrae todos los logs de la última llamada de un contrato
      * @param contrato_direccion
+     * @param bloques_num
      * @param ok
      * @param extras_array
      * @return
      * @throws Exception 
      */
-    public List<Log> extraer_ultimos_logs(String contrato_direccion
+    public List<Log> extraer_ultimos_logs(String contrato_direccion, BigInteger bloques_num
       , oks ok, Object ... extras_array) throws Exception {
         if (ok.es == false) { return null; }
         List<Log> logs_lista =  null;
         try {
             final List<Log> final_logs_lista = new LinkedList<>();
+            EthBlockNumber ethBlockNumber = web3j.ethBlockNumber().send();
+            BigInteger inicio_busqueda_bigInteger = ethBlockNumber.getBlockNumber();
             // Filter
             EthFilter filter = new EthFilter(DefaultBlockParameterName.EARLIEST
-              , DefaultBlockParameterName.LATEST, contrato_direccion);
+              , DefaultBlockParameter.valueOf(inicio_busqueda_bigInteger.subtract(bloques_num))
+              , contrato_direccion);
             Disposable disposable = web3j.ethLogFlowable(filter).subscribe(log -> {
                 try {
                     final_logs_lista.add(log);
@@ -1192,6 +1217,8 @@ public class web3js extends bases {
                 gas_tex = gas_tex.trim().substring(2); // Quitar 0x
                 Long gas_largo = Long.parseLong(gas_tex, 16);
                 BigInteger bigInteger = BigInteger.valueOf(gas_largo);
+//                EthGasPrice ethGasPrice = web3j.ethGasPrice().send();
+//                BigInteger actual_gasPrice = ethGasPrice.getGasPrice();
                 gas.ultimo_precio_gas_gwei = bigInteger;
             }
         } catch (Exception e) {
@@ -1254,7 +1281,7 @@ public class web3js extends bases {
             BigInteger resultado;
             EthLog ethLog;
             List<LogResult> logResult_list;
-            LinkedList<LogResult> logResult_linkedlist = new LinkedList<>();
+            LinkedList<LogResult> logResult_linkedlist;
             Iterator<LogResult> desdending_iterator;
             LogResult<?> logResult;
             Log log;
@@ -1273,6 +1300,7 @@ public class web3js extends bases {
                 ethFilter.addSingleTopic(evento_encoded);
                 ethLog = web3j.ethGetLogs(ethFilter).send();
                 logResult_list = ethLog.getLogs();
+                logResult_linkedlist = new LinkedList<>(); // Vacio la lista anterior
                 logResult_linkedlist.addAll(logResult_list);
                 desdending_iterator = logResult_linkedlist.descendingIterator();
                 while (true) {

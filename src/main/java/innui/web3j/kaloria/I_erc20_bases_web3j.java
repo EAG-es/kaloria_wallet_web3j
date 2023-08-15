@@ -7,6 +7,7 @@ import innui.web3j.generated.contracts.I_erc20_bases.OkEventResponse;
 import static innui.web3j.generated.contracts.I_erc20_bases.getOkEvents;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 import org.web3j.abi.datatypes.Type;
 import org.web3j.protocol.core.RemoteFunctionCall;
 import org.web3j.protocol.core.methods.response.EthCall;
@@ -186,6 +187,7 @@ public class I_erc20_bases_web3j extends Erc20_bases_web3j {
      */
     @Override
     public TransactionReceipt enviar(BigInteger gas_aceptable, String direccion, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return null; }
         TransactionReceipt retorno = null;
         try {
             TransactionReceipt transactionReceipt 
@@ -203,6 +205,30 @@ public class I_erc20_bases_web3j extends Erc20_bases_web3j {
             ok.setTxt(e); 
         }
         return retorno;
+    }
+    /**
+     * Envía una cantidad (sin decimales) a una dirección, aceptando un gasto de gas
+     * @param gas_aceptable
+     * @param direccion
+     * @param cantidad
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    @Override
+    public boolean enviar_asincrono(BigInteger gas_aceptable
+      , String direccion, BigInteger cantidad
+      , Map<String, Object> datos_mapa, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return false; }
+        try {
+            web3j.firmar_y_llamar_asincrono_funcion_con_gas(i_erc20_base.transfer(direccion, cantidad)
+              , gas_aceptable, null, datos_mapa, ok, extras_array);
+            if (ok.es == false) { return false; }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return ok.es;
     }
     /**
      * Estima el gas necesario para enviar una cantidad a una dirección

@@ -4,7 +4,9 @@ import innui.web3j.web3js;
 import innui.bases;
 import innui.modelos.configuraciones.ResourceBundles;
 import innui.modelos.errores.oks;
+import innui.modelos.internacionalizacion.tr;
 import innui.web3j.generated.contracts.Direcciones_emails_mapas;
+import java.io.File;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -18,7 +20,14 @@ import org.web3j.protocol.core.methods.response.TransactionReceipt;
  * @author emilio
  */
 public class Direcciones_emails_mapas_web3j extends bases {
-    public static String k_in_ruta = "in/innui/web3j/kaloria/in";  //NOI18N
+    public static String k_in_ruta;
+    static {
+        String paquete_tex = Direcciones_emails_mapas_web3j.class.getPackage().getName();
+        paquete_tex = paquete_tex.replace(".", File.separator);
+        k_in_ruta = "in/" + paquete_tex + "/in";
+    }
+    public static String k_email_no_encontrado = "Email no encontrado. ";
+    public static String k_direccion_no_encontrada = "Direccion no encontrada. ";
     public web3js web3j;
     public Direcciones_emails_mapas direcciones_emails_mapa;
     
@@ -105,13 +114,18 @@ public class Direcciones_emails_mapas_web3j extends bases {
             if (ok.es == false) { return null; }
             RemoteFunctionCall<String> remoteFunctionCall = direcciones_emails_mapa.leer_direccion(email);
             EthCall ethCall = web3j.llamar_funcion_sin_gas(remoteFunctionCall, ok, extras_array);
-            if (ok.es == false) { return null; }
+            if (ok.es == false) { 
+                ok.id = k_direccion_no_encontrada;
+                ok.setTxt(tr.in(in, k_direccion_no_encontrada), extras_array);
+                return null;
+            }
             List<Type> types_list = remoteFunctionCall.decodeFunctionResponse(ethCall.getValue());
             if (types_list != null) {
                 retorno = (String) types_list.get(0).getValue();
             }
             if (retorno.equals("0x0000000000000000000000000000000000000000")) {
-                ok.setTxt("Dirección no encontrada. ", extras_array);
+                ok.id = k_direccion_no_encontrada;
+                ok.setTxt(tr.in(in, k_direccion_no_encontrada), extras_array);
             }
         } catch (Exception e) {
             ok.setTxt(e); 
@@ -134,13 +148,18 @@ public class Direcciones_emails_mapas_web3j extends bases {
             if (ok.es == false) { return null; }
             RemoteFunctionCall<String> remoteFunctionCall = direcciones_emails_mapa.leer_email(direccion);
             EthCall ethCall = web3j.llamar_funcion_sin_gas(remoteFunctionCall, ok, extras_array);
-            if (ok.es == false) { return null; }
+            if (ok.es == false) { 
+                ok.id = k_email_no_encontrado;
+                ok.setTxt(tr.in(in, k_email_no_encontrado), extras_array);
+                return null;
+            }
             List<Type> types_list = remoteFunctionCall.decodeFunctionResponse(ethCall.getValue());
             if (types_list != null) {
                 retorno = (String) types_list.get(0).getValue();
             }
             if (retorno.equals("0x0000000000000000000000000000000000000000")) {
-                ok.setTxt("Email no encontrado. ", extras_array);
+                ok.id = k_email_no_encontrado;
+                ok.setTxt(tr.in(in, k_email_no_encontrado), extras_array);
             }
         } catch (Exception e) {
             ok.setTxt(e); 

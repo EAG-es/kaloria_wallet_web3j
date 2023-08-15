@@ -1,7 +1,6 @@
 package innui.web3j.kaloria;
 
 import innui.web3j.web3js;
-import static innui.web3j.web3js.k_tiempo_maximo_esperando_milisegundos;
 import innui.bases;
 import innui.modelos.errores.oks;
 import innui.web3j.generated.contracts.Kalorias_faucets;
@@ -51,6 +50,7 @@ public class Kalorias_faucets_web3j extends bases {
      * @throws Exception 
      */
     public TransactionReceipt pedir_regalo(BigInteger gas_aceptable, String direccion, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return null; }
         TransactionReceipt retorno = null;
         try {
             TransactionReceipt transactionReceipt 
@@ -61,6 +61,27 @@ public class Kalorias_faucets_web3j extends bases {
             ok.setTxt(e); 
         }
         return retorno;
+    }
+    /**
+     * Regala una cantidad (sin decimales) a una dirección, aceptando un gasto de gas
+     * @param gas_aceptable
+     * @param direccion
+     * @param cantidad
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public boolean pedir_asincrono_regalo(BigInteger gas_aceptable, String direccion, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return false; }
+        try {
+            web3j.firmar_y_llamar_asincrono_funcion_con_gas(kaloria_faucet.pedir_regalo(direccion, cantidad)
+              , gas_aceptable, null, null, ok, extras_array);
+            if (ok.es == false) { return false; }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return ok.es;
     }
     /**
      * Estima el gas necesario para pedir_regalo una cantidad a una dirección
@@ -93,6 +114,7 @@ public class Kalorias_faucets_web3j extends bases {
      * @throws Exception 
      */
     public TransactionReceipt pedir_prestamo(BigInteger gas_aceptable, String direccion, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return null; }
         TransactionReceipt retorno = null;
         try {
             TransactionReceipt transactionReceipt 
@@ -103,6 +125,27 @@ public class Kalorias_faucets_web3j extends bases {
             ok.setTxt(e); 
         }
         return retorno;
+    }
+    /**
+     * Pedir prestada una cantidad (sin decimales) a una dirección, aceptando un gasto de gas
+     * @param gas_aceptable
+     * @param direccion
+     * @param cantidad
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public boolean pedir_asincrono_prestamo(BigInteger gas_aceptable, String direccion, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return false; }
+        try {
+            web3j.firmar_y_llamar_asincrono_funcion_con_gas(kaloria_faucet.pedir_prestamo(direccion, cantidad)
+              , gas_aceptable, null, null, ok, extras_array);
+            if (ok.es == false) { return false; }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return ok.es;
     }
     /**
      * Estima el gas necesario para pedir_regalo una cantidad a una dirección
@@ -134,6 +177,7 @@ public class Kalorias_faucets_web3j extends bases {
      * @throws Exception 
      */
     public TransactionReceipt pedir_regalo(BigInteger gas_aceptable, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return null; }
         TransactionReceipt retorno = null;
         try {
             TransactionReceipt transactionReceipt 
@@ -144,6 +188,26 @@ public class Kalorias_faucets_web3j extends bases {
             ok.setTxt(e); 
         }
         return retorno;
+    }
+    /**
+     * Regala una cantidad (sin decimales) a una dirección, aceptando un gasto de gas
+     * @param gas_aceptable
+     * @param cantidad
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public boolean pedir_asincrono_regalo(BigInteger gas_aceptable, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return false; }
+        try {
+            web3j.firmar_y_llamar_asincrono_funcion_con_gas(kaloria_faucet.pedir_regalo(cantidad)
+               , gas_aceptable, null, null, ok, extras_array);
+            if (ok.es == false) { return false; }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return ok.es;
     }
     /**
      * Estima el gas necesario para pedir_regalo una cantidad a una dirección
@@ -174,6 +238,7 @@ public class Kalorias_faucets_web3j extends bases {
      * @throws Exception 
      */
     public TransactionReceipt pedir_prestamo(BigInteger gas_aceptable, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return null; }
         TransactionReceipt retorno = null;
         try {
             TransactionReceipt transactionReceipt 
@@ -184,6 +249,26 @@ public class Kalorias_faucets_web3j extends bases {
             ok.setTxt(e); 
         }
         return retorno;
+    }
+    /**
+     * Pedir prestada una cantidad (sin decimales) a una dirección, aceptando un gasto de gas
+     * @param gas_aceptable
+     * @param cantidad
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public boolean pedir_asincrono_prestamo(BigInteger gas_aceptable, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return false; }
+        try {
+            web3j.firmar_y_llamar_asincrono_funcion_con_gas(kaloria_faucet.pedir_prestamo(cantidad)
+              , gas_aceptable, null, null, ok, extras_array);
+            if (ok.es == false) { return false; }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return ok.es;
     }
     /**
      * Estima el gas necesario para pedir_regalo una cantidad a una dirección
@@ -215,6 +300,7 @@ public class Kalorias_faucets_web3j extends bases {
      * @throws Exception 
      */
     public TransactionReceipt devolver_prestamo(BigInteger gas_aceptable, String direccion, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return null; }
         TransactionReceipt retorno = null;
         try {
             TransactionReceipt transactionReceipt 
@@ -225,6 +311,27 @@ public class Kalorias_faucets_web3j extends bases {
             ok.setTxt(e); 
         }
         return retorno;
+    }
+    /**
+     * Devolver una cantidad prestada (sin decimales) a una dirección, aceptando un gasto de gas
+     * @param gas_aceptable
+     * @param direccion
+     * @param cantidad
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public boolean devolver_asincrono_prestamo(BigInteger gas_aceptable, String direccion, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return false; }
+        try {
+            web3j.firmar_y_llamar_asincrono_funcion_con_gas(kaloria_faucet.devolver_prestamo(direccion, cantidad)
+              , gas_aceptable, null, null, ok, extras_array);
+            if (ok.es == false) { return false; }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return ok.es;
     }
     /**
      * Estima el gas necesario para devolver_regalo una cantidad a una dirección
@@ -256,6 +363,7 @@ public class Kalorias_faucets_web3j extends bases {
      * @throws Exception 
      */
     public TransactionReceipt devolver_prestamo(BigInteger gas_aceptable, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return null; }
         TransactionReceipt retorno = null;
         try {
             TransactionReceipt transactionReceipt 
@@ -266,6 +374,26 @@ public class Kalorias_faucets_web3j extends bases {
             ok.setTxt(e); 
         }
         return retorno;
+    }
+    /**
+     * Devolver una cantidad prestada (sin decimales) a una dirección, aceptando un gasto de gas
+     * @param gas_aceptable
+     * @param cantidad
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public boolean devolver_asincrono_prestamo(BigInteger gas_aceptable, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return false; }
+        try {
+            web3j.firmar_y_llamar_asincrono_funcion_con_gas(kaloria_faucet.devolver_prestamo(cantidad)
+              , gas_aceptable, null, null, ok, extras_array);
+            if (ok.es == false) { return false; }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return ok.es;
     }
     /**
      * Estima el gas necesario para devolver_regalo una cantidad a una dirección
@@ -413,6 +541,7 @@ public class Kalorias_faucets_web3j extends bases {
      * @throws Exception 
      */
     public TransactionReceipt poner_para_regalo(BigInteger gas_aceptable, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return null; }
         TransactionReceipt retorno = null;
         try {
             TransactionReceipt transactionReceipt 
@@ -423,6 +552,26 @@ public class Kalorias_faucets_web3j extends bases {
             ok.setTxt(e); 
         }
         return retorno;
+    }
+    /**
+     * Devolver una cantidad prestada (sin decimales) a una dirección, aceptando un gasto de gas
+     * @param gas_aceptable
+     * @param cantidad
+     * @param ok
+     * @param extras_array
+     * @return
+     * @throws Exception 
+     */
+    public boolean poner_asincrono_para_regalo(BigInteger gas_aceptable, BigInteger cantidad, oks ok, Object ... extras_array) throws Exception {
+        if (ok.es == false) { return false; }
+        try {
+            web3j.firmar_y_llamar_asincrono_funcion_con_gas(kaloria_faucet.poner_para_regalo(cantidad)
+              , gas_aceptable, null, null, ok, extras_array);
+            if (ok.es == false) { return false; }
+        } catch (Exception e) {
+            ok.setTxt(e); 
+        }
+        return ok.es;
     }
     /**
      * Estima el gas necesario para devolver_regalo una cantidad a una dirección
