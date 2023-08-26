@@ -181,6 +181,9 @@ public class web3js extends bases {
                 } else {
                     file = new File(url.toURI());
                 }
+            } else if (file.canRead() == false) {
+                ok.setTxt(tr.in(in, "No se puede leer el archivo. La app no ha creado el archivo, por lo que no tiene permiso de lectura. "));
+                return false;
             }
             return iniciar(file, ok, extras_array);
         } catch (Exception e) {
